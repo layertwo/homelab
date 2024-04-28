@@ -146,7 +146,7 @@ spec:
           value: "1"
         - name: JELLYFIN_PublishedServerUrl
           value: http://127.0.0.1:8096
-        image: docker.io/jellyfin/jellyfin:10.8.13@sha256:05a9734d7e83086b957c5b7a16cbb5a60b5bb8d113ffb953e57547359dd05140
+        image: docker.io/jellyfin/jellyfin:latest@sha256:41fc4f9a51f638930bf16eace81acacbafaf26436d0efc0b0edd9447cb134a2c
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
