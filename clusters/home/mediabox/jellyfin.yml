@@ -40,30 +40,6 @@ spec:
     app.kubernetes.io/name: jellyfin
     app.kubernetes.io/instance: jellyfin
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: jellyfin-autodiscovery
-  namespace: mediabox
-  labels:
-    app: "jellyfin"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-    service.name: "autodiscovery"
-spec:
-  type: ClusterIP
-  publishNotReadyAddresses: false
-  ports:
-    - name: autodiscovery
-      port: 7359
-      protocol: UDP
-      targetPort: 7359
-  selector:
-    pod.name: main
-    app.kubernetes.io/name: jellyfin
-    app.kubernetes.io/instance: jellyfin
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -136,9 +112,6 @@ spec:
           successThreshold: 1
           timeoutSeconds: 5
         ports:
-        - containerPort: 7359
-          name: autodiscovery
-          protocol: UDP
         - containerPort: 8096
           name: main
           protocol: TCP
