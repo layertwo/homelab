@@ -17,27 +17,6 @@ spec:
       storage: 64Gi
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-nfs-media
-  namespace: mediabox
-  labels:
-    app: "jellyfin"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-spec:
-  accessModes:
-    - ReadWriteMany
-  volumeMode: Filesystem
-  mountOptions:
-    - hard
-    - nfsvers=4.1
-  nfs:
-    path: /volume1/media
-    server: paramount
----
-apiVersion: v1
 kind: Service
 metadata:
   name: jellyfin
@@ -306,5 +285,6 @@ spec:
           medium: Memory
           sizeLimit: 8Gi
       - name: media
-        persistentVolumeClaim:
-          claimName: pvc-nfs-media
+        nfs:
+          path: /volume1/media
+          server: paramount
