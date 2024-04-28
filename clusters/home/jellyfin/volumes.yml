@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: mediabox
+  labels:
+    app: "jellyfin"
+    app.kubernetes.io/instance: "jellyfin"
+    app.kubernetes.io/name: "jellyfin"
+    release: "jellyfin"
+spec:
+  accessModes:
+    - ReadWriteOncePod
+  resources:
+    requests:
+      storage: 64Gi
