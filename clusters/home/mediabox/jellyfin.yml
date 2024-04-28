@@ -11,7 +11,7 @@ metadata:
     release: "jellyfin"
 spec:
   accessModes:
-    - ReadWriteOncePod
+    - ReadWriteOnce
   resources:
     requests:
       storage: 64Gi
