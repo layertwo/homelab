@@ -217,7 +217,7 @@ spec:
               cpu: 4000m
               memory: 8Gi
           securityContext:
-            runAsNonRoot: true
+            runAsNonRoot: false
             runAsUser: 568
             runAsGroup: 568
             readOnlyRootFilesystem: false
@@ -225,10 +225,6 @@ spec:
             privileged: true
             seccompProfile:
               type: RuntimeDefault
-            capabilities:
-              add: []
-              drop:
-                - ALL
           env:
             - name: "TZ"
               value: "UTC"
