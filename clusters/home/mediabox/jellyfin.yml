@@ -223,6 +223,8 @@ spec:
           name: varlogs
         - mountPath: /var/run
           name: varrun
+        - name: devdri
+          mountPath: /dev/dri
         - name: media
           mountPath: /mnt/movies
           subPath: movies
@@ -284,6 +286,10 @@ spec:
         emptyDir:
           medium: Memory
           sizeLimit: 8Gi
+      - name: devdri
+        hostPath:
+          type: Directory
+          path: /dev/dri
       - name: media
         nfs:
           path: /volume1/media
