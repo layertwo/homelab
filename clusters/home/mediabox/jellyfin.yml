@@ -190,7 +190,7 @@ spec:
           privileged: false
           readOnlyRootFilesystem: false
           runAsGroup: 568
-          runAsNonRoot: true
+          runAsNonRoot: false
           runAsUser: 568
           seccompProfile:
             type: RuntimeDefault
@@ -244,6 +244,7 @@ spec:
         fsGroupChangePolicy: OnRootMismatch
         supplementalGroups:
         - 568
+        - 109
       serviceAccount: default
       serviceAccountName: default
       shareProcessNamespace: false
