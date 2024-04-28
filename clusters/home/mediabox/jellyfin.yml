@@ -183,11 +183,11 @@ spec:
             cpu: 10m
             memory: 50Mi
         securityContext:
-          allowPrivilegeEscalation: false
+          allowPrivilegeEscalation: true
           capabilities:
             drop:
             - ALL
-          privileged: false
+          privileged: true
           readOnlyRootFilesystem: false
           runAsGroup: 568
           runAsNonRoot: false
