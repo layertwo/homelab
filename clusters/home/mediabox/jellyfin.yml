@@ -5,7 +5,7 @@ metadata:
   name: pvc-jellyfin-config
   namespace: mediabox
   labels:
-    app: "jellyfin"
+    app: "mediabox"
     app.kubernetes.io/instance: "jellyfin"
     app.kubernetes.io/name: "jellyfin"
     release: "jellyfin"
@@ -22,7 +22,7 @@ metadata:
   name: jellyfin
   namespace: mediabox
   labels:
-    app: "jellyfin"
+    app: "mediabox"
     app.kubernetes.io/instance: "jellyfin"
     app.kubernetes.io/name: "jellyfin"
     release: "jellyfin"
@@ -46,7 +46,7 @@ metadata:
   name: jellyfin-autodiscovery
   namespace: mediabox
   labels:
-    app: "jellyfin"
+    app: "mediabox"
     app.kubernetes.io/instance: "jellyfin"
     app.kubernetes.io/name: "jellyfin"
     release: "jellyfin"
@@ -64,35 +64,12 @@ spec:
     app.kubernetes.io/name: jellyfin
     app.kubernetes.io/instance: jellyfin
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: jellyfin-lb
-  namespace: mediabox
-  labels:
-    app: "jellyfin"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-    service.name: "main"
-spec:
-  type: LoadBalancer
-  ports:
-    - name: main
-      port: 80
-      protocol: TCP
-      targetPort: 8096
-  selector:
-    pod.name: main
-    app.kubernetes.io/name: jellyfin
-    app.kubernetes.io/instance: jellyfin
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations: null
   labels:
-    app: "jellyfin"
+    app: "mediabox"
     app.kubernetes.io/instance: jellyfin
     app.kubernetes.io/name: jellyfin
     release: jellyfin
@@ -122,7 +99,7 @@ spec:
         checksum/services: 8bc7cf1c7b30a068a71f13f174f3d9754e6232bfa6096a5a6be4003b7ab81423
         checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
       labels:
-        app: "jellyfin"
+        app: "mediabox"
         app.kubernetes.io/instance: jellyfin
         app.kubernetes.io/name: jellyfin
         pod.lifecycle: permanent

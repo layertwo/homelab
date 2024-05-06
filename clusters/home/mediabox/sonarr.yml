@@ -5,7 +5,7 @@ metadata:
   name: pvc-sonarr-config
   namespace: mediabox
   labels:
-    app: "sonarr"
+    app: "mediabox"
     app.kubernetes.io/instance: "sonarr"
     app.kubernetes.io/name: "sonarr"
     release: "sonarr"
@@ -22,7 +22,7 @@ metadata:
   name: sonarr
   namespace: mediabox
   labels:
-    app: "sonarr"
+    app: "mediabox"
     app.kubernetes.io/instance: "sonarr"
     app.kubernetes.io/name: "sonarr"
     release: "sonarr"
@@ -40,34 +40,11 @@ spec:
     app.kubernetes.io/name: sonarr
     app.kubernetes.io/instance: sonarr
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: sonarr-lb
-  namespace: mediabox
-  labels:
-    app: "sonarr"
-    app.kubernetes.io/instance: "sonarr"
-    app.kubernetes.io/name: "sonarr"
-    release: "sonarr"
-    service.name: "main"
-spec:
-  type: LoadBalancer
-  ports:
-    - name: main
-      port: 80
-      protocol: TCP
-      targetPort: 8989
-  selector:
-    pod.name: main
-    app.kubernetes.io/name: sonarr
-    app.kubernetes.io/instance: sonarr
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: sonarr
+    app: mediabox
     app.kubernetes.io/instance: sonarr
     app.kubernetes.io/name: sonarr
     release: sonarr
@@ -97,7 +74,7 @@ spec:
         checksum/services: 9f4598b6894144955883354209ec1509c75f90fb0b16330870879a47f60478f0
         checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
       labels:
-        app: sonarr
+        app: mediabox
         app.kubernetes.io/instance: sonarr
         app.kubernetes.io/name: sonarr
         pod.lifecycle: permanent

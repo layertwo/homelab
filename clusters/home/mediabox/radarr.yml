@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: radarr
+    app: "mediabox"
     app.kubernetes.io/instance: radarr
     app.kubernetes.io/name: radarr
     release: radarr
@@ -32,7 +32,7 @@ spec:
         checksum/services: 9f4598b6894144955883354209ec1509c75f90fb0b16330870879a47f60478f0
         checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
       labels:
-        app: radarr
+        app: "mediabox"
         app.kubernetes.io/instance: radarr
         app.kubernetes.io/name: radarr
         pod.lifecycle: permanent
