@@ -1,0 +1,232 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-sonarr-config
+  namespace: mediabox
+  labels:
+    app: "sonarr"
+    app.kubernetes.io/instance: "sonarr"
+    app.kubernetes.io/name: "sonarr"
+    release: "sonarr"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 16Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  namespace: mediabox
+  labels:
+    app: "sonarr"
+    app.kubernetes.io/instance: "sonarr"
+    app.kubernetes.io/name: "sonarr"
+    release: "sonarr"
+    service.name: "main"
+spec:
+  type: ClusterIP
+  publishNotReadyAddresses: false
+  ports:
+    - name: main
+      port: 8989
+      protocol: TCP
+      targetPort: 8989
+  selector:
+    pod.name: main
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: sonarr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr-lb
+  namespace: mediabox
+  labels:
+    app: "sonarr"
+    app.kubernetes.io/instance: "sonarr"
+    app.kubernetes.io/name: "sonarr"
+    release: "sonarr"
+    service.name: "main"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: main
+      port: 80
+      protocol: TCP
+      targetPort: 8989
+  selector:
+    pod.name: main
+    app.kubernetes.io/name: sonarr
+    app.kubernetes.io/instance: sonarr
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: sonarr
+    app.kubernetes.io/instance: sonarr
+    app.kubernetes.io/name: sonarr
+    release: sonarr
+  name: sonarr
+  namespace: mediabox
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: sonarr
+      app.kubernetes.io/name: sonarr
+      pod.name: main
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        checksum/cnpg: 12c2f2443588dc1ade2410eac85c5b0b1751a3c6abef1e92e3aebf8896f77509
+        checksum/configmaps: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+        checksum/mariadb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
+        checksum/mongodb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
+        checksum/persistence: 13ebe1f1719a717959b78810790b112f0ea695a1060361cbc2efece7d63e2569
+        checksum/redis: 013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894
+        checksum/secrets: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
+        checksum/services: 9f4598b6894144955883354209ec1509c75f90fb0b16330870879a47f60478f0
+        checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
+      labels:
+        app: sonarr
+        app.kubernetes.io/instance: sonarr
+        app.kubernetes.io/name: sonarr
+        pod.lifecycle: permanent
+        pod.name: main
+        release: sonarr
+      namespace: mediabox
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - env:
+        - name: TZ
+          value: UTC
+        - name: UMASK
+          value: "0022"
+        - name: UMASK_SET
+          value: "0022"
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: void
+        - name: S6_READ_ONLY_ROOT
+          value: "1"
+        - name: SONARR__PORT
+          value: "8989"
+        image: ghcr.io/onedr0p/sonarr:4.0.4
+        imagePullPolicy: IfNotPresent
+        name: sonarr
+        ports:
+        - containerPort: 8989
+          name: main
+          protocol: TCP
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+          requests:
+            cpu: 10m
+            memory: 50Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: false
+          runAsGroup: 568
+          runAsNonRoot: true
+          runAsUser: 568
+          seccompProfile:
+            type: RuntimeDefault
+        startupProbe:
+          failureThreshold: 60
+          httpGet:
+            path: /ping
+            port: 8989
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 3
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /config
+          name: config
+        - mountPath: /dev/shm
+          name: devshm
+        - mountPath: /shared
+          name: shared
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /var/logs
+          name: varlogs
+        - mountPath: /var/run
+          name: varrun
+        - mountPath: shows
+          name: media
+          subPath: tv
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: false
+      nodeSelector:
+        kubernetes.io/arch: amd64
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        fsGroup: 568
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups:
+        - 568
+      serviceAccount: default
+      serviceAccountName: default
+      shareProcessNamespace: false
+      terminationGracePeriodSeconds: 60
+      topologySpreadConstraints:
+      - labelSelector:
+          matchLabels:
+            app.kubernetes.io/instance: sonarr
+            app.kubernetes.io/name: sonarr
+            pod.name: main
+        maxSkew: 1
+        nodeAffinityPolicy: Honor
+        nodeTaintsPolicy: Honor
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: pvc-sonarr-config
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 8Gi
+        name: devshm
+      - emptyDir: {}
+        name: shared
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 8Gi
+        name: tmp
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 8Gi
+        name: varlogs
+      - emptyDir:
+          medium: Memory
+          sizeLimit: 8Gi
+        name: varrun
+      - name: media
+        nfs:
+          path: /volume1/media
+          server: paramount
