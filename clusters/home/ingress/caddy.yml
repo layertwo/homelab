@@ -46,7 +46,7 @@ data:
   email: "tls+caddy@layertwo.dev"
   experimentalSmartSort: "false"
   metrics: "true"
-  onDemandTLS: "true"
+  onDemandTLS: "false"
   proxyProtocol: "false"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
