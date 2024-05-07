@@ -43,7 +43,7 @@ data:
   acmeEABKeyId: ""
   acmeEABMacKey: ""
   debug: "false"
-  email: ""
+  email: "tls+caddy@layertwo.dev"
   experimentalSmartSort: "false"
   metrics: "true"
   onDemandTLS: "true"
