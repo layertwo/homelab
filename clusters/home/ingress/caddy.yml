@@ -121,7 +121,7 @@ spec:
     app.kubernetes.io/instance: caddy
 ---
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: caddy-caddy-ingress-controller
   namespace: caddy-system
@@ -130,7 +130,7 @@ metadata:
     app.kubernetes.io/instance: caddy
     app.kubernetes.io/version: "v0.2.1"
 spec:
-  #replicas: 2
+  replicas: 2
   selector:
     matchLabels:
       app.kubernetes.io/name: caddy-ingress-controller
