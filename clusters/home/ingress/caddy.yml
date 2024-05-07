@@ -47,6 +47,7 @@ data:
   experimentalSmartSort: "false"
   metrics: "true"
   onDemandTLS: "true"
+  onDemandAsk: "http://localhost:9123/ask"
   proxyProtocol: "false"
 ---
 apiVersion: rbac.authorization.k8s.io/v1
