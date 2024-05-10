@@ -1,0 +1,39 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: metallb-repo
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://github.com/metallb/metallb.git
+  ref:
+    tag: v0.14.5
+  ignore: |
+    # exclude all
+    /*
+    # path to crds
+    !/config/
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: metallb
+  namespace: flux-system
+spec:
+  interval: 15m
+  prune: false
+  sourceRef:
+    kind: GitRepository
+    name: metallb-repo
+    namespace: flux-system
+  path: ./config/native
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.31.0.20-172.31.0.29
