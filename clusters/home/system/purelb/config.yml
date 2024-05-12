@@ -1,3 +1,4 @@
+---
 apiVersion: purelb.io/v1
 kind: ServiceGroup
 metadata:
@@ -6,6 +7,6 @@ metadata:
 spec:
   local:
     v4pools:
-    - subnet: 192.168.0.0/24
+    - aggregation: default
       pool: 192.168.0.180-192.168.0.199
-      aggregation: default
+      subnet: 192.168.0.0/24
