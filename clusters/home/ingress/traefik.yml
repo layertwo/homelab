@@ -103,7 +103,6 @@ metadata:
   annotations:
 spec:
   type: LoadBalancer
-  loadBalancerClass: purelb.io/purelb
   selector:
     app.kubernetes.io/name: traefik
     app.kubernetes.io/instance: traefik-ingress-controller
