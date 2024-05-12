@@ -126,8 +126,7 @@ spec:
       dnsConfig:
         nameservers:
         - 127.0.0.1
-        - 8.8.8.8
-      hostname:
+        - 9.9.9.9
       hostNetwork: false
       containers:
         - name: pihole
@@ -135,14 +134,14 @@ spec:
           - name: 'WEB_PORT'
             value: "80"
           - name: VIRTUAL_HOST
-            value: pi.hole
+            value: pihole.layertwo.dev
           - name: WEBPASSWORD
             valueFrom:
               secretKeyRef:
                 key: password
                 name: pihole-password
           - name: 'PIHOLE_DNS_'
-            value: '8.8.8.8;8.8.4.4'
+            value: '9.9.9.9'
           image: "pihole/pihole:2024.05.0"
           imagePullPolicy: IfNotPresent
           securityContext:
@@ -160,9 +159,6 @@ spec:
           - containerPort:  443
             name: https
             protocol: TCP
-          - containerPort: 67
-            name: client-udp
-            protocol: UDP
           livenessProbe:
             httpGet:
               path: /admin/index.php
