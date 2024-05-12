@@ -77,28 +77,28 @@ data:
     #}
 
     # OSPF example
-    #protocol ospf v2  {
-    # ipv4 {
-    #   import none;
-    #   export where source ~ [ RTS_STATIC, RTS_DEVICE ];
-    # };
-    # area 0 {
-    #   interface "e*" {
-    #     type broadcast;         # Detected by default
-    #       cost 10;                # Interface metric
-    #   };
-    # };
-    #}
-
-    protocol ospf v3 {
-      ipv4 {
-        import none;
-         export where source ~ [ RTS_STATIC, RTS_DEVICE ];
-      };
-      area 0 {
-        interface "e*" {
-          type broadcast;      # Detected by default
-          cost 10;     # Interface metric
-        };
-      };
+    protocol ospf v2  {
+     ipv4 {
+       import none;
+       export where source ~ [ RTS_STATIC, RTS_DEVICE ];
+     };
+     area 0 {
+       interface "e*" {
+         type broadcast;         # Detected by default
+           cost 10;                # Interface metric
+       };
+     };
     }
+
+    #protocol ospf v3 {
+    #  ipv6 {
+    #    import none;
+    #     export where source ~ [ RTS_STATIC, RTS_DEVICE ];
+    #  };
+    #  area 0 {
+    #    interface "e*" {
+    #      type broadcast;      # Detected by default
+    #      cost 10;     # Interface metric
+    #    };
+    #  };
+    #}
