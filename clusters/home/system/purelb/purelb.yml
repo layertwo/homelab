@@ -492,7 +492,7 @@ spec:
   template:
     metadata:
       annotations:
-        prometheus.io/port: "7472"
+        prometheus.io/port: "7482"
         prometheus.io/scrape: "true"
       labels:
         app: purelb
@@ -514,7 +514,7 @@ spec:
         imagePullPolicy: Always
         name: allocator
         ports:
-        - containerPort: 7472
+        - containerPort: 7482
           name: monitoring
         resources:
           limits:
@@ -549,7 +549,7 @@ spec:
   template:
     metadata:
       annotations:
-        prometheus.io/port: "7472"
+        prometheus.io/port: "7482"
         prometheus.io/scrape: "true"
       labels:
         app: purelb
@@ -583,7 +583,7 @@ spec:
         imagePullPolicy: Always
         name: lbnodeagent
         ports:
-        - containerPort: 7472
+        - containerPort: 7482
           name: monitoring
         resources:
           limits:
