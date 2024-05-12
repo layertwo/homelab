@@ -3,8 +3,12 @@ name: Docker Image CI
 on:
   push:
     branches: [ "mainline" ]
+    paths:
+      - containers/bird/**
   pull_request:
     branches: [ "mainline" ]
+    paths:
+      - containers/bird/**
 
 jobs:
 
