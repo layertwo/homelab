@@ -60,8 +60,7 @@ jobs:
       id: build-and-push
       uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
       with:
-        context: .
-        working-directory: containers/bird
+        context: containers/bird
         push: ${{ github.event_name != 'pull_request' }}
         tags: bird:latest
         labels: ${{ steps.meta.outputs.labels }}
