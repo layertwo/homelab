@@ -28,7 +28,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         image: ghcr.io/layertwo/bird:latest@sha256:3929cf9d9f8296aa33e08574ef96da8fa0e76374fa3a7c1cba95ee8c4a5f3bac
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         resources:
           limits:
             cpu: 500m

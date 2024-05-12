@@ -511,7 +511,7 @@ spec:
         - name: DEFAULT_ANNOUNCER
           value: PureLB
         image: registry.gitlab.com/purelb/purelb/purelb:v0.8.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: allocator
         ports:
         - containerPort: 7482
@@ -580,7 +580,7 @@ spec:
         - name: ML_GROUP
           value: 8sb7ikA5qHwQQqxc
         image: registry.gitlab.com/purelb/purelb/purelb:v0.8.0
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: lbnodeagent
         ports:
         - containerPort: 7482
