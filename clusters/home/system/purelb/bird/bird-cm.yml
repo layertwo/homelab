@@ -29,7 +29,6 @@ data:
     # The direct protocol is used to import the routes added by PureLb to kube-lb0
     protocol direct {
       ipv4;
-      ipv6;
       interface "kube-lb0";
     }
 
@@ -42,11 +41,11 @@ data:
       learn;
     }
 
-    protocol kernel {
-      ipv6;
-      scan time 10;
-      learn;
-    }
+    #protocol kernel {
+    #  ipv6;
+    #  scan time 10;
+    #  learn;
+    #}
 
     # RIP/RIPNG example
     #protocol rip {
@@ -56,9 +55,9 @@ data:
     #    export where source ~ [ RTS_DEVICE, RTS_STATIC, RTS_RIP ];
     #    };
     #    interface "e*" {
-    #    update time 10;			# Default period is 30
-    #   timeout time 60;		# Default timeout is 180
-    #   #authentication cryptographic;	# No authentication by default
+    #    update time 10;            # Default period is 30
+    #   timeout time 60;        # Default timeout is 180
+    #   #authentication cryptographic;  # No authentication by default
     #   #password "hello" { algorithm hmac sha256; }; # Default is MD5
     #   };
     #}
@@ -91,45 +90,15 @@ data:
     # };
     #}
 
-    #protocol ospf v3 {
-    #  ipv6 {
-    #    import none;
-    #    export where source = RTS_STATIC;
-    #  };
-    #  area 0 {
-    #    interface "e*" {
-    #      type broadcast;		# Detected by default
-    #      cost 10;		# Interface metric
-    #    };
-    #  };
-    #}
-
-    # Filter to drop all routes recieved from BGP
-    filter bgp_reject {
-      reject;
-    }
-
-    # BGP example, explicit name 'uplink1' is used instead of default 'bgp1'
-    protocol bgp uplink1 {
-      description "Example Peer";
-      local k8sipaddr as 4200000003;
-      neighbor 172.30.250.1 external;
-      #multihop 2;
-      #hold time 90;		# Default is 240
-      #password "secret";	# Password used for MD5 authentication
-
-      ipv4 {			# IPv4 unicast (1/1)
-        # RTS_DEVICE matches routes added to kube-lb0 by protocol device
-        export where source ~ [ RTS_STATIC, RTS_BGP, RTS_DEVICE ];
-        import filter bgp_reject; # we are only advertizing
+    protocol ospf v3 {
+      ipv4 {
+        import none;
+         export where source ~ [ RTS_STATIC, RTS_DEVICE ];
       };
-
-      ipv6 {			# IPv6 unicast
-        # RTS_DEVICE matches routes added to kube-lb0 by protocol device
-        export where  source ~ [ RTS_STATIC, RTS_BGP, RTS_DEVICE ];
-        import filter bgp_reject;
+      area 0 {
+        interface "e*" {
+          type broadcast;      # Detected by default
+          cost 10;     # Interface metric
+        };
       };
     }
-
-
-
