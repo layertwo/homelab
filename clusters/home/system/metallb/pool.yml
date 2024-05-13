@@ -2,8 +2,17 @@
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
 metadata:
-  name: first-pool
+  name: infra
   namespace: metallb-system
 spec:
   addresses:
   - 172.31.0.20-172.31.0.29
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: external
+  namespace: metallb-system
+spec:
+  addresses:
+  - 172.31.0.30-172.31.0.39
