@@ -40,8 +40,8 @@ spec:
             secretKeyRef:
               name: external-dns-cloudflare
               key: token
-      #extraArgs:
-      #  - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
+      extraArgs:
+        - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
       # policy sync for fully handle the domain
       policy: upsert-only
       sources:
