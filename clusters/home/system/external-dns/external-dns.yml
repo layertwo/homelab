@@ -31,6 +31,7 @@ spec:
       version: 1.14.4
   interval: 60m
   values:
+    logLevel: debug
     interval: 2m
     provider: cloudflare
     env:
