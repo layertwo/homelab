@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-layertwo-dev
+  namespace: traefik-system
+spec:
+  secretName: wildcard-layertwo-dev-tls
+  dnsNames:
+    - "layertwo.dev"
+    - "*.layertwo.dev"
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
