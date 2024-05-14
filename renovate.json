@@ -5,5 +5,8 @@
   ],
   "kubernetes": {
     "fileMatch": ["\\.yml$"]
+  },
+  "flux": {
+    "fileMatch": ["\\.yml$"]
   }
 }
