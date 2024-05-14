@@ -42,6 +42,7 @@ spec:
             key: token
     extraArgs:
       - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
+      - --traefik-disable-legacy
     # policy sync for fully handle the domain
     policy: upsert-only
     sources:
