@@ -47,6 +47,7 @@ spec:
     sources:
       - service
       - ingress
+      - traefik-proxy
     domainFilters:
       - layertwo.dev
     serviceMonitor:
