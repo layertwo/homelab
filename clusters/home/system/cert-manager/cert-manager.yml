@@ -23,28 +23,29 @@ spec:
   interval: 60m
   values:
     installCRDs: true
-
-    resources:
-      requests:
-        cpu: 10m
-        memory: 36Mi
-      limits:
-        memory: 128Mi
-
-    extraArgs:
-      # When this flag is enabled, secrets will be automatically removed when the certificate resource is deleted
-      - --enable-certificate-owner-ref=true
-
     global:
+      crds:
+        enabled: true
+
+      resources:
+        requests:
+          cpu: 10m
+          memory: 36Mi
+        limits:
+          memory: 128Mi
+
+      enableCertificateOwnerRef: true
+      dns01RecursiveNameservers: "1.1.1.1"
+
       leaderElection:
         namespace: cert-manager
 
-    prometheus:
-      enabled: true
-      servicemonitor:
+      prometheus:
         enabled: true
-        labels:
-          release: monitoring
+        servicemonitor:
+          enabled: true
+          labels:
+            release: monitoring
 
     webhook:
       resources:
