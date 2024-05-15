@@ -48,3 +48,6 @@ spec:
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
         middlewares: ["internal-restricted"]
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
