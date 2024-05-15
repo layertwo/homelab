@@ -39,3 +39,11 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
+    ingressRoute:
+      dashboard:
+        annotations:
+          external-dns.alpha.kubernetes.io/enabled: "true"
+          external-dns.alpha.kubernetes.io/hostname: "traefik-internal.layertwo.dev"
+          external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+        entryPoints: ["websecure"]
+        matchRule: Host(`traefik-internal.layertwo.dev`)
