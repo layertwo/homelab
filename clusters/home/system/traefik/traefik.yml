@@ -35,3 +35,7 @@ spec:
       default:
         defaultCertificate:
           secretName: wildcard-layertwo-dev-tls
+    service:
+      annotations:
+        external-dns.alpha.kubernetes.io/enabled: "true"
+        external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
