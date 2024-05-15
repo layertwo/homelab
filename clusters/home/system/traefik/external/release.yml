@@ -1,0 +1,31 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta2
+kind: HelmRelease
+metadata:
+  name: traefik-external
+  namespace: traefik-system
+spec:
+  chart:
+    spec:
+      chart: traefik
+      sourceRef:
+        kind: HelmRepository
+        name: traefik
+        namespace: flux-system
+      version: v28.0.0
+  interval: 60m
+  values:
+    tlsStore:
+      default:
+        defaultCertificate:
+          secretName: wildcard-layertwo-dev-tls
+    service:
+      annotations:
+        metallb.universe.tf/address-pool: external
+    ingressRoute:
+      dashboard:
+        annotations:
+          external-dns.alpha.kubernetes.io/enabled: "true"
+          external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+        entryPoints: ["websecure"]
+        matchRule: Host(`traefik-external.layertwo.dev`)
