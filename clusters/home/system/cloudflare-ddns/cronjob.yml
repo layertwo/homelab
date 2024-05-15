@@ -1,0 +1,46 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cloudflare-ddns
+  namespace: traefik-system
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Replace
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          containers:
+          - name: main
+            imagePullPolicy: IfNotPresent
+            securityContext:
+              runAsNonRoot: false
+              readOnlyRootFilesystem: true
+              #capabilities:
+                #drop:
+                #  - ALL
+              privileged: false
+              allowPrivilegeEscalation: false
+            env:
+              - name: TOKEN
+                valueFrom:
+                  secretKeyRef:
+                    key: TOKEN
+                    name: cloudflare-ddns
+                    optional: false
+              - name: ZONE_ID
+                valueFrom:
+                  secretKeyRef:
+                    key: ZONE_ID
+                    name: cloudflare-ddns
+                    optional: false
+              - name: DNS_NAME
+                value: "external.layertwo.dev"
+            image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:ddcbedab73fedc388790a1c0c031276a17853d4a25a9d8550343488c5f0f64e7
+          restartPolicy: OnFailure
+          dnsConfig:
+            nameservers:
+              - 1.1.1.1
