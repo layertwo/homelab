@@ -47,3 +47,4 @@ spec:
           external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
+        middlewares: ["internal-restricted"]
