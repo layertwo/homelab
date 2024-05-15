@@ -39,4 +39,5 @@ spec:
       extraAnnotations:
         cert-manager.io/issuer-kind: ClusterIssuer
         cert-manager.io/issuer-name: letsencrypt-prod-dns
+      ingressClassName: traefik-internal
     privateCA: false
