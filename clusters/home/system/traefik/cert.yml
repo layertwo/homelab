@@ -11,3 +11,16 @@ spec:
   issuerRef:
     name: letsencrypt-prod-dns
     kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-internal-layertwo-dev
+  namespace: traefik-system
+spec:
+  secretName: wildcard-internal-layertwo-dev-tls
+  dnsNames:
+    - "*.internal.layertwo.dev"
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
