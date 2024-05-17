@@ -15,7 +15,7 @@ spec:
   interval: 60m
   url: https://kubernetes-sigs.github.io/external-dns/
 ---
-apiVersion: helm.toolkit.fluxcd.io/v2beta2
+apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: external-dns
