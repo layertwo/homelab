@@ -16,7 +16,7 @@ spec:
   interval: 60m
   values:
     tlsStore:
-      default:
+      internal:
         defaultCertificate:
           secretName: wildcard-layertwo-dev-tls
     service:
