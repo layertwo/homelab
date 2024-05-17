@@ -223,9 +223,6 @@ spec:
     - websecure
   routes:
   - match: Host(`sonarr.layertwo.dev`)
-    middlewares:
-      - name: internal-restricted
-        namespace: traefik-system
     kind: Rule
     services:
     - name: sonarr

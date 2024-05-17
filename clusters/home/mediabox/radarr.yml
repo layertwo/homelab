@@ -181,9 +181,6 @@ spec:
     - websecure
   routes:
   - match: Host(`radarr.layertwo.dev`)
-    middlewares:
-      - name: internal-restricted
-        namespace: traefik-system
     kind: Rule
     services:
     - name: radarr

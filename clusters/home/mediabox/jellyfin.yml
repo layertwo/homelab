@@ -286,9 +286,6 @@ spec:
     - websecure
   routes:
   - match: Host(`jellyfin.layertwo.dev`)
-    middlewares:
-      - name: internal-restricted
-        namespace: traefik-system
     kind: Rule
     services:
     - name: jellyfin
