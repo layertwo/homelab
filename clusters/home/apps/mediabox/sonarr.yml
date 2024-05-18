@@ -218,6 +218,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: "sonarr.layertwo.dev"
     external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: traefik-internal
 spec:
   entryPoints:
     - websecure

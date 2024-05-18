@@ -29,5 +29,10 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+          kubernetes.io/ingress.class: traefik-external
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-external.layertwo.dev`)
+    providers:
+      kubernetesCRD:
+        allowCrossNamespace: true
+        ingressClass: "traefik-external"

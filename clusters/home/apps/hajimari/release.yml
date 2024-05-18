@@ -33,7 +33,6 @@ spec:
     ingress:
       main:
         enabled: true
-        className: "traefik-internal"
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "inside.layertwo.dev"

@@ -20,18 +20,23 @@ spec:
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
         metallb.universe.tf/address-pool: internal
+    ingressClass:
+      annotations:
+        ingressclass.kubernetes.io/is-default-class: "true"
     ingressRoute:
       dashboard:
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-internal.layertwo.dev"
           external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+          kubernetes.io/ingress.class: traefik-internal
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
         #middlewares: ["internal-restricted"]
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
+        ingressClass: "traefik-internal"
     logs:
       access:
         enabled: true

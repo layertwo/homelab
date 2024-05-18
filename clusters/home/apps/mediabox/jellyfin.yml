@@ -281,6 +281,7 @@ metadata:
     external-dns.alpha.kubernetes.io/hostname: "jellyfin.layertwo.dev"
     external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: traefik-internal
 spec:
   entryPoints:
     - websecure
