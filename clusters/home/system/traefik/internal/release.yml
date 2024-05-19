@@ -13,6 +13,9 @@ spec:
         name: traefik
         namespace: flux-system
       version: v28.0.0
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
   interval: 60m
   values:
     service:

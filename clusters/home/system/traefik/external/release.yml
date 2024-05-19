@@ -14,6 +14,9 @@ spec:
         namespace: flux-system
       version: v28.0.0
   interval: 60m
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
   values:
     tlsStore:
       default:
