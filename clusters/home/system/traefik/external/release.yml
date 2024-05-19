@@ -39,3 +39,5 @@ spec:
       kubernetesCRD:
         allowCrossNamespace: true
         ingressClass: "traefik-external"
+      kubernetesIngress:
+        ingressClass: "traefik-external"

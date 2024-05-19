@@ -40,6 +40,8 @@ spec:
       kubernetesCRD:
         allowCrossNamespace: true
         ingressClass: "traefik-internal"
+      kubernetesIngress:
+        ingressClass: "traefik-internal"
     logs:
       access:
         enabled: true
