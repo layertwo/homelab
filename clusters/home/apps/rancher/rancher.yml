@@ -40,5 +40,8 @@ spec:
         cert-manager.io/issuer-kind: ClusterIssuer
         cert-manager.io/issuer-name: letsencrypt-prod-dns
         kubernetes.io/ingress.class: traefik-internal
+        hajimari.io/enable: true
+        hajimari.io/icon: cow
+        hajimari.io/group: Infrastructure
       ingressClassName: traefik-internal
     privateCA: false
