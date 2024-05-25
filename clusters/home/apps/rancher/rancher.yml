@@ -19,6 +19,7 @@ spec:
         kind: HelmRepository
         name: rancher
         namespace: flux-system
+      version: 2.8.4
   interval: 60m
   values:
     hostname: rancher.layertwo.dev
