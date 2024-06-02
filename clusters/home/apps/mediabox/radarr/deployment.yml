@@ -1,11 +1,11 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: "mediabox"
     app.kubernetes.io/instance: radarr
     app.kubernetes.io/name: radarr
-    release: radarr
+    app.kubernetes.io/component: server
   name: radarr
   namespace: mediabox
 spec:
@@ -16,28 +16,15 @@ spec:
     matchLabels:
       app.kubernetes.io/instance: radarr
       app.kubernetes.io/name: radarr
-      pod.name: main
+      app.kubernetes.io/component: server
   strategy:
     type: Recreate
   template:
     metadata:
-      annotations:
-        checksum/cnpg: 12c2f2443588dc1ade2410eac85c5b0b1751a3c6abef1e92e3aebf8896f77509
-        checksum/configmaps: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-        checksum/mariadb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
-        checksum/mongodb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
-        checksum/persistence: 13ebe1f1719a717959b78810790b112f0ea695a1060361cbc2efece7d63e2569
-        checksum/redis: 013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894
-        checksum/secrets: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-        checksum/services: 9f4598b6894144955883354209ec1509c75f90fb0b16330870879a47f60478f0
-        checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
       labels:
-        app: "mediabox"
         app.kubernetes.io/instance: radarr
         app.kubernetes.io/name: radarr
-        pod.lifecycle: permanent
-        pod.name: main
-        release: radarr
+        app.kubernetes.io/component: server
       namespace: mediabox
     spec:
       automountServiceAccountToken: false
@@ -60,7 +47,7 @@ spec:
         name: radarr
         ports:
         - containerPort: 7878
-          name: main
+          name: server
           protocol: TCP
         resources:
           limits:
@@ -109,16 +96,7 @@ spec:
         - mountPath: movies
           name: media
           subPath: movies
-      dnsConfig:
-        options:
-        - name: ndots
-          value: "1"
-      dnsPolicy: ClusterFirst
-      enableServiceLinks: false
-      nodeSelector:
-        kubernetes.io/arch: amd64
       restartPolicy: Always
-      schedulerName: default-scheduler
       securityContext:
         fsGroup: 568
         fsGroupChangePolicy: OnRootMismatch
@@ -133,7 +111,7 @@ spec:
           matchLabels:
             app.kubernetes.io/instance: radarr
             app.kubernetes.io/name: radarr
-            pod.name: main
+            pod.name: server
         maxSkew: 1
         nodeAffinityPolicy: Honor
         nodeTaintsPolicy: Honor
@@ -142,7 +120,7 @@ spec:
       volumes:
       - name: config
         persistentVolumeClaim:
-          claimName: pvc-radarr
+          claimName: pvc-radarr-config
       - emptyDir:
           medium: Memory
           sizeLimit: 8Gi
@@ -165,24 +143,3 @@ spec:
         nfs:
           path: /volume1/media
           server: paramount.layertwo.lan
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: radarr-layertwo-dev
-  namespace: mediabox
-  annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "radarr.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
-    kubernetes.io/ingress.class: traefik-internal
-spec:
-  entryPoints:
-    - websecure
-  routes:
-  - match: Host(`radarr.layertwo.dev`)
-    kind: Rule
-    services:
-    - name: radarr
-      port: 7878
