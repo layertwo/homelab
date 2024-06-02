@@ -1,0 +1,18 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-radarr
+  namespace: mediabox
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  bootstrap:
+    initdb:
+      owner: radarr
+      postInitSQL:
+        - CREATE DATABASE radarr_main OWNER radarr;
+        - CREATE DATABASE radarr_log OWNER radarr;
+  storage:
+    size: 4Gi
