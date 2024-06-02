@@ -1,0 +1,20 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr
+  namespace: mediabox
+  annotations:
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/hostname: "sonarr.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    kubernetes.io/ingress.class: traefik-internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`sonarr.layertwo.dev`)
+    kind: Rule
+    services:
+    - name: sonarr
+      port: 8989
