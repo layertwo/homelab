@@ -61,7 +61,7 @@ spec:
             secretKeyRef:
               name: cnpg-radarr-app
               key: password
-        image: linuxserver/radarr:version-5.6.0.8846
+        image: ghcr.io/onedr0p/radarr:5.6.0.8846
         imagePullPolicy: IfNotPresent
         name: radarr
         ports:
@@ -115,6 +115,11 @@ spec:
         - mountPath: movies
           name: media
           subPath: movies
+      dnsConfig:
+        options:
+        - name: ndots
+          value: "1"
+      dnsPolicy: ClusterFirst
       restartPolicy: Always
       securityContext:
         fsGroup: 568
@@ -160,5 +165,5 @@ spec:
         name: varrun
       - name: media
         nfs:
-          path: /volume1/media
-          server: paramount.layertwo.lan
+          path: /mnt/storage0/media
+          server: sunbeam.layertwo.lan

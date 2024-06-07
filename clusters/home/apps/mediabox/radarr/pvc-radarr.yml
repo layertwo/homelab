@@ -5,6 +5,7 @@ metadata:
   name: pvc-radarr-config
   namespace: mediabox
 spec:
+  storageClassName: sunbeam-nfs-csi
   accessModes:
     - ReadWriteMany
   resources:
