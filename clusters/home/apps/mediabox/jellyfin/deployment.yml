@@ -1,69 +1,4 @@
 ---
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: pvc-jellyfin-config
-  namespace: mediabox
-  labels:
-    app: "mediabox"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-spec:
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 64Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: jellyfin
-  namespace: mediabox
-  labels:
-    app: "mediabox"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-    service.name: "main"
-spec:
-  type: ClusterIP
-  publishNotReadyAddresses: false
-  ports:
-    - name: main
-      port: 8096
-      protocol: TCP
-      targetPort: 8096
-  selector:
-    pod.name: main
-    app.kubernetes.io/name: jellyfin
-    app.kubernetes.io/instance: jellyfin
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: jellyfin-autodiscovery
-  namespace: mediabox
-  labels:
-    app: "mediabox"
-    app.kubernetes.io/instance: "jellyfin"
-    app.kubernetes.io/name: "jellyfin"
-    release: "jellyfin"
-    service.name: "autodiscovery"
-spec:
-  type: ClusterIP
-  publishNotReadyAddresses: false
-  ports:
-    - name: autodiscovery
-      port: 7359
-      protocol: UDP
-      targetPort: 7359
-  selector:
-    pod.name: main
-    app.kubernetes.io/name: jellyfin
-    app.kubernetes.io/instance: jellyfin
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,16 +23,6 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        checksum/cnpg: 12c2f2443588dc1ade2410eac85c5b0b1751a3c6abef1e92e3aebf8896f77509
-        checksum/configmaps: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-        checksum/mariadb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
-        checksum/mongodb: 09c85576cb45b1eecd1467732b11ea8fa3363b0105c465f02a6ad64991521d52
-        checksum/persistence: 3b59f2976681401889147a54db8b823729b6154ac8475535f06e2346180158fc
-        checksum/redis: 013343a028cbb3f7e08f4ba7522702dd98e52632c688641074b0b1db3df29894
-        checksum/secrets: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a
-        checksum/services: 8bc7cf1c7b30a068a71f13f174f3d9754e6232bfa6096a5a6be4003b7ab81423
-        checksum/solr: 29c14feeaddbf7762052db593898d274941f539cee681ddc613957587686f347
       labels:
         app: "mediabox"
         app.kubernetes.io/instance: jellyfin
@@ -123,7 +48,7 @@ spec:
           value: "1"
         - name: JELLYFIN_PublishedServerUrl
           value: http://127.0.0.1:8096
-        image: docker.io/jellyfin/jellyfin:latest@sha256:e6b71e6cd18fa272ffaf5c376ac0db1113dab0bddf60e889a65eab05e17cfb73
+        image: docker.io/jellyfin/jellyfin:10.9.6.20240606-184155
         imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
@@ -268,26 +193,5 @@ spec:
           path: /dev/dri
       - name: media
         nfs:
-          path: /volume1/media
-          server: paramount.layertwo.lan
----
-apiVersion: traefik.io/v1alpha1
-kind: IngressRoute
-metadata:
-  name: jellyfin-layertwo-dev
-  namespace: mediabox
-  annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "jellyfin.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
-    kubernetes.io/ingress.class: traefik-internal
-spec:
-  entryPoints:
-    - websecure
-  routes:
-  - match: Host(`jellyfin.layertwo.dev`)
-    kind: Rule
-    services:
-    - name: jellyfin
-      port: 8096
+          path: /mnt/storage0/media
+          server: sunbeam.layertwo.lan
