@@ -42,7 +42,26 @@ spec:
           value: "1"
         - name: SONARR__PORT
           value: "8989"
-        image: ghcr.io/onedr0p/sonarr:4.0.5
+        - name: SONARR__POSTGRES_HOST
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-sonarr-app
+              key: host
+        - name: SONARR__POSTGRES_MAIN_DB
+          value: sonarr_main
+        - name: SONARR__POSTGRES_LOG_DB
+          value: sonarr_log
+        - name: SONARR__POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-sonarr-app
+              key: user
+        - name: SONARR__POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-sonarr-app
+              key: password
+        image: ghcr.io/onedr0p/sonarr:4.0.5.1710
         imagePullPolicy: IfNotPresent
         name: sonarr
         ports:
@@ -145,5 +164,5 @@ spec:
         name: varrun
       - name: media
         nfs:
-          path: /volume1/media
-          server: paramount.layertwo.lan
+          path: /mnt/storage0/media
+          server: sunbeam.layertwo.lan

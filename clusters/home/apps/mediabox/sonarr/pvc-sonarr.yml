@@ -5,6 +5,7 @@ metadata:
   name: pvc-sonarr-config
   namespace: mediabox
 spec:
+  storageClassName: sunbeam-nfs-csi
   accessModes:
     - ReadWriteMany
   resources:

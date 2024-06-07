@@ -1,0 +1,19 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-sonarr
+  namespace: mediabox
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  bootstrap:
+    initdb:
+      owner: sonarr
+      postInitSQL:
+        - CREATE DATABASE sonarr_main OWNER sonarr;
+        - CREATE DATABASE sonarr_log OWNER sonarr;
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
