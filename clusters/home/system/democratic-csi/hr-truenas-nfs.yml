@@ -43,7 +43,7 @@ spec:
                     protocol: https
                     host: sunbeam.layertwo.lan
                     port: 443
-                    apiKey: ENC[AES256_GCM,data:jy0RLr2ZbWSm3WF4E6Ak1lM1a89oylmVJgpZAaSHk+M9Eiuc+KeBf+ca4/vu9CQNrsoBxd3yGMX79d7lk6c97DzR,iv:8WMZ5dCvMSkN1S8yhPjhJ8V61g8w0ut7rFn3CgnFJfU=,tag:Xfh+XNz3GC45qrL/1/MOVA==,type:str]
+                    apiKey: ENC[AES256_GCM,data:8/bKl8o7bbgKL8VoA6f+7AV5/uVZtZRvH672udcmtE4MEt8DrFOPe2tMIBIaub4u8qdQ9ksy9nc+u2nbtQo503EY,iv:ADtnWBlYG/bZSOahIhQ3++6qBXS2Lsv5YOfqIuRRAvk=,tag:D1gNJrXVb4Kr4SfZ0F7sfw==,type:str]
                     allowInsecure: true
                 zfs:
                     datasetParentName: storage0/kubernetes/persistent-volume/nfs/volumes
@@ -61,8 +61,8 @@ spec:
                         - 172.31.0.11
                         - 172.31.0.12
                     shareAllowedNetworks: []
-                    shareMaprootUser: kubernetes
-                    shareMaprootGroup: kubernetes
+                    shareMaprootUser: root
+                    shareMaprootGroup: wheel
                     shareMapallUser: ""
                     shareMapallGroup: ""
 sops:
@@ -74,14 +74,14 @@ sops:
         - recipient: age140p5gj8xeqccpu283eycwhq7kwjrwug9emmj5mucn4j80jjzfd6qsnuv3y
           enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBWamxTRXZZMUtkZDFxUy9Y
-            YjJLZXJQa1A5TTRJSHdXVVZleVZiMzJydkZzCnhPdUhkK3JZdEFRcU44NmZKblhE
-            OWNvaE5SNk5rVnNkamNaWUdIZ3RDWUEKLS0tIDdrYnZaNFhsNGpnbDRhL1N3akdQ
-            T2REQjBQUmRDWW5lU1NwdEQ0TmtDZmsKT+RnE5pE23eIo8f/u5YAUmWaBVtZiXjx
-            p3ccYRHQ/z1RV1/VGcdvWzHU688BhViMfUc+fOYn5NDV8lg5FS430w==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRN3N0VVIzeTR4QXZNb1Iv
+            UmtWY2hQWUxVaWUrdW5GZ2wwdTBiN2t1M21nCjVTdEFSeDZ1YzR5bzFCRVhZQjZp
+            S1lTZlhBeWQ3UWgyelNYek5hUktxczQKLS0tIGlsMEdiN0FxUFdBYlh0dGJiUkxv
+            aXV6ZjNTblRET2s5cERjSUxWcjh0YUkKoS8CWBWpSMpm/FMNwdaaw3Iz+zglIiaP
+            80/p6jH6Ofc9OAYjEePKRuX0fnO+EOtzE8Waq7AE3+Cd1FRk8BxI5A==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-06-07T04:14:38Z"
-    mac: ENC[AES256_GCM,data:Cr/g5C0B7WrMrIzJrbIFacCjrN1P0a1nMuRiNbGHapPaUzCfZZKg3Xuj0X1JLIv8EF84P31kObV8MoIp+kJnui8UWa7bj+npmLKZ24CIW4a+1oWiNlZi4GqeNhbdl8oRZLJWxknFmZ0fgURaQWolUGzSy4MoHPThbUS6p0avlBg=,iv:YcHiV92vS31zKkVrZFFRLcHu46T5H1KfXaKQqY/l0kU=,tag:XTUnuKXZTojNXPZKSn8kLg==,type:str]
+    lastmodified: "2024-06-07T05:09:04Z"
+    mac: ENC[AES256_GCM,data:1kA+FMXfiBFrgFEyYeVabOzb5yBdm1t7VJIS4SFy4cT52irJ9QJFvmH5VBtd35gUqr2061cgte59g0IAwK18GOb9Ww1TgkAR/9xWPrcQnBSVS0FZXuvxXsfU2V8mB7//1wt7h6pXvU9j+EO42tGLaaqqmfRzhEe3P13VvGGc5mI=,iv:E/Tx+DSb3yQPubNJwfHVDCIndK/KG9YspJLztoSQH+k=,tag:n/iBBPqkXJKcgkYvn/8fEA==,type:str]
     pgp: []
     encrypted_regex: ^(apiKey)$
     version: 3.8.1
