@@ -1,11 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: external-dns
-  labels:
-    name: external-dns
----
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
@@ -35,7 +28,7 @@ spec:
       - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
       - --traefik-disable-legacy
     # policy sync for fully handle the domain
-    policy: upsert-only
+    policy: sync
     sources:
       - service
       - ingress
