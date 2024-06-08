@@ -1,0 +1,19 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-prowlarr
+  namespace: mediabox
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  bootstrap:
+    initdb:
+      owner: prowlarr
+      postInitSQL:
+        - CREATE DATABASE prowlarr_main OWNER prowlarr;
+        - CREATE DATABASE prowlarr_log OWNER prowlarr;
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
