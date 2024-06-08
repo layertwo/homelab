@@ -13,6 +13,11 @@ spec:
                 namespace: flux-system
             version: 0.14.6
     interval: 60m
+    valuesFrom:
+    - targetPath: driver.config.httpConnection.apiKey
+      kind: Secret
+      name: truenas-api-secret
+      valuesKey: apiKey
     values:
         csiDriver:
             # should be globally unique for a given cluster
@@ -43,7 +48,6 @@ spec:
                     protocol: https
                     host: sunbeam.layertwo.lan
                     port: 443
-                    apiKey: ENC[AES256_GCM,data:8/bKl8o7bbgKL8VoA6f+7AV5/uVZtZRvH672udcmtE4MEt8DrFOPe2tMIBIaub4u8qdQ9ksy9nc+u2nbtQo503EY,iv:ADtnWBlYG/bZSOahIhQ3++6qBXS2Lsv5YOfqIuRRAvk=,tag:D1gNJrXVb4Kr4SfZ0F7sfw==,type:str]
                     allowInsecure: true
                 zfs:
                     datasetParentName: storage0/kubernetes/persistent-volume/nfs/volumes
@@ -65,23 +69,3 @@ spec:
                     shareMaprootGroup: wheel
                     shareMapallUser: ""
                     shareMapallGroup: ""
-sops:
-    kms: []
-    gcp_kms: []
-    azure_kv: []
-    hc_vault: []
-    age:
-        - recipient: age140p5gj8xeqccpu283eycwhq7kwjrwug9emmj5mucn4j80jjzfd6qsnuv3y
-          enc: |
-            -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRN3N0VVIzeTR4QXZNb1Iv
-            UmtWY2hQWUxVaWUrdW5GZ2wwdTBiN2t1M21nCjVTdEFSeDZ1YzR5bzFCRVhZQjZp
-            S1lTZlhBeWQ3UWgyelNYek5hUktxczQKLS0tIGlsMEdiN0FxUFdBYlh0dGJiUkxv
-            aXV6ZjNTblRET2s5cERjSUxWcjh0YUkKoS8CWBWpSMpm/FMNwdaaw3Iz+zglIiaP
-            80/p6jH6Ofc9OAYjEePKRuX0fnO+EOtzE8Waq7AE3+Cd1FRk8BxI5A==
-            -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2024-06-07T05:09:04Z"
-    mac: ENC[AES256_GCM,data:1kA+FMXfiBFrgFEyYeVabOzb5yBdm1t7VJIS4SFy4cT52irJ9QJFvmH5VBtd35gUqr2061cgte59g0IAwK18GOb9Ww1TgkAR/9xWPrcQnBSVS0FZXuvxXsfU2V8mB7//1wt7h6pXvU9j+EO42tGLaaqqmfRzhEe3P13VvGGc5mI=,iv:E/Tx+DSb3yQPubNJwfHVDCIndK/KG9YspJLztoSQH+k=,tag:n/iBBPqkXJKcgkYvn/8fEA==,type:str]
-    pgp: []
-    encrypted_regex: ^(apiKey)$
-    version: 3.8.1
