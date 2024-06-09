@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: hajimari
+  namespace: hajimari
+  annotations:
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/hostname: "inside.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    kubernetes.io/ingress.class: "traefik-internal"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`inside.layertwo.dev`)
+    kind: Rule
+    services:
+    - name: hajimari
+      port: 3000
