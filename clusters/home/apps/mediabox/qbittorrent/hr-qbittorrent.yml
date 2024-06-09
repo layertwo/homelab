@@ -1,0 +1,177 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: qbittorrent
+  namespace: mediabox
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.2.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+      timeout: 10m
+  values:
+    controllers:
+      main:
+        containers:
+          qbittorrent:
+            dependsOn: port-forward
+            image:
+              repository: ghcr.io/onedr0p/qbittorrent
+              tag: "4.6.5"
+            env:
+              TZ: Etc/UTC
+              QBITTORRENT__PORT: &port 9091
+              QBITTORRENT__BT_PORT: &btPort 50413
+              QBT_Application__MemoryWorkingSetLimit:
+                valueFrom:
+                  resourceFieldRef:
+                    resource: limits.memory
+                    containerName: qbittorrent
+                    divisor: 1Mi
+              QBT_Preferences__WebUI__AlternativeUIEnabled: false
+              QBT_Preferences__WebUI__AuthSubnetWhitelistEnabled: true
+              QBT_Preferences__WebUI__AuthSubnetWhitelist: |-
+                0.0.0.0/0
+              QBT_Preferences__WebUI__LocalHostAuth: false
+              QBT_BitTorrent__Session__Interface: tun0
+              QBT_BitTorrent__Session__InterfaceName: tun0
+              QBT_BitTorrent__Session__DefaultSavePath: "/data/downloads/torrent/complete"
+              QBT_BitTorrent__Session__TempPath: "/data/downloads/torrent/incomplete"
+              QBT_BitTorrent__Session__TempPathEnabled: "true"
+              QBT_BitTorrent__Session__FinishedTorrentExportDirectory: "/data/downloads/torrent/files"
+              QBT_BitTorrent__Session__TorrentExportDirectory: "/data/downloads/torrent/files"
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/v2/app/version
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsGroup: 568
+              runAsNonRoot: true
+              runAsUser: 568
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+                ephemeral-storage: 1Gi
+              limits:
+                cpu: 1500m
+                memory: 1024Mi
+                ephemeral-storage: 2Gi
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.38.0
+              pullPolicy: IfNotPresent
+            env:
+              TZ: Etc/UTC
+              UPDATER_PERIOD: 24h
+              HEALTH_VPN_DURATION_INITIAL: 30s
+              HEALTH_SUCCESS_WAIT_DURATION: 30s
+            envFrom:
+              - secretRef:
+                  name: gluetun-secret
+            securityContext:
+             capabilities:
+               add: ["NET_ADMIN"]
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 250m
+          port-forward:
+            dependsOn: gluetun
+            image:
+              repository: docker.io/snoringdragon/gluetun-qbittorrent-port-manager
+              tag: "1.3@sha256:679b7a92c494f93b78ad37ef24f3a261e73d0a1a52505ad4f1e39580eedfa14f"
+              pullPolicy: IfNotPresent
+            env:
+              QBITTORRENT_SERVER: qbittorrent
+              QBITTORRENT_PORT: *port
+              PORT_FORWARDED: "/tmp/gluetun/forwarded_port"
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                memory: 256Mi
+                cpu: 250m
+    defaultPodOptions:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+        options:
+          - { name: ndots, value: "1" }
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: *port
+            protocol: HTTP
+          torrent:
+            enabled: false
+            port: *btPort
+            protocol: TCP
+    persistence:
+      config:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: "ReadWriteOnce"
+        size: 1Gi
+        advancedMounts:
+          main:
+            qbittorrent:
+              - path: /config
+      gluetun:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: "ReadWriteOnce"
+        size: 1Gi
+        advancedMounts:
+          main:
+            gluetun:
+              - path: /gluetun
+      gluetun-data:
+        type: emptyDir
+        advancedMounts:
+          main:
+            gluetun:
+              - path: /tmp/gluetun
+            port-forward:
+              - path: /tmp/gluetun
+                readOnly: true
+      media:
+        type: nfs
+        server: sunbeam.layertwo.lan
+        path: /mnt/storage0/media
+        advancedMounts:
+          main:
+            qbittorrent:
+            - path: /data/downloads
+              subPath: downloads
+
