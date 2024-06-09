@@ -112,9 +112,12 @@ spec:
           name: varlogs
         - mountPath: /var/run
           name: varrun
-        - mountPath: movies
+        - mountPath: /movies
           name: media
           subPath: movies
+        - mountPath: /downloads
+          name: media
+          subPath: downloads
       dnsConfig:
         options:
         - name: ndots
