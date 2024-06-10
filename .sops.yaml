@@ -1,0 +1,8 @@
+---
+creation_rules:
+- path_regex: cluster/.*\.sops\.ya?ml
+- encrypted_regex: '^(data|stringData)$'
+  age: age140p5gj8xeqccpu283eycwhq7kwjrwug9emmj5mucn4j80jjzfd6qsnuv3y
+stores:
+  yaml:
+    indent: 2
