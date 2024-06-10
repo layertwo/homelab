@@ -1,0 +1,19 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-bazarr
+  namespace: mediabox
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  bootstrap:
+    initdb:
+      owner: bazarr
+      postInitSQL:
+        - CREATE DATABASE bazarr_main OWNER bazarr;
+        - CREATE DATABASE bazarr_log OWNER bazarr;
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
