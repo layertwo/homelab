@@ -32,10 +32,8 @@ spec:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-internal.layertwo.dev"
           external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-          kubernetes.io/ingress.class: traefik-internal
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
-        #middlewares: ["internal-restricted"]
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
