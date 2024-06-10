@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - secret.sops.yml
   - hr-recyclarr.yml
-  - recycle-configmap.yml
+  - recyclarr-configmap.yml
