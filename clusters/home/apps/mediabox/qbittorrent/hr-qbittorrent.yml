@@ -147,17 +147,20 @@ spec:
           main:
             qbittorrent:
               - path: /config
-      gluetun:
+      gluetun-config:
         enabled: true
-        storageClass: sunbeam-nfs-csi
-        accessMode: "ReadWriteOnce"
-        size: 1Gi
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 32Mi
         advancedMounts:
           main:
             gluetun:
               - path: /gluetun
       gluetun-data:
+        enabled: true
         type: emptyDir
+        medium: Memory
+        sizeLimit: 16Mi
         advancedMounts:
           main:
             gluetun:
