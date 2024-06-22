@@ -1,0 +1,182 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: jellyfin
+  namespace: mediabox
+spec:
+  timeout: 10m
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.2.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          jellyfin:
+            image:
+              repository: docker.io/jellyfin/jellyfin
+              tag: 10.9.6.20240606-184155
+            env:
+              TZ: Etc/UTC
+              UMASK: "0022"
+              UMASK_SET: "0022"
+              NVIDIA_VISIBLE_DEVICES: void
+              S6_READ_ONLY_ROOT: "1"
+              JELLYFIN_PublishedServerUrl: http://127.0.0.1:8096
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: &port 8096
+                  initialDelaySeconds: 12
+                  periodSeconds: 15
+                  timeoutSeconds: 5
+                  failureThreshold: 5
+                  successThreshold: 1
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 12
+                  timeoutSeconds: 5
+                  failureThreshold: 4
+                  successThreshold: 2
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /
+                    port: *port
+                  initialDelaySeconds: 10
+                  periodSeconds: 5
+                  timeoutSeconds: 3
+                  failureThreshold: 60
+                  successThreshold: 1
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsGroup: 568
+              runAsNonRoot: true
+              runAsUser: 568
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+                ephemeral-storage: 1Gi
+              limits:
+                cpu: 4000m
+                memory: 8192Mi
+                ephemeral-storage: 2Gi
+    defaultPodOptions:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+        options:
+          - { name: ndots, value: "1" }
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: *port
+            protocol: HTTP
+      autodiscovery:
+        enabled: true
+        controller: main
+        ports:
+          autodiscovery:
+            enabled: true
+            port: 7359
+            protocol: UDP
+    persistence:
+      config:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: "ReadWriteOnce"
+        size: 32Gi
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /config
+      cache:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: &limit 8Gi
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /cache
+      tmp:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /tmp
+      varlogs:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /var/logs
+      varrun:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /var/run
+      transcode:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            jellyfin:
+              - path: /config/transcode
+      devdri:
+        enabled: true
+        type: hostPath
+        hostPathType: Directory
+        hostPath: /dev/dri
+      media:
+        type: nfs
+        server: sunbeam.layertwo.lan
+        path: /mnt/storage0/media
+        advancedMounts:
+          main:
+            jellyfin:
+            - path: /movies
+              subPath: movies
+            - path: /tv
+              subPath: tv
+

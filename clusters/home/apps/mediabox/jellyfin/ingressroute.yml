@@ -2,7 +2,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: jellyfin-layertwo-dev
+  name: jellyfin
   namespace: mediabox
   annotations:
     external-dns.alpha.kubernetes.io/enabled: "true"
@@ -17,5 +17,5 @@ spec:
   - match: Host(`jellyfin.layertwo.dev`)
     kind: Rule
     services:
-    - name: jellyfin
+    - name: jellyfin-main
       port: 8096
