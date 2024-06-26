@@ -39,7 +39,7 @@ spec:
                     optional: false
               - name: DNS_NAME
                 value: "proxy-external.layertwo.dev"
-            image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:40513b34ae6ba61a252dd7f19e64ab42a3a4aad03c57738ea359a96c46010784
+            image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:7c756dd6d1f87590751626079c71241bc557404510c0c3023accbb0b697d005e
           restartPolicy: OnFailure
           dnsConfig:
             nameservers:
