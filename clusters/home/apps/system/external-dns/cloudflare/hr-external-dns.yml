@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: external-dns
+  name: &app external-dns-cloudflare
   namespace: external-dns
 spec:
   chart:
@@ -15,9 +15,9 @@ spec:
       version: 1.14.5
   interval: 60m
   values:
-    logLevel: debug
-    interval: 2m
-    provider: cloudflare
+    fullnameOverride: *app
+    provider:
+      name: cloudflare
     env:
       - name: CF_API_TOKEN
         valueFrom:
@@ -26,8 +26,14 @@ spec:
             key: token
     extraArgs:
       - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
+      - --cloudflare-dns-records-per-page=1000
+      #- --cloudflare-proxied
+      - --crd-source-apiversion=externaldns.k8s.io/v1alpha1
+      - --crd-source-kind=DNSEndpoint
+      - --events
+      - --ignore-ingress-tls-spec
+      - --ingress-class=external
       - --traefik-disable-legacy
-    # policy sync for fully handle the domain
     policy: sync
     sources:
       - service
@@ -37,11 +43,9 @@ spec:
       - layertwo.dev
     serviceMonitor:
       enabled: false
-      additionalLabels:
-        release: monitoring
     resources:
       requests:
         cpu: 10m
-        memory: 14Mi
+        memory: 16Mi
       limits:
         memory: 64Mi
