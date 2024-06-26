@@ -10,10 +10,8 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
   bootstrap:
     initdb:
+      database: radarr_main
       owner: radarr
-      postInitSQL:
-        - CREATE DATABASE radarr_main OWNER radarr;
-        - CREATE DATABASE radarr_log OWNER radarr;
   storage:
     storageClass: sunbeam-nfs-csi
     size: 4Gi
