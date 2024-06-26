@@ -1,0 +1,144 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: sonarr
+  namespace: mediabox
+spec:
+  timeout: 10m
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.2.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          sonarr:
+            image:
+              repository: ghcr.io/onedr0p/sonarr
+              tag: 4.0.5.1710
+            env:
+              TZ: Etc/UTC
+              SONARR__APP__INSTANCENAME: sonarr
+              SONARR__APP__THEME: dark
+              SONARR__AUTH__METHOD: External
+              SONARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              SONARR__LOG__DBENABLED: "False"
+              SONARR__LOG__LEVEL: info
+              SONARR__SERVER__PORT: &port 8989
+              SONARR__POSTGRES__HOST:
+                secretKeyRef:
+                  name: cnpg-sonarr-app
+                  key: host
+              SONARR__POSTGRES__USER:
+                secretKeyRef:
+                  name: cnpg-sonarr-app
+                  key: user
+              SONARR__POSTGRES__PASSWORD:
+                secretKeyRef:
+                  name: cnpg-sonarr-app
+                  key: password
+              SONARR__POSTGRES__MAINDB: sonarr_main
+            probes:
+              liveness: &probes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: *port
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *probes
+              startup:
+                enabled: false
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              runAsGroup: 568
+              runAsNonRoot: true
+              runAsUser: 568
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+                ephemeral-storage: 1Gi
+              limits:
+                cpu: 1000m
+                memory: 8192Mi
+                ephemeral-storage: 2Gi
+    defaultPodOptions:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+        options:
+          - { name: ndots, value: "1" }
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: *port
+            protocol: HTTP
+    persistence:
+      config:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: "ReadWriteOnce"
+        size: 16Gi
+        advancedMounts:
+          main:
+            sonarr:
+              - path: /config
+      tmp:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: &limit 8Gi
+        advancedMounts:
+          main:
+            sonarr:
+              - path: /tmp
+      varlogs:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            sonarr:
+              - path: /var/logs
+      varrun:
+        enabled: true
+        type: emptyDir
+        medium: Memory
+        sizeLimit: *limit
+        advancedMounts:
+          main:
+            sonarr:
+              - path: /var/run
+      media:
+        type: nfs
+        server: sunbeam.layertwo.lan
+        path: /mnt/storage0/media
+        advancedMounts:
+          main:
+            sonarr:
+            - path: /shows
+              subPath: tv
+            - path: /downloads
+              subPath: downloads
+
