@@ -25,27 +25,29 @@ spec:
               tag: 1.18.0.4543
             env:
               TZ: "Etc/UTC"
-              PROWLARR__INSTANCE_NAME: Prowlarr
-              PROWLARR__PORT: &port 9696
-              PROWLARR__LOG_LEVEL: info
-              PROWLARR__ANALYTICS_ENABLED: "False"
-              PROWLARR__POSTGRES_HOST:
+              PROWLARR__APP__INSTANCENAME: Radarr
+              PROWLARR__APP__THEME: dark
+              PROWLARR__AUTH__METHOD: External
+              PROWLARR__AUTH__REQUIRED: DisabledForLocalAddresses
+              PROWLARR__LOG__DBENABLED: "False"
+              PROWLARR__LOG__LEVEL: info
+              PROWLARR__SERVER__PORT: &port 9696
+              PROWLARR__POSTGRES__HOST:
                 valueFrom:
                   secretKeyRef:
                     name: cnpg-prowlarr-app
                     key: host
-              PROWLARR__POSTGRES_MAIN_DB: prowlarr_main
-              PROWLARR__POSTGRES_LOG_DB: prowlarr_log
-              PROWLARR__POSTGRES_USER:
+              PROWLARR__POSTGRES__USER:
                 valueFrom:
                   secretKeyRef:
                     name: cnpg-prowlarr-app
                     key: user
-              PROWLARR__POSTGRES_PASSWORD:
+              PROWLARR__POSTGRES__PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: cnpg-prowlarr-app
                     key: password
+              PROWLARR__POSTGRES__MAINDB: prowlarr_main
             probes:
               liveness: &probes
                 enabled: true

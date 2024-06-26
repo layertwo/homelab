@@ -10,10 +10,8 @@ spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:16.2
   bootstrap:
     initdb:
+      database: prowlarr_main
       owner: prowlarr
-      postInitSQL:
-        - CREATE DATABASE prowlarr_main OWNER prowlarr;
-        - CREATE DATABASE prowlarr_log OWNER prowlarr;
   storage:
     storageClass: sunbeam-nfs-csi
     size: 4Gi
