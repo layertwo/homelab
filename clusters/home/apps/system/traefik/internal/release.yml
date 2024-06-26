@@ -24,8 +24,9 @@ spec:
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
         metallb.universe.tf/address-pool: internal
     ingressClass:
-      annotations:
-        ingressclass.kubernetes.io/is-default-class: "true"
+        enabled: true
+        default: true
+        name: internal
     ingressRoute:
       dashboard:
         annotations:
@@ -37,9 +38,9 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
-        ingressClass: "traefik-internal"
+        ingressClass: internal
       kubernetesIngress:
-        ingressClass: "traefik-internal"
+        ingressClass: internal
     logs:
       access:
         enabled: true
