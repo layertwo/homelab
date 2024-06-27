@@ -28,7 +28,6 @@ spec:
       - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
       - --cloudflare-dns-records-per-page=1000
       - --events
-      - --ignore-ingress-tls-spec
       - --ingress-class=external
     policy: sync
     sources:
