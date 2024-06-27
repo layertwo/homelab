@@ -29,6 +29,7 @@ spec:
       - --cloudflare-dns-records-per-page=1000
       - --events
       - --ingress-class=external
+      - --traefik-disable-legacy
     policy: sync
     sources:
       - service
