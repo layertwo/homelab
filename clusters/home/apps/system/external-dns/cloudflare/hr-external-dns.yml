@@ -15,9 +15,10 @@ spec:
       version: 1.14.5
   interval: 60m
   values:
+    logLevel: debug
+    interval: 2m
     fullnameOverride: *app
-    provider:
-      name: cloudflare
+    provider: cloudflare
     env:
       - name: CF_API_TOKEN
         valueFrom:
@@ -27,13 +28,10 @@ spec:
     extraArgs:
       - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
       - --cloudflare-dns-records-per-page=1000
-      - --events
       - --ingress-class=external
       - --traefik-disable-legacy
     policy: sync
     sources:
-      - service
-      - ingress
       - traefik-proxy
     domainFilters:
       - layertwo.dev
