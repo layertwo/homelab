@@ -8,7 +8,7 @@ metadata:
     external-dns.alpha.kubernetes.io/enabled: "true"
     external-dns.alpha.kubernetes.io/hostname: "inside.layertwo.dev"
     external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-    kubernetes.io/ingress.class: "traefik-internal"
+    kubernetes.io/ingress.class: "internal"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
 spec:
   entryPoints:

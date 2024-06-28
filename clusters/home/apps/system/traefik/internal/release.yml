@@ -22,11 +22,12 @@ spec:
       annotations:
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
+        kubernetes.io/ingress.class: &ingressName internal
         metallb.universe.tf/address-pool: internal
     ingressClass:
         enabled: true
         default: true
-        name: internal
+        name: *ingressName
     ingressRoute:
       dashboard:
         annotations:
@@ -38,9 +39,9 @@ spec:
     providers:
       kubernetesCRD:
         allowCrossNamespace: true
-        ingressClass: internal
+        ingressClass: *ingressName
       kubernetesIngress:
-        ingressClass: internal
+        ingressClass: *ingressName
     logs:
       access:
         enabled: true

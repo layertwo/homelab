@@ -30,7 +30,7 @@ spec:
     ingressClass:
       enabled: true
       default: false
-      name: external
+      name: &ingressName external
     ingressRoute:
       dashboard:
         annotations:
@@ -40,7 +40,11 @@ spec:
         matchRule: Host(`traefik-external.layertwo.dev`)
     providers:
       kubernetesCRD:
+        enabled: true
         allowCrossNamespace: true
-        ingressClass: external
+        ingressClass: *ingressName
       kubernetesIngress:
-        ingressClass: external
+        enabled: true
+        ingressClass: *ingressName
+        publishedService:
+          enabled: false

@@ -26,7 +26,7 @@ spec:
             name: external-dns-cloudflare
             key: token
     extraArgs:
-      - --annotation-filter=external-dns.alpha.kubernetes.io/enabled in (true)
+      - --annotation-filter=kubernetes.io/ingress.class in (external)
       - --cloudflare-dns-records-per-page=1000
       - --ingress-class=external
       - --traefik-disable-legacy
