@@ -18,7 +18,13 @@ spec:
       namespace: cert-manager
   interval: 60m
   values:
+    ports:
+      web:
+        redirectTo:
+          port: websecure
     service:
+      spec:
+        externalTrafficPolicy: Local
       annotations:
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"

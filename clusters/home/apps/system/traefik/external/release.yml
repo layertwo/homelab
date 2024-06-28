@@ -18,11 +18,17 @@ spec:
     - name: cert-manager
       namespace: cert-manager
   values:
+    ports:
+      web:
+        redirectTo:
+          port: websecure
     tlsStore:
       default:
         defaultCertificate:
           secretName: wildcard-layertwo-dev-tls
     service:
+      spec:
+        externalTrafficPolicy: Local
       annotations:
         metallb.universe.tf/address-pool: external
         external-dns.alpha.kubernetes.io/enabled: "true"
