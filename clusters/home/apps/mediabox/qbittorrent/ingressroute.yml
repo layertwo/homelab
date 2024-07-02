@@ -19,3 +19,5 @@ spec:
     services:
     - name: qbittorrent
       port: 9091
+    middlewares:
+      - name: default-headers-mediabox

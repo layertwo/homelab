@@ -19,3 +19,5 @@ spec:
     services:
     - name: jellyfin-main
       port: 8096
+    middlewares:
+      - name: default-headers-mediabox

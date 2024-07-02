@@ -19,3 +19,5 @@ spec:
     services:
     - name: bazarr
       port: 6767
+    middlewares:
+      - name: default-headers-mediabox

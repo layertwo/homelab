@@ -19,3 +19,5 @@ spec:
     services:
     - name: jellyseer
       port: 5055
+    middlewares:
+      - name: default-headers-mediabox
