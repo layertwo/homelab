@@ -39,6 +39,7 @@ spec:
       default: false
       name: &ingressName external
     ingressRoute:
+      enabled: true
       dashboard:
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"

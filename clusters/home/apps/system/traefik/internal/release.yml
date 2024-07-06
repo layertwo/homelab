@@ -36,6 +36,7 @@ spec:
         name: *ingressName
     ingressRoute:
       dashboard:
+        enabled: true
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-internal.layertwo.dev"
