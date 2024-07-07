@@ -1,71 +1,75 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-    name: truenas-nfs
-    namespace: democratic-csi
+  name: truenas-nfs
+  namespace: democratic-csi
 spec:
-    chart:
-        spec:
-            chart: democratic-csi
-            sourceRef:
-                kind: HelmRepository
-                name: democratic-csi
-                namespace: flux-system
-            version: 0.14.6
-    interval: 60m
-    valuesFrom:
+  chart:
+    spec:
+      chart: democratic-csi
+      sourceRef:
+        kind: HelmRepository
+        name: democratic-csi
+        namespace: flux-system
+      version: 0.14.6
+  interval: 60m
+  valuesFrom:
     - targetPath: driver.config.httpConnection.apiKey
       kind: Secret
       name: truenas-api-secret
       valuesKey: apiKey
-    values:
-        csiDriver:
-            # should be globally unique for a given cluster
-            name: org.democratic-csi.nfs
-            fsGroupPolicy: File
-        storageClasses:
-            - name: sunbeam-nfs-csi
-              defaultClass: false
-              reclaimPolicy: Delete
-              volumeBindingMode: Immediate
-              allowVolumeExpansion: true
-              parameters:
-                fsType: nfs
-              mountOptions:
-                - noatime
-                - nfsvers=4
-              secrets:
-                provisioner-secret: null
-                controller-publish-secret: null
-                node-stage-secret: null
-                node-publish-secret: null
-                controller-expand-secret: null
-        driver:
-            config:
-                driver: freenas-api-nfs
-                instance_id: null
-                httpConnection:
-                    protocol: https
-                    host: sunbeam.layertwo.lan
-                    port: 443
-                    allowInsecure: true
-                zfs:
-                    datasetParentName: storage0/kubernetes/persistent-volume/nfs/volumes
-                    detachedSnapshotsDatasetParentName: storage0/kubernetes/persistent-volume/nfs/snapshots
-                    datasetEnableQuotas: true
-                    datasetEnableReservation: false
-                    datasetPermissionsMode: "0777"
-                    datasetPermissionsUser: 3001
-                    datasetPermissionsGroup: 3001
-                nfs:
-                    shareHost: sunbeam.layertwo.lan
-                    shareAlldirs: false
-                    shareAllowedHosts:
-                        - 172.31.0.10
-                        - 172.31.0.11
-                        - 172.31.0.12
-                    shareAllowedNetworks: []
-                    shareMaprootUser: root
-                    shareMaprootGroup: wheel
-                    shareMapallUser: ""
-                    shareMapallGroup: ""
+  values:
+    csiDriver:
+      name: org.democratic-csi.nfs
+      fsGroupPolicy: File
+    storageClasses:
+      - name: sunbeam-nfs-csi
+        defaultClass: false
+        reclaimPolicy: Delete
+        volumeBindingMode: Immediate
+        allowVolumeExpansion: true
+        parameters:
+          fsType: nfs
+        mountOptions:
+          - noatime
+          - nfsvers=4
+        secrets:
+          provisioner-secret: null
+          controller-publish-secret: null
+          node-stage-secret: null
+          node-publish-secret: null
+          controller-expand-secret: null
+    driver:
+      config:
+        driver: freenas-api-nfs
+        instance_id: null
+        httpConnection:
+          protocol: https
+          host: sunbeam.layertwo.lan
+          port: 443
+          allowInsecure: true
+        zfs:
+          datasetParentName: storage0/kubernetes/persistent-volume/nfs/volumes
+          detachedSnapshotsDatasetParentName: storage0/kubernetes/persistent-volume/nfs/snapshots
+          datasetEnableQuotas: true
+          datasetEnableReservation: false
+          datasetPermissionsMode: "0777"
+          datasetPermissionsUser: 3001
+          datasetPermissionsGroup: 3001
+        nfs:
+          shareHost: sunbeam.layertwo.lan
+          shareAlldirs: false
+          shareAllowedHosts:
+            - 172.31.0.10
+            - 172.31.0.11
+            - 172.31.0.12
+          shareAllowedNetworks: []
+          shareMaprootUser: root
+          shareMaprootGroup: wheel
+          shareMapallUser: ""
+          shareMapallGroup: ""
+    controller:
+      driver:
+        image: ghcr.io/democratic-csi/democratic-csi:v1.9.3
+      csiProxy:
+        image: ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.6
