@@ -6,6 +6,7 @@ metadata:
   namespace: authentik
 spec:
   interval: 5m
+  timeout: 10m
   chart:
     spec:
       chart: authentik
@@ -15,20 +16,11 @@ spec:
         name: authentik
         namespace: flux-system
       interval: 5m
-  dependsOn:
-    - name: longhorn
-      namespace: longhorn-system
   values:
+    authentik:
+      redis:
+        host: "authentik-redis.authentik.svc.cluster.local"
     server:
-      ingress:
-        enabled: true
-        annotations:
-          external-dns.alpha.kubernetes.io/enabled: "true"
-          external-dns.alpha.kubernetes.io/hostname: "authentik.layertwo.dev"
-          external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-          kubernetes.io/ingress.class: "internal"
-        hosts:
-          - authentik.layertwo.dev
       env:
         - name: AUTHENTIK_SECRET_KEY
           valueFrom:
@@ -53,23 +45,28 @@ spec:
         - name: AUTHENTIK_POSTGRESQL__HOST
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: host
         - name: AUTHENTIK_POSTGRESQL__NAME
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: dbname
         - name: AUTHENTIK_POSTGRESQL__USER
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: user
         - name: AUTHENTIK_POSTGRESQL__PASSWORD
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: password
+        - name: AUTHENTIK_REDIS__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secrets-authentik-redis
+              key: AUTHENTIK_REDIS_PASSWORD
     worker:
       env:
         - name: AUTHENTIK_SECRET_KEY
@@ -95,24 +92,29 @@ spec:
         - name: AUTHENTIK_POSTGRESQL__HOST
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: host
         - name: AUTHENTIK_POSTGRESQL__NAME
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: dbname
         - name: AUTHENTIK_POSTGRESQL__USER
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: user
         - name: AUTHENTIK_POSTGRESQL__PASSWORD
           valueFrom:
             secretKeyRef:
-              name: authentik-cnpg-app
+              name: cnpg-authentik-app
               key: password
+        - name: AUTHENTIK_REDIS__PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secrets-authentik-redis
+              key: AUTHENTIK_REDIS_PASSWORD
     redis:
-      enabled: true
+      enabled: false
     postgresql:
       enabled: false
