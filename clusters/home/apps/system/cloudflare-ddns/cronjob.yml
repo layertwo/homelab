@@ -29,16 +29,20 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     key: TOKEN
-                    name: cloudflare-ddns
+                    name: secrets-cloudflare-ddns
                     optional: false
               - name: ZONE_ID
                 valueFrom:
                   secretKeyRef:
                     key: ZONE_ID
-                    name: cloudflare-ddns
+                    name: secrets-cloudflare-ddns
                     optional: false
               - name: DNS_NAME
-                value: "proxy-external.layertwo.dev"
+                valueFrom:
+                  secretKeyRef:
+                    key: DNS_NAME
+                    name: secrets-cloudflare-ddns
+                    optional: false
               - name: ENABLE_PROXY
                 value: "true"
             image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:c612e43b154f4b42704e07c0c4da0272edb5e34b263d8e5d9070f995d1a38f15
