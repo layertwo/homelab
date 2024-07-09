@@ -12,7 +12,7 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
-      version: 29.0.0
+      version: 29.0.1
   interval: 60m
   dependsOn:
     - name: cert-manager
