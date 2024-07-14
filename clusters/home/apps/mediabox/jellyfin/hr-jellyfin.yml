@@ -69,13 +69,8 @@ spec:
                   failureThreshold: 60
                   successThreshold: 1
             securityContext:
-              allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
-              runAsGroup: 568
-              runAsNonRoot: true
-              runAsUser: 568
-              capabilities:
-                drop: ["ALL"]
+              privileged: true
             resources:
               requests:
                 cpu: 500m
@@ -85,6 +80,16 @@ spec:
                 cpu: 4000m
                 memory: 8192Mi
                 ephemeral-storage: 2Gi
+        pod:
+          securityContext:
+            runAsUser: 568
+            runAsGroup: 568
+            runAsNonRoot: true
+            fsGroup: 568
+            fsGroupChangePolicy: OnRootMismatch
+            supplementalGroups:
+              - 109
+              - 568
     defaultPodOptions:
       dnsConfig:
         nameservers:
