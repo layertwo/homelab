@@ -90,6 +90,8 @@ spec:
             supplementalGroups:
               - 109
               - 568
+          nodeSelector:
+            intel.feature.node.kubernetes.io/gpu: "true"
     defaultPodOptions:
       dnsConfig:
         nameservers:
