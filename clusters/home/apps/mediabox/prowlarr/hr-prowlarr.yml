@@ -22,7 +22,7 @@ spec:
           prowlarr:
             image:
               repository: ghcr.io/onedr0p/prowlarr
-              tag: 1.20.1.4603
+              tag: 1.21.2.4649
             env:
               TZ: "Etc/UTC"
               PROWLARR__APP__INSTANCENAME: Radarr
