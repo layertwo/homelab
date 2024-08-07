@@ -1,4 +1,4 @@
-FROM python:3.12.4-slim
+FROM python:3.12.5-slim
 COPY ./requirements.txt requirements.txt
 RUN python -m pip install --no-cache-dir --upgrade -r requirements.txt
 COPY ./cloudflare_ddns.py /
