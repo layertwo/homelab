@@ -55,3 +55,6 @@ spec:
         ingressClass: *ingressName
         publishedService:
           enabled: false
+    logs:
+      access:
+        enabled: true
