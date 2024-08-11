@@ -53,3 +53,5 @@ spec:
       access:
         enabled: true
     globalArguments: []
+    deployment:
+      replicas: 2
