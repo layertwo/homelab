@@ -58,3 +58,4 @@ spec:
     logs:
       access:
         enabled: true
+    globalArguments: []
