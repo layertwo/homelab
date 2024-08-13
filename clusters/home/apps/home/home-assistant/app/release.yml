@@ -32,11 +32,23 @@ spec:
               tag: 2024.8.1@sha256:d315bfaf6e9d5f612f4d773217c80cfb4b87f582b4278257739f792651221cdc
             env:
               TZ: Etc/UTC
-              HASS_POSTGRES_URL:
+              HOME_ASSISTANT__HACS_INSTALL: "true"
+              HASS_POSTGRES_URL: "postgresql://home-assistant:$(HASS_POSTGRES_PASSWORD)@$(HASS_POSTGRES_HOST).home-assistant.svc.cluster.local:5432/$(HASS_POSTGRES_DB)"
+              HASS_POSTGRES_HOST:
                 valueFrom:
                   secretKeyRef:
                     name: cnpg-home-assistant-app
-                    key: uri
+                    key: host
+              HASS_POSTGRES_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: cnpg-home-assistant-app
+                    key: password
+              HASS_POSTGRES_DB:
+                valueFrom:
+                  secretKeyRef:
+                    name: cnpg-home-assistant-app
+                    key: dbname
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -48,6 +60,11 @@ spec:
               limits:
                 memory: 2Gi
     defaultPodOptions:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+        options:
+          - { name: ndots, value: "1" }
       securityContext:
         fsGroupChangePolicy: OnRootMismatch
         seccompProfile:
