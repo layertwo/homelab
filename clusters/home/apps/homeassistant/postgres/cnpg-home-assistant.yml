@@ -1,0 +1,21 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-home-assistant
+  namespace: home-assistant
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.2
+  enableSuperuserAccess: true
+  bootstrap:
+    initdb:
+      database: home-assistant
+      owner: home-assistant
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
+  walStorage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
