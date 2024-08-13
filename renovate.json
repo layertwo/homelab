@@ -19,5 +19,17 @@
     "fileMatch": [
       "(^|/)clusters/.+\\.ya?ml$"
     ]
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": [
+      "(^|/)clusters/.+\\.ya?ml$"
+      ],
+      "matchStrings": [
+        "imageName: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
 }
