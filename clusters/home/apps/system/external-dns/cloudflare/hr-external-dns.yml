@@ -27,6 +27,7 @@ spec:
             key: token
     extraArgs:
       - --annotation-filter=kubernetes.io/ingress.class in (external)
+      - --cloudflare-proxied
       - --cloudflare-dns-records-per-page=1000
       - --ingress-class=external
       - --traefik-disable-legacy
