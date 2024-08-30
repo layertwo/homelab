@@ -1,0 +1,94 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: outline
+  namespace: outline
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          outline:
+            image:
+              repository: docker.io/outlinewiki/outline
+              tag: 0.78.0
+            env:
+              TZ: "Etc/UTC"
+              NODE_ENV: "production"
+              ENABLE_UPDATES: "false"
+              URL: "https://outline.layertwo.dev"
+              PORT: 8080
+              SECRET_KEY:
+                secretKeyRef:
+                  name: secrets-outline-app
+                  key: SECRET_KEY
+              UTILS_SECRET:
+                secretKeyRef:
+                  name: secrets-outline-app
+                  key: UTILS_SECRET
+              REDIS_URL: "redis://outline-redis.outline.svc.cluster.local:6379"
+              DATABASE_URL:
+                secretKeyRef:
+                  name: cnpg-outline-app
+                  key: uri
+              FILE_STORAGE: "local"
+              FILE_STORAGE_LOCAL_ROOT_DIR: "/var/lib/outline/data"
+              OIDC_CLIENT_ID:
+                secretKeyRef:
+                  name: secrets-outline-app
+                  key: OIDC_CLIENT_ID
+              OIDC_CLIENT_SECRET:
+                secretKeyRef:
+                  name: secrets-outline-app
+                  key: OIDC_CLIENT_SECRET
+              OIDC_AUTH_URI: "https://authentik.layertwo.dev/application/o/authorize/"
+              OIDC_TOKEN_URI: "https://authentik.layertwo.dev/application/o/token/"
+              OIDC_USERINFO_URI: "https://authentik.layertwo.dev/application/o/userinfo/"
+              OIDC_LOGOUT_URI: "https://authentik.layertwo.dev/application/o/outline/end-session/"
+              OIDC_USERNAME_CLAIM: "preferred_username"
+              OIDC_DISPLAY_NAME: "authentik"
+              OIDC_SCOPES: "openid profile email"
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+    defaultPodOptions:
+      dnsConfig:
+        nameservers:
+          - 1.1.1.1
+        options:
+          - { name: ndots, value: "1" }
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: 8080
+            protocol: HTTP
+    persistent:
+      data:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: "ReadWriteOnce"
+        size: 32Gi
+        globalMounts:
+          - path: /var/lib/outline/data

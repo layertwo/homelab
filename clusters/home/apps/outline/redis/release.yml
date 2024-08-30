@@ -1,0 +1,41 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: outline-redis
+  namespace: outline
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.4.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: public.ecr.aws/docker/library/redis
+              tag: 7.4.0-alpine3.20
+            env:
+              REDIS_PORT: &port 6379
+            resources:
+              requests:
+                cpu: 5m
+                memory: 128M
+              limits:
+                memory: 256M
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          redis:
+            enabled: true
+            port: *port
