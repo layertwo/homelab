@@ -15,6 +15,17 @@ data:
       use_x_forwarded_for: true
       trusted_proxies:
         - 10.42.0.0/16
+
+    homeassistant:
+      auth_providers:
+      - type: trusted_networks
+        trusted_networks:
+          - 0.0.0.0/1
+          - 128.0.0.0/1
+          - 0000::/0
+        allow_bypass_login: true
+      - type: homeassistant
+
     # Load frontend themes from the themes folder
     frontend:
       themes: !include_dir_merge_named themes
