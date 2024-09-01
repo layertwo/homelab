@@ -32,7 +32,6 @@ spec:
               tag: 2024.8.3@sha256:4c66f07029ce461e2e57991968977eea759bf231caa4ced7116d478a6e5bcb37
             env:
               TZ: Etc/UTC
-              HOME_ASSISTANT__HACS_INSTALL: "true"
               HASS_POSTGRES_URL: "postgresql://home-assistant:$(HASS_POSTGRES_PASSWORD)@$(HASS_POSTGRES_HOST).home-assistant.svc.cluster.local:5432/$(HASS_POSTGRES_DB)"
               HASS_POSTGRES_HOST:
                 valueFrom:
