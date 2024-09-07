@@ -23,7 +23,7 @@ spec:
           jellyfin:
             image:
               repository: ghcr.io/jellyfin/jellyfin
-              tag: 10.9.10
+              tag: 10.9.11
             env:
               TZ: Etc/UTC
               UMASK: "0022"
