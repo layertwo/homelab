@@ -44,6 +44,7 @@ spec:
                   key: uri
               FILE_STORAGE: "local"
               FILE_STORAGE_LOCAL_ROOT_DIR: "/var/lib/outline/data"
+              FILE_STORAGE_UPLOAD_MAX_SIZE: "26214400"
               OIDC_CLIENT_ID:
                 secretKeyRef:
                   name: secrets-outline-app
