@@ -5,7 +5,7 @@ metadata:
   name: cnpg-bazarr
   namespace: mediabox
 spec:
-  instances: 1
+  instances: 2
   primaryUpdateStrategy: unsupervised
   imageName: ghcr.io/cloudnative-pg/postgresql:16.4
   bootstrap:
