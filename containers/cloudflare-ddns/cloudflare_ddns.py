@@ -1,10 +1,11 @@
-from functools import cached_property, lru_cache
 import os
+from functools import cached_property, lru_cache
 from ipaddress import IPv4Address, IPv6Address, ip_address
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
-import CloudFlare
 import requests
+from cloudflare import Cloudflare
+from cloudflare.types.dns import Record
 
 JsonDict = Dict[str, Any]
 IPAddress = Union[IPv4Address, IPv6Address]
@@ -24,32 +25,29 @@ class ExternalIPHandler:
         return ip_address(data["ip"])
 
 
-class CloudFlareAdapter:
-    def __init__(self, token: str, zone_id: str) -> None:
-        self._client = CloudFlare.CloudFlare(token=token, warnings=False)
+class CloudflareAdapter:
+    def __init__(self, api_token: str, zone_id: str) -> None:
+        self._client = Cloudflare(api_token=api_token)
         self._zone_id = zone_id
 
-    def get_dns_record(self, dns_name: str, record_type: str) -> JsonDict:
-        params = {
-            "name": dns_name,
-            "match": "all",
-            "type": record_type,
-        }
-        return self._client.zones.dns_records.get(self._zone_id, params=params)
+    def get_dns_record(self, dns_name: str, record_type: str) -> Optional[Record]:
+        return self._client.dns.records.list(
+            zone_id=self._zone_id, name=dns_name, match="all", type=record_type
+        )
 
     def create_dns_record(
         self,
         dns_name: str,
         ip: IPAddress,
         enable_proxy: bool = False,
-    ) -> JsonDict:
-        params = {
-            "name": dns_name,
-            "type": get_dns_record_type(ip),
-            "content": str(ip),
-            "proxied": enable_proxy,
-        }
-        return self._client.zones.dns_records.post(self._zone_id, data=params)
+    ) -> Optional[Record]:
+        return self._client.dns.records.create(
+            zone_id=self._zone_id,
+            name=dns_name,
+            type=get_dns_record_type(ip),
+            content=str(ip),
+            proxied=enable_proxy,
+        )
 
     def update_dns_record(
         self,
@@ -57,24 +55,25 @@ class CloudFlareAdapter:
         dns_name: str,
         ip: IPAddress,
         enable_proxy: bool = False,
-    ) -> JsonDict:
-        params = {
-            "name": dns_name,
-            "type": get_dns_record_type(ip),
-            "content": str(ip),
-            "proxied": enable_proxy,
-        }
-        return self._client.zones.dns_records.put(self._zone_id, record_id, data=params)
+    ) -> Optional[Record]:
+        return self._client.dns.records.update(
+            dns_record_id=record_id,
+            zone_id=self._zone_id,
+            name=dns_name,
+            type=get_dns_record_type(ip),
+            content=str(ip),
+            proxied=enable_proxy,
+        )
 
 
 @lru_cache
-def get_dns_record_type(ip: IPAddress):
+def get_dns_record_type(ip: IPAddress) -> str:
     return "A" if ip.version == 4 else "AAAA"
 
 
 class ServiceProvider:
     @cached_property
-    def token(self) -> str:
+    def api_token(self) -> str:
         return os.environ.get("TOKEN")
 
     @cached_property
@@ -100,8 +99,8 @@ class ServiceProvider:
         return ExternalIPHandler()
 
     @cached_property
-    def cloudflare_adapter(self) -> CloudFlareAdapter:
-        return CloudFlareAdapter(token=self.token, zone_id=self.zone_id)
+    def cloudflare_adapter(self) -> CloudflareAdapter:
+        return CloudflareAdapter(api_token=self.api_token, zone_id=self.zone_id)
 
 
 def main():
@@ -118,8 +117,8 @@ def main():
         )
     else:
         for record in records:
-            old_address = record["content"]
-            old_record_type = record["type"]
+            old_address = record.content
+            old_record_type = record.type
 
             if old_record_type not in ["A", "AAAA"]:
                 # we only deal with A / AAAA records
@@ -132,7 +131,7 @@ def main():
                 continue
 
             if e.ip == ip_address(old_address):
-                if sp.enable_proxy == record["proxied"]:
+                if sp.enable_proxy == record.proxied:
                     print(f"nothing to update for {sp.dns_name} / {old_address}")
                     continue
                 print(
@@ -140,7 +139,7 @@ def main():
                 )
 
             cf.update_dns_record(
-                record_id=record["id"],
+                record_id=record.id,
                 dns_name=sp.dns_name,
                 ip=e.ip,
                 enable_proxy=sp.enable_proxy,
