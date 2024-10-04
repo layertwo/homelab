@@ -63,6 +63,8 @@ spec:
             - 172.31.0.10
             - 172.31.0.11
             - 172.31.0.12
+            - 172.31.0.40
+            - 172.31.0.41
           shareAllowedNetworks: []
           shareMaprootUser: root
           shareMaprootGroup: wheel
