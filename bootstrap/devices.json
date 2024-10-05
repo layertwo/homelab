@@ -10,5 +10,9 @@
   {
     "hostname": "node3.layertwo.dev",
     "ip": "172.31.0.12"
+  },
+  {
+    "hostname": "edge1.layertwo.dev",
+    "ip": "172.31.0.40"
   }
 ]
