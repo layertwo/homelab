@@ -14,3 +14,7 @@ spec:
         namespace: flux-system
       version: 0.14.8
   interval: 60m
+  values:
+    speaker:
+      frr:
+        enabled: false
