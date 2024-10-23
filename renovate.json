@@ -27,8 +27,7 @@
       "(^|/)clusters/.+\\.ya?ml$"
       ],
       "matchStrings": [
-        "imageName: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?",
-        "image: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?"
+        "imageName: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?"
       ],
       "datasourceTemplate": "docker"
     }
