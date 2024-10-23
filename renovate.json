@@ -28,7 +28,7 @@
       ],
       "matchStrings": [
         "imageName: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?",
-        "image: ['\"]?(?<depName>.+?):(?<currentValue>).+)['\"]?"
+        "image: ['\"]?(?<depName>.+?):(?<currentValue>.+)['\"]?"
       ],
       "datasourceTemplate": "docker"
     }
