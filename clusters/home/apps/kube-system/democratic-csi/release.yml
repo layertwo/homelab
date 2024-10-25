@@ -48,6 +48,7 @@ spec:
           host: sunbeam.layertwo.lan
           port: 443
           allowInsecure: true
+          apiVersion: 2
         zfs:
           datasetParentName: storage0/kubernetes/persistent-volume/nfs/volumes
           detachedSnapshotsDatasetParentName: storage0/kubernetes/persistent-volume/nfs/snapshots
@@ -71,7 +72,10 @@ spec:
           shareMapallUser: ""
           shareMapallGroup: ""
     controller:
+      enabled: true
       driver:
         image: ghcr.io/democratic-csi/democratic-csi:v1.9.3
+        enabled: true
+        logLevel: debug
       csiProxy:
         image: ghcr.io/democratic-csi/csi-grpc-proxy:v0.5.6
