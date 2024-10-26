@@ -1,0 +1,65 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: immich
+  namespace: immich
+spec:
+  interval: 15m
+  chart:
+    spec:
+      chart: immich
+      version: 0.8.2
+      sourceRef:
+        kind: HelmRepository
+        name: immich-charts
+        namespace: flux-system
+      interval: 15m
+  values:
+    env:
+      DB_HOSTNAME:
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-immich-app
+            key: host
+      DB_PORT: "5432"
+      DB_DATABASE_NAME:
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-immich-app
+            key: dbname
+      DB_USERNAME:
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-immich-superuser
+            key: username
+      DB_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-immich-superuser
+            key: password
+      LOG_LEVEL: verbose
+      NODE_ENV: "production"
+      REDIS_HOSTNAME: immich-redis.immich.svc.cluster.local
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: secrets-immich-redis
+            key: REDIS_PASSWORD
+    postgres:
+      enabled: false
+    redis:
+      enabled: false
+    immich:
+      persistence:
+        library:
+          existingClaim: immich-data
+    image:
+      tag: "v1.118.2"
+    server:
+      resources:
+        requests:
+          cpu: 1500m
+          memory: 2048M
+    machine-learning:
+      enabled: false

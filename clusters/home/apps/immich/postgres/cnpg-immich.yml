@@ -1,0 +1,24 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-immich
+  namespace: immich
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:16.4
+  postgresql:
+    shared_preload_libraries:
+      - "vectors.so"
+  enableSuperuserAccess: true
+  bootstrap:
+    initdb:
+      postInitSQL:
+        - ALTER SYSTEM SET search_path TO "$user", public, vectors;
+        - CREATE EXTENSION IF NOT EXISTS "vectors";
+        - CREATE EXTENSION IF NOT EXISTS "cube";
+        - CREATE EXTENSION IF NOT EXISTS "earthdistance";
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
