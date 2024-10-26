@@ -1,0 +1,11 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata: 
+  name: immich-transport
+  namespace: immich
+spec:
+  forwardingTimeouts:
+    dialTimeout: 600s
+    idleConnTimeout: 600s
+    responseHeaderTimeout: 600s
