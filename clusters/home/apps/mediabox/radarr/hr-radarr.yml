@@ -23,7 +23,7 @@ spec:
           radarr:
             image:
               repository: ghcr.io/onedr0p/radarr
-              tag: 5.13.1.9378
+              tag: 5.14.0.9383
             env:
               TZ: Etc/UTC
               RADARR__APP__INSTANCENAME: Radarr
