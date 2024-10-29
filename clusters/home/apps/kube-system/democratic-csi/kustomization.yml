@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - namespace.yml
   - secret.sops.yml
-  - hr-truenas-nfs.yml
+  - release.yml
