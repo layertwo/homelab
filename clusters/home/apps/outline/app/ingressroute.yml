@@ -19,3 +19,24 @@ spec:
     services:
     - name: outline
       port: 8080
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: outline-internal
+  namespace: outline
+  annotations:
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/hostname: "outline.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`outline.layertwo.dev`)
+    kind: Rule
+    services:
+    - name: outline
+      port: 8080

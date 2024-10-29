@@ -29,3 +29,34 @@ spec:
       services:
         - name: ak-outpost-traefik-outpost
           port: 9000
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: home-assistant-internal
+  namespace: home-assistant
+  annotations:
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/hostname: "home-assistant.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: "Host(`home-assistant.layertwo.dev`)"
+      middlewares:
+      - name: ak-outpost-traefik
+        namespace: authentik
+      priority: 10
+      services:
+      - name: home-assistant
+        port: 8123
+    - kind: Rule
+      match: "Host(`home-assistant.layertwo.dev`) && PathPrefix(`/outpost.goauthentik.io/`)"
+      priority: 15
+      services:
+        - name: ak-outpost-traefik-outpost
+          port: 9000
