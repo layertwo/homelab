@@ -62,4 +62,11 @@ spec:
           cpu: 1500m
           memory: 2048M
     machine-learning:
-      enabled: false
+      enabled: true
+      persistence:
+        cache:
+          enabled: true
+          size: 10Gi
+          type: pvc
+          accessMode: ReadWriteMany
+          storageClass: sunbeam-nfs-csi
