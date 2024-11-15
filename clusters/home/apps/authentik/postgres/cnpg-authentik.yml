@@ -8,7 +8,7 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.5
+  imageName: ghcr.io/cloudnative-pg/postgresql:17.1
   bootstrap:
     initdb:
       database: authentik
