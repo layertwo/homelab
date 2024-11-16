@@ -92,7 +92,6 @@ spec:
             enabled: true
             port: 8082
             protocol: HTTP
-            enabled: true
     persistence:
       library:
         enabled: true
