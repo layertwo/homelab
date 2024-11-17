@@ -17,13 +17,13 @@ spec:
       interval: 15m
   values:
     controllers:
-      main:
+      server:
         containers:
           server:
             image:
               repository: ghcr.io/immich-app/immich-server
               tag: v1.120.2
-            env:
+            env: &env
               DB_HOSTNAME:
                 valueFrom:
                   secretKeyRef:
@@ -67,17 +67,51 @@ spec:
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-              startup: *probes
+              startup: 
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/server/ping
+                    port: *http
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 30
             resources:
               requests:
                 cpu: 1500m
                 memory: 2048M
+      machine-learning:
+        containers:
+          machine-learning:
+            image:
+              repository: ghcr.io/immich-app/immich-machine-learning
+              tag: v1.120.2
+            env:
+              <<: *env
+              TRANSFORMERS_CACHE: /cache
+            probes:
+              liveness: &mlProbes
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /ping
+                    port: &mlPort 3003
+                  initialDelaySeconds: 0
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness: *mlProbes
+              startup:
+                enabled: false
     service:
-      main:
+      server:
         nameOverride: server
         enabled: true
         type: ClusterIP
-        controller: main
+        controller: server
         ports:
           http:
             enabled: true
@@ -92,11 +126,30 @@ spec:
             enabled: true
             port: 8082
             protocol: HTTP
+      machine-learning:
+        nameOverride: machine-learning
+        enabled: true
+        type: ClusterIP
+        controller: machine-learning
+        ports:
+          http:
+            enabled: true
+            port: *mlPort
+            protocol: HTTP
     persistence:
       library:
         enabled: true
         advancedMounts:
-          main:
+          server:
             server:
               - path: /usr/src/app/upload
         existingClaim: immich-data
+      cache:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: ReadWriteMany
+        size: 10Gi
+        advancedMounts:
+          machine-learning:
+            machine-learning:
+              - path: /cache
