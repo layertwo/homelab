@@ -58,16 +58,6 @@ spec:
                 cpu: 10m
               limits:
                 memory: 2Gi
-    defaultPodOptions:
-      dnsConfig:
-        nameservers:
-          - 1.1.1.1
-        options:
-          - { name: ndots, value: "1" }
-      securityContext:
-        fsGroupChangePolicy: OnRootMismatch
-        seccompProfile:
-          type: RuntimeDefault
     service:
       main:
         enabled: true
