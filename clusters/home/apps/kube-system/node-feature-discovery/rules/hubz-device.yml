@@ -1,0 +1,17 @@
+---
+apiVersion: nfd.k8s-sigs.io/v1alpha1
+kind: NodeFeatureRule
+metadata:
+  name: hubz-device
+spec:
+  rules:
+    - # Silicon Labs HubZ Smart Home Controller HUSBZB-1
+      name: hubz.zwave
+      labels:
+        feature.node.kubernetes.io/zwave: "true"
+        feature.node.kubernetes.io/zigbee: "true"
+      matchFeatures:
+        - feature: usb.device
+          matchExpressions:
+            vendor: { op: In, value: ["10c4"] }
+            device: { op: In, value: ["8a2a"] }

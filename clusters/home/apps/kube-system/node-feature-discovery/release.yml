@@ -26,3 +26,12 @@ spec:
       retries: 3
   uninstall:
     keepHistory: false
+  values:
+    worker:
+      config:
+        core:
+          sources: ["cpu", "custom", "pci", "usb"]
+        sources:
+          usb:
+            deviceClassWhitelist: ["02", "03", "0e", "ef", "fe", "ff"]
+            deviceLabelFields: ["class", "vendor", "device"]
