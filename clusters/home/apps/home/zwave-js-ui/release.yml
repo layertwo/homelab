@@ -1,4 +1,3 @@
-
 ---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
@@ -27,6 +26,9 @@ spec:
     controllers:
       main:
         type: statefulset
+        pod:
+           nodeSelector:
+             feature.node.kubernetes.io/zwave: "true"
         containers:
           main:
             image:
@@ -35,21 +37,6 @@ spec:
             env:
               TZ: "Etc/UTC"
               LOGLEVEL: info
-            probes:
-              liveness: &probes
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /health
-                    port: &port 8091
-                  initialDelaySeconds: 0
-                  periodSeconds: 10
-                  timeoutSeconds: 1
-                  failureThreshold: 3
-              readiness: *probes
-              startup:
-                enabled: false
             securityContext:
               privileged: true
             resources:
@@ -62,7 +49,7 @@ spec:
         controller: main
         ports:
           http:
-            port: *port
+            port: 8091 #*port
           websocket:
             enabled: true
             port: 3000
@@ -71,7 +58,15 @@ spec:
       config:
         enabled: true
         storageClass: sunbeam-nfs-csi
-        accessMode: "ReadWriteOnce"
+        accessMode: ReadWriteOnce
         size: 1Gi
         globalMounts:
           - path: /usr/src/app/store
+            readOnly: false
+      usb:
+        enabled: true
+        type: hostPath
+        hostPath: /dev/serial/by-id/usb-Silicon_Labs_HubZ_Smart_Home_Controller_51501310-if00-port0
+        hostPathType: CharDevice
+        globalMounts:
+          - path: /dev/zwave
