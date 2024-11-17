@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": ["Custom versioning for k3s"],
+      "matchDatasources": ["github-releases"],
+      "matchPackagePatterns": ["k3s"],
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$"
+    },
+    {
+      "description": ["Custom versioning for minio"],
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["minio"],
+      "versioning": "regex:^RELEASE\\.(?<major>\\d+)-(?<minor>\\d+)-(?<patch>\\d+)T.*Z$"
+    },
+    {
+      "description": ["Custom schedule for noisy packages"],
+      "matchDataSources": ["docker", "helm"],
+      "matchPackagePatterns": ["cloudnative-pg", "kube-prometheus-stack"],
+      "schedule": ["on saturday"]
+    }
+  ]
+}

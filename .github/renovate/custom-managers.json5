@@ -1,25 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":disableRateLimiting",
-    ":semanticCommits"
-  ],
-  "kubernetes": {
-    "fileMatch": [
-      "(^|/)clusters/.+\\.ya?ml$"
-    ]
-  },
-  "flux": {
-    "fileMatch": [
-      "(^|/)clusters/.+\\.ya?ml$"
-    ]
-  },
-  "helm-values": {
-    "fileMatch": [
-      "(^|/)clusters/.+\\.ya?ml$"
-    ]
-  },
   "customManagers": [
     {
       "customType": "regex",

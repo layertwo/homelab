@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:enableMajor",
+    "mergeConfidence:all-badges",
+    "replacements:k8s-registry-move",
+    ":disableRateLimiting",
+    ":semanticCommits",
+    "github>layertwo/flux//.github/renovate/allowed-versions.json5",
+    "github>layertwo/flux//.github/renovate/custom-managers.json5",
+    "github>layertwo/flux//.github/renovate/package-rules.json5"
+  ],
+  "kubernetes": {
+    "fileMatch": [
+      "(^|/)clusters/.+\\.ya?ml$"
+    ]
+  },
+  "flux": {
+    "fileMatch": [
+      "(^|/)clusters/.+\\.ya?ml$"
+    ]
+  },
+  "helm-values": {
+    "fileMatch": [
+      "(^|/)clusters/.+\\.ya?ml$"
+    ]
+  }
+}
