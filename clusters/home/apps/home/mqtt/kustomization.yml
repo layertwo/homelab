@@ -1,0 +1,8 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - secrets-emqx-dashboard.sops.yml
+  - secrets-emqx-user-init.sops.yml
+  - cluster.yml
+  - ingressroute.yml
