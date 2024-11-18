@@ -4,7 +4,31 @@ metadata:
   name: home-assistant-configmap
   namespace: home-assistant
 data:
-  automations.yaml: ""
+  automations.yaml: |-
+    - alias: Porch Lighting On
+      trigger:
+      - platform: sun
+        event: sunset
+        offset: '0'
+      condition: []
+      action:
+      - type: turn_on
+        device_id: 30daa89955e6b9ea139baab53291ed57
+        entity_id: 30c93b3e08f3244d6486a83e49f15b3f
+        domain: switch
+      mode: single
+    - alias: Porch Lighting Off
+      trigger:
+      - platform: sun
+        event: sunrise
+        offset: 0
+      condition: []
+      action:
+      - type: turn_off
+        device_id: 30daa89955e6b9ea139baab53291ed57
+        entity_id: 30c93b3e08f3244d6486a83e49f15b3f
+        domain: switch
+      mode: single
   scripts.yaml: ""
   scenes.yaml: ""
   configuration.yaml: |-
