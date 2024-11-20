@@ -22,7 +22,7 @@ spec:
           outline:
             image:
               repository: docker.io/outlinewiki/outline
-              tag: 0.81.0
+              tag: 0.81.1
             env:
               TZ: "Etc/UTC"
               NODE_ENV: "production"
