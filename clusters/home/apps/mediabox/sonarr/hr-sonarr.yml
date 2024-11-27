@@ -23,7 +23,7 @@ spec:
           sonarr:
             image:
               repository: ghcr.io/onedr0p/sonarr
-              tag: 4.0.10.2544
+              tag: 4.0.11.2680
             env:
               TZ: Etc/UTC
               SONARR__APP__INSTANCENAME: sonarr
