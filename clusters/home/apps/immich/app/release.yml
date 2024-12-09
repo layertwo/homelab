@@ -22,7 +22,7 @@ spec:
           server:
             image:
               repository: ghcr.io/immich-app/immich-server
-              tag: v1.122.1
+              tag: v1.122.2
             env: &env
               DB_HOSTNAME:
                 valueFrom:
