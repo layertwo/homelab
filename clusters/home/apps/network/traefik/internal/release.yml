@@ -22,6 +22,7 @@ spec:
       web:
         redirectTo:
           port: websecure
+
     service:
       spec:
         externalTrafficPolicy: Local
@@ -30,10 +31,17 @@ spec:
         external-dns.alpha.kubernetes.io/hostname: "proxy-internal.layertwo.dev"
         kubernetes.io/ingress.class: &ingressName internal
         metallb.universe.tf/address-pool: internal
+
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+
     ingressClass:
-        enabled: true
-        isDefaultClass: true
-        name: *ingressName
+      enabled: true
+      isDefaultClass: true
+      name: *ingressName
+
     ingressRoute:
       dashboard:
         enabled: true
@@ -43,15 +51,17 @@ spec:
           external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
+
     providers:
+
       kubernetesCRD:
         allowCrossNamespace: true
         ingressClass: *ingressName
+
       kubernetesIngress:
         ingressClass: *ingressName
+
     logs:
       access:
         enabled: true
     globalArguments: []
-    deployment:
-      replicas: 2

@@ -18,14 +18,17 @@ spec:
     - name: cert-manager
       namespace: cert-manager
   values:
+
     ports:
       web:
         redirectTo:
           port: websecure
+
     tlsStore:
       default:
         defaultCertificate:
           secretName: wildcard-layertwo-dev-tls
+
     service:
       spec:
         externalTrafficPolicy: Local
@@ -33,10 +36,17 @@ spec:
         metallb.universe.tf/address-pool: external
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+
+    autoscaling:
+      enabled: true
+      minReplicas: 2
+      maxReplicas: 4
+
     ingressClass:
       enabled: true
       isDefaultClass: false
       name: &ingressName external
+
     ingressRoute:
       dashboard:
         enabled: true
@@ -45,19 +55,22 @@ spec:
           external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-external.layertwo.dev`)
+
     providers:
+
       kubernetesCRD:
         enabled: true
         allowCrossNamespace: true
         ingressClass: *ingressName
+
       kubernetesIngress:
         enabled: true
         ingressClass: *ingressName
         publishedService:
           enabled: false
+
     logs:
       access:
         enabled: true
+
     globalArguments: []
-    deployment:
-      replicas: 2
