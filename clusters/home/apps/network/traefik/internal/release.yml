@@ -20,8 +20,15 @@ spec:
   values:
     ports:
       web:
+        transport:
+          respondingTimeouts:
+            readTimeout: 0s
         redirectTo:
           port: websecure
+      websecure:
+        transport:
+          respondingTimeouts:
+            readTimeout: 0s
 
     service:
       spec:
