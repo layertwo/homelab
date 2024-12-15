@@ -21,7 +21,8 @@ spec:
       redis:
         host: "authentik-redis.authentik.svc.cluster.local"
     server:
-      env:
+      replicas: 2
+      env: &env
         - name: AUTHENTIK_SECRET_KEY
           valueFrom:
             secretKeyRef:
@@ -68,52 +69,8 @@ spec:
               name: secrets-authentik-redis
               key: AUTHENTIK_REDIS_PASSWORD
     worker:
-      env:
-        - name: AUTHENTIK_SECRET_KEY
-          valueFrom:
-            secretKeyRef:
-              key: AUTHENTIK_SECRET_KEY
-              name: secrets-authentik
-        - name: AUTHENTIK_BOOTSTRAP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              key: AUTHENTIK_BOOTSTRAP_PASSWORD
-              name: secrets-authentik
-        - name: AUTHENTIK_BOOTSTRAP_TOKEN
-          valueFrom:
-            secretKeyRef:
-              key: AUTHENTIK_BOOTSTRAP_TOKEN
-              name: secrets-authentik
-        - name: AUTHENTIK_BOOTSTRAP_EMAIL
-          valueFrom:
-            secretKeyRef:
-              key: AUTHENTIK_BOOTSTRAP_EMAIL
-              name: secrets-authentik
-        - name: AUTHENTIK_POSTGRESQL__HOST
-          valueFrom:
-            secretKeyRef:
-              name: cnpg-authentik-app
-              key: host
-        - name: AUTHENTIK_POSTGRESQL__NAME
-          valueFrom:
-            secretKeyRef:
-              name: cnpg-authentik-app
-              key: dbname
-        - name: AUTHENTIK_POSTGRESQL__USER
-          valueFrom:
-            secretKeyRef:
-              name: cnpg-authentik-app
-              key: user
-        - name: AUTHENTIK_POSTGRESQL__PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: cnpg-authentik-app
-              key: password
-        - name: AUTHENTIK_REDIS__PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: secrets-authentik-redis
-              key: AUTHENTIK_REDIS_PASSWORD
+      replicas: 2
+      env: *env
     redis:
       enabled: false
     postgresql:
