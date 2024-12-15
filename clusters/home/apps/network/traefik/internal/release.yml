@@ -32,7 +32,7 @@ spec:
         metallb.universe.tf/address-pool: internal
     ingressClass:
         enabled: true
-        default: true
+        isDefaultClass: true
         name: *ingressName
     ingressRoute:
       dashboard:
