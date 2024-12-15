@@ -12,9 +12,10 @@ export class BackupStack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
 
+        this.backupBucket = this.createBackupBucket();
+
         this.backupUser = this.createBackupUser();
         this.backupRole = this.createBackupRole();
-        this.backupBucket = this.createBackupBucket();
     }
 
     private qualifyName(name: string) {
@@ -22,15 +23,19 @@ export class BackupStack extends Stack {
     }
 
     private createBackupUser(): iam.User {
-        return new iam.User(this, "ResticBackupUser", {});
+        const user = new iam.User(this, "ResticBackupUser", {});
+        const accessKey = new iam.AccessKey(user, "AccessKey", {user});
+        return user;
     }
 
     private createBackupRole(): iam.Role {
-        return new iam.Role(this, "BackupRole", {assumedBy: this.backupUser});
+        const role = new iam.Role(this, "BackupRole", {assumedBy: this.backupUser});
+        this.backupBucket.grantReadWrite(role);
+        return role;
     }
 
     private createBackupBucket(): s3.Bucket {
-        const bucket = new s3.Bucket(this, "BackupBucket", {
+        return new s3.Bucket(this, "BackupBucket", {
             bucketName: this.qualifyName("layertwo-dev-backup"),
             blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
             encryption: s3.BucketEncryption.S3_MANAGED,
@@ -39,7 +44,5 @@ export class BackupStack extends Stack {
             removalPolicy: RemovalPolicy.RETAIN,
             lifecycleRules: [],
         });
-        bucket.grantReadWrite(this.backupRole);
-        return bucket;
     }
 }
