@@ -11,7 +11,7 @@ spec:
     branch: mainline
   secretRef:
     name: flux-system
-  url: https://github.com/layertwo/flux.git
+  url: https://github.com/layertwo/homelab.git
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
