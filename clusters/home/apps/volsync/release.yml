@@ -22,3 +22,6 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  values:
+    manageCRDs: true
+    replicaCount: 2
