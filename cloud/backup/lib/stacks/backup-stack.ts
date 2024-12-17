@@ -1,6 +1,6 @@
 import {Construct} from "constructs";
 
-import {RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
+import {Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 
@@ -42,7 +42,24 @@ export class BackupStack extends Stack {
             enforceSSL: true,
             versioned: true, // TODO consider
             removalPolicy: RemovalPolicy.RETAIN,
-            lifecycleRules: [],
+            lifecycleRules: [
+                {
+                    id: "GlacierTransition",
+                    enabled: true,
+                    transitions: [
+                        {
+                            storageClass: s3.StorageClass.DEEP_ARCHIVE,
+                            transitionAfter: Duration.days(14),
+                        },
+                    ],
+                },
+                {
+                    id: "Expiration",
+                    enabled: true,
+                    expiration: Duration.days(365),
+                },
+            ],
+            autoDeleteObjects: false,
         });
     }
 }
