@@ -23,13 +23,16 @@ export class BackupStack extends Stack {
     }
 
     private createBackupUser(): iam.User {
-        const user = new iam.User(this, "ResticBackupUser", {});
-        const accessKey = new iam.AccessKey(user, "AccessKey", {user});
+        const user = new iam.User(this, "VolSyncUser", {userName: "volsync-user"});
+        new iam.AccessKey(user, "AccessKey", {user});
         return user;
     }
 
     private createBackupRole(): iam.Role {
-        const role = new iam.Role(this, "BackupRole", {assumedBy: this.backupUser});
+        const role = new iam.Role(this, "BackupRole", {
+            roleName: "layertwo-backup-role",
+            assumedBy: this.backupUser,
+        });
         this.backupBucket.grantReadWrite(role);
         return role;
     }
