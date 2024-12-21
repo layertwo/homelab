@@ -15,9 +15,11 @@ spec:
         name: backube
         namespace: flux-system
   install:
+    crds: CreateReplace
     remediation:
       retries: 3
   upgrade:
+    crds: CreateReplace
     cleanupOnFail: true
     remediation:
       strategy: rollback
@@ -25,3 +27,5 @@ spec:
   values:
     manageCRDs: true
     replicaCount: 2
+    metrics:
+      disableAuth: true
