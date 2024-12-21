@@ -93,8 +93,11 @@ spec:
               - secretRef:
                   name: gluetun-secret
             securityContext:
-             capabilities:
-               add: ["NET_ADMIN"]
+              privileged: true
+              capabilities:
+                add: 
+                - NET_ADMIN
+                - SYS_MODULE
             resources:
               requests:
                 memory: 256Mi
