@@ -1,4 +1,4 @@
-name: Build and Push Docker Images
+name: cloudnative-pgvecto.rs build and release
 
 on:
   push:
