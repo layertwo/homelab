@@ -1,0 +1,147 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches: [ "mainline" ]
+    paths:
+      - containers/cloudnative-pgevecto.rs/**
+      - .github/workflows/cloudnatvie-pgvecto_rs-docker-image.yml
+  pull_request:
+    branches: [ "mainline" ]
+    paths:
+      - containers/cloudnative-pgevecto.rs/**
+      - .github/workflows/cloudnatvie-pgvecto_rs-docker-image.yml
+
+env:
+  # Use docker.io for Docker Hub if empty
+  REGISTRY: ghcr.io
+  # github.repository as <account>/<repo>
+  IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.get-versions.outputs.result }}
+    steps:
+     - name: Checkout to repository
+       uses: actions/checkout@v4
+     - name: Get dependency versions
+       uses: mikefarah/yq@v4.44.6
+       id: get-versions
+       with:
+        cmd: yq eval -o=json -I=0 containers/cloudnative-pgvector.rs/versions.yml
+
+  build:
+    runs-on: ubuntu-latest
+    needs: configure
+    strategy:
+      # Prevent a failure in one image from stopping the other builds
+      fail-fast: false
+      matrix: ${{ fromJson(needs.configure.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
+        with:
+          cosign-release: 'v2.1.1'
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.2.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5 # v3.8.0
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine version change
+        id: changed-version
+        uses: tj-actions/changed-files@v45
+        with:
+          files: containers/cloudnative-pgvector.rs/versions.yml
+
+      - name: Determine image push
+        uses: actions/github-script@v7
+        id: should-release
+        with:
+          script: |
+            if (context.eventName == "pull_request") return false;
+            if (context.eventName == "workflow_dispatch") return true;
+            return "${{ steps.changed-version.outputs.any_changed }}" == "true";
+
+      - name: Set major postgres version
+        id: version
+        run: |
+          pg_major=$(echo ${{ matrix.cnpg }} | cut -d'.' -f1)
+          echo "pg_major=$pg_major" >> "$GITHUB_OUTPUT"
+
+      - name: Generate docker image tags
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            # Disable latest tag
+            latest=false
+          images: |
+            name=ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ matrix.cnpg }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
+            type=raw,value=${{ steps.version.outputs.pg_major }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
+            type=raw,value=${{ matrix.cnpg }},enable=${{ steps.should-release.outputs.result }}
+            type=raw,value=${{ steps.version.outputs.pg_major }},enable=${{ steps.should-release.outputs.result }}
+
+      - name: Build and push image
+        id: build-and-push
+        uses: docker/build-push-action@v6.10.0
+        with:
+          context: containers/cloudnative-pgvecto.rs
+          platforms: linux/amd64,linux/arm64
+          push: ${{ !github.event.pull_request.head.repo.fork && steps.metadata.outputs.tags != '' }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          build-args: |
+            CNPG_TAG=${{ matrix.cnpg }}
+            PGVECTORS_TAG=${{ matrix.pgvectors }}
+
+      - name: Sign the published Docker image
+        if: ${{ github.event_name != 'pull_request' }}
+        env:
+          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+          TAGS: ${{ steps.metadata.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        # This step uses the identity token to provision an ephemeral certificate
+        # against the sigstore community Fulcio instance.
+        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+
+  results:
+      if: ${{ always() }}
+      runs-on: ubuntu-latest
+      name: Build results
+      needs: [build_and_push]
+      steps:
+        - run: |
+            result="${{ needs.build_and_push.result }}"
+            if [[ $result == "success" || $result == "skipped" ]]; then
+              exit 0
+            else
+              exit 1
+            fi
