@@ -9,3 +9,4 @@ spec:
     dialTimeout: 600s
     idleConnTimeout: 600s
     responseHeaderTimeout: 600s
+    readIdleTimeout: 600s
