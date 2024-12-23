@@ -4,13 +4,13 @@ on:
   push:
     branches: [ "mainline" ]
     paths:
-      - containers/cloudnative-pgevecto.rs/**
-      - .github/workflows/cloudnatvie-pgvecto_rs-docker-image.yml
+      - containers/cloudnative-pgvecto.rs/**
+      - .github/workflows/cloudnative-pgvecto_rs-docker-image.yml
   pull_request:
     branches: [ "mainline" ]
     paths:
-      - containers/cloudnative-pgevecto.rs/**
-      - .github/workflows/cloudnatvie-pgvecto_rs-docker-image.yml
+      - containers/cloudnative-pgvecto.rs/**
+      - .github/workflows/cloudnative-pgvecto_rs-docker-image.yml
 
 env:
   # Use docker.io for Docker Hub if empty
