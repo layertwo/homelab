@@ -8,7 +8,7 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/tensorchord/cloudnative-pgvecto.rs:16.5
+  imageName: ghcr.io/layertwo/cloudnative-pgvecto-rs:16.6
   postgresql:
     shared_preload_libraries:
       - "vectors.so"
