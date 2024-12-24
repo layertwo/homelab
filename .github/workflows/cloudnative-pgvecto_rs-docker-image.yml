@@ -100,7 +100,7 @@ jobs:
             # Disable latest tag
             latest=false
           images: |
-            name=ghcr.io/${{ github.repository }}
+            name=layertwo/cloudnative-pgvecto-rs
           tags: |
             type=raw,value=${{ matrix.cnpg }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
             type=raw,value=${{ steps.version.outputs.pg_major }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
@@ -135,11 +135,11 @@ jobs:
   results:
       if: ${{ always() }}
       runs-on: ubuntu-latest
-      name: Build results
+      name: results
       needs: [build]
       steps:
         - run: |
-            result="${{ needs.build_and_push.result }}"
+            result="${{ needs.build.result }}"
             if [[ $result == "success" || $result == "skipped" ]]; then
               exit 0
             else
