@@ -101,6 +101,7 @@ jobs:
             latest=false
           images: |
             name=layertwo/cloudnative-pgvecto-rs
+            name=ghcr.io/layertwo/cloudnative-pgvecto-rs
           tags: |
             type=raw,value=${{ matrix.cnpg }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
             type=raw,value=${{ steps.version.outputs.pg_major }}-${{ matrix.pgvectors }},enable=${{ steps.should-release.outputs.result }}
