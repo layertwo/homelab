@@ -52,12 +52,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da # v3.7.0
-        with:
-          cosign-release: 'v2.1.1'
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.2.0
 
@@ -122,16 +116,6 @@ jobs:
           build-args: |
             CNPG_TAG=${{ matrix.cnpg }}
             PGVECTORS_TAG=${{ matrix.pgvectors }}
-
-      - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.metadata.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
 
   results:
       if: ${{ always() }}
