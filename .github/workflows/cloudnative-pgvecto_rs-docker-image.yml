@@ -136,7 +136,7 @@ jobs:
       if: ${{ always() }}
       runs-on: ubuntu-latest
       name: Build results
-      needs: [build_and_push]
+      needs: [build]
       steps:
         - run: |
             result="${{ needs.build_and_push.result }}"
