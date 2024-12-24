@@ -1,6 +1,7 @@
 name: Bird build and release
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "mainline" ]
     paths:
