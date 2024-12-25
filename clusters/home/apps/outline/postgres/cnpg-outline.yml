@@ -20,7 +20,7 @@ spec:
       wal:
         compression: bzip2
         maxParallel: 8
-      destinationPath: s3://layertwo-dev-cloudnativepg/outline
+      destinationPath: s3://layertwo-dev-cloudnativepg/
       endpointURL: https://62eaebf5ed37822b342914fbdc45a08d.r2.cloudflarestorage.com
       serverName: outline
       s3Credentials: 
