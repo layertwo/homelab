@@ -45,23 +45,6 @@ export class BackupStack extends Stack {
             enforceSSL: true,
             versioned: true, // TODO consider
             removalPolicy: RemovalPolicy.RETAIN,
-            lifecycleRules: [
-                {
-                    id: "GlacierTransition",
-                    enabled: true,
-                    transitions: [
-                        {
-                            storageClass: s3.StorageClass.DEEP_ARCHIVE,
-                            transitionAfter: Duration.days(14),
-                        },
-                    ],
-                },
-                {
-                    id: "Expiration",
-                    enabled: true,
-                    expiration: Duration.days(365),
-                },
-            ],
             autoDeleteObjects: false,
         });
     }
