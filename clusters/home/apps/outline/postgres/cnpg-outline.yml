@@ -12,3 +12,21 @@ spec:
   storage:
     storageClass: sunbeam-nfs-csi
     size: 16Gi
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 8
+      destinationPath: s3://layertwo-dev-cloudnativepg/outline
+      endpointURL: https://62eaebf5ed37822b342914fbdc45a08d.r2.cloudflarestorage.com
+      serverName: outline
+      s3Credentials: 
+        accessKeyId:
+          name: &secretName secrets-cloudnativepg-r2
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: *secretName
+          key: SECRET_ACCESS_KEY
