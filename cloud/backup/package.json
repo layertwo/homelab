@@ -13,7 +13,7 @@
         "watch": "tsc -w"
     },
     "dependencies": {
-        "aws-cdk": "2.173.2",
+        "aws-cdk": "2.173.3",
         "aws-cdk-lib": "2.173.2",
         "constructs": "^10.4.2"
     },
