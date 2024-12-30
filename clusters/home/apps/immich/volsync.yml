@@ -6,7 +6,7 @@ metadata:
 spec:
    sourcePVC: immich-data
    trigger:
-      schedule: "0 * * * *"
+      schedule: "0 */2 * * *"
    restic:
      pruneIntervalDays: 15
      repository: secrets-immich-volsync
