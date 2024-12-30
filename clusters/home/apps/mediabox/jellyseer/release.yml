@@ -22,7 +22,7 @@ spec:
           jellyseer:
             image:
               repository: fallenbagel/jellyseerr
-              tag: 2.1.0
+              tag: 2.2.2
             env:
               TZ: "Etc/UTC"
             probes:
