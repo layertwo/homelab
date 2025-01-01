@@ -5,7 +5,8 @@
       "customType": "regex",
       "description": ["Process custom dependencies"],
       "fileMatch": [
-        "(^|/)clusters/.+\\.ya?ml$"
+        "(^|/)clusters/.+\\.ya?ml$",
+        "(^|/)containers/.+\\.ya?ml$"
       ],
       "matchStrings": [
         "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?( repository=(?<registryUrl>\\S+))?\\n.+: (&\\S+\\s)?(?<currentValue>\\S+)",
