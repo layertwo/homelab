@@ -18,6 +18,7 @@ spec:
   values:
     controllers:
       main:
+        type: statefulset
         containers:
           bazarr:
             image:
