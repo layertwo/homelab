@@ -17,7 +17,7 @@ spec:
     - kind: Rule
       match: "Host(`home-assistant.layertwo.dev`)"
       middlewares:
-      - name: ak-outpost-traefik
+      - name: ak-outpost-proxy
         namespace: authentik
       priority: 10
       services:
@@ -27,7 +27,7 @@ spec:
       match: "Host(`home-assistant.layertwo.dev`) && PathPrefix(`/outpost.goauthentik.io/`)"
       priority: 15
       services:
-        - name: ak-outpost-traefik-outpost
+        - name: ak-outpost-proxy
           port: 9000
 ---
 apiVersion: traefik.io/v1alpha1
@@ -48,7 +48,7 @@ spec:
     - kind: Rule
       match: "Host(`home-assistant.layertwo.dev`)"
       middlewares:
-      - name: ak-outpost-traefik
+      - name: ak-outpost-proxy
         namespace: authentik
       priority: 10
       services:
@@ -58,5 +58,5 @@ spec:
       match: "Host(`home-assistant.layertwo.dev`) && PathPrefix(`/outpost.goauthentik.io/`)"
       priority: 15
       services:
-        - name: ak-outpost-traefik-outpost
+        - name: ak-outpost-proxy
           port: 9000
