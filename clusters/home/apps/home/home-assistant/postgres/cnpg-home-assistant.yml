@@ -20,3 +20,6 @@ spec:
   walStorage:
     storageClass: sunbeam-nfs-csi
     size: 4Gi
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
