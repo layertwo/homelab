@@ -18,11 +18,21 @@ spec:
     - name: cert-manager
       namespace: cert-manager
   values:
-
     ports:
       web:
+        port: 80
+        transport:
+          respondingTimeouts:
+            readTimeout: 0s
         redirectTo:
           port: websecure
+      websecure:
+        port: 443
+        tls:
+          enabled: true
+        transport:
+          respondingTimeouts:
+            readTimeout: 0s
 
     tlsStore:
       default:
@@ -33,9 +43,10 @@ spec:
       spec:
         externalTrafficPolicy: Local
       annotations:
-        metallb.universe.tf/address-pool: external
         external-dns.alpha.kubernetes.io/enabled: "true"
         external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+        metallb.io/address-pool: external
+        metallb.io/loadBalancerIPs: "172.31.0.30"
 
     autoscaling:
       enabled: true
