@@ -1,0 +1,42 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: minio-api-internal
+  namespace: minio
+  annotations:
+      external-dns.alpha.kubernetes.io/enabled: "true"
+      external-dns.alpha.kubernetes.io/hostname: "s3.layertwo.dev"
+      external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+      kubernetes.io/ingress.class: internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostSNI(`s3.layertwo.dev`)
+    services:
+      - name: minio
+        port: 9000
+  tls:
+    passthrough: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: minio-console-internal
+  namespace: minio
+  annotations:
+      external-dns.alpha.kubernetes.io/enabled: "true"
+      external-dns.alpha.kubernetes.io/hostname: "console.s3.layertwo.dev"
+      external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+      kubernetes.io/ingress.class: internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostSNI(`console.s3.layertwo.dev`)
+    services:
+      - name: minio
+        port: 9002
+  tls:
+    passthrough: true

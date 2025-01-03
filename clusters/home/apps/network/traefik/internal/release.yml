@@ -86,9 +86,11 @@ spec:
 
       kubernetesCRD:
         allowCrossNamespace: true
+        allowExternalNameServices: true
         ingressClass: *ingressName
 
       kubernetesIngress:
+        allowExternalNameServices: true
         ingressClass: *ingressName
 
     logs:
