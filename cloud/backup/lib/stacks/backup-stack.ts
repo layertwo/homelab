@@ -1,51 +1,49 @@
+import {TerraformStack, TerraformVariable} from "cdktf";
 import {Construct} from "constructs";
 
-import {Duration, RemovalPolicy, Stack, StackProps} from "aws-cdk-lib";
-import * as iam from "aws-cdk-lib/aws-iam";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import {AwsProvider} from "../../.gen/providers/aws/provider";
+import {S3Bucket} from "../../.gen/providers/aws/s3-bucket";
 
-export class BackupStack extends Stack {
-    private readonly backupUser: iam.User;
-    private readonly backupRole: iam.Role;
-    private readonly backupBucket: s3.Bucket;
+export class BackupStack extends TerraformStack {
+    constructor(scope: Construct, id: string) {
+        super(scope, id);
 
-    constructor(scope: Construct, id: string, props?: StackProps) {
-        super(scope, id, props);
-
-        this.backupBucket = this.createBackupBucket();
-
-        this.backupUser = this.createBackupUser();
-        this.backupRole = this.createBackupRole();
-    }
-
-    private qualifyName(name: string) {
-        return `${name}-${this.region}`;
-    }
-
-    private createBackupUser(): iam.User {
-        const user = new iam.User(this, "VolSyncUser", {userName: "volsync-user"});
-        new iam.AccessKey(user, "AccessKey", {user});
-        return user;
-    }
-
-    private createBackupRole(): iam.Role {
-        const role = new iam.Role(this, "BackupRole", {
-            roleName: "layertwo-backup-role",
-            assumedBy: this.backupUser,
+        const accountId = new TerraformVariable(this, "CLOUDFLARE_ACCOUNT_ID", {
+            type: "string",
+            description: "Cloudflare account ID",
         });
-        this.backupBucket.grantReadWrite(role);
-        return role;
-    }
 
-    private createBackupBucket(): s3.Bucket {
-        return new s3.Bucket(this, "BackupBucket", {
-            bucketName: this.qualifyName("layertwo-dev-backup"),
-            blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-            encryption: s3.BucketEncryption.S3_MANAGED,
-            enforceSSL: true,
-            versioned: true, // TODO consider
-            removalPolicy: RemovalPolicy.RETAIN,
-            autoDeleteObjects: false,
+        const accessKey = new TerraformVariable(this, "R2_ACCESS_KEY", {
+            type: "string",
+            description: "R2 AWS access key",
+        });
+
+        const secretKey = new TerraformVariable(this, "R2_SECRET_KEY", {
+            type: "string",
+            description: "R2 AWS secret key",
+        });
+
+        new AwsProvider(this, "R2Provider", {
+            accessKey: accessKey.value,
+            secretKey: secretKey.value,
+            region: "WNAM", // Western North America,
+            skipCredentialsValidation: true,
+            skipRegionValidation: true,
+            skipRequestingAccountId: true,
+            s3UsePathStyle: true,
+            endpoints: [
+                {
+                    s3: `https://${accountId.value}.r2.cloudflarestorage.com`,
+                },
+            ],
+        });
+
+        new S3Bucket(this, "Volsync", {
+            bucket: "layertwo-dev-volsync",
+        });
+
+        new S3Bucket(this, "CloudNativePG", {
+            bucket: "layertwo-dev-cloudnativepg",
         });
     }
 }
