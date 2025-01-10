@@ -33,6 +33,8 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0s
+        middlewares:
+          - traefik-system-secure-headers-middleware
 
     tlsStore:
       default:
