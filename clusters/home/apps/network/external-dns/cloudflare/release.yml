@@ -19,11 +19,13 @@ spec:
     interval: 2m
     fullnameOverride: *app
     provider: cloudflare
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: &secret external-dns-cloudflare
     env:
       - name: CF_API_TOKEN
         valueFrom:
           secretKeyRef:
-            name: external-dns-cloudflare
+            name: *secret
             key: token
     extraArgs:
       - --annotation-filter=kubernetes.io/ingress.class in (external)

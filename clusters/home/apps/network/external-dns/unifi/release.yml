@@ -18,6 +18,8 @@ spec:
     fullnameOverride: *app
     logLevel: debug
     interval: 2m
+    deploymentAnnotations:
+      secret.reloader.stakater.com/reload: &secret external-dns-unifi
     provider:
       name: webhook
       webhook:
@@ -28,7 +30,7 @@ spec:
           - name: UNIFI_HOST
             valueFrom:
               secretKeyRef:
-                name: &secret external-dns-unifi
+                name: *secret
                 key: UNIFI_HOST
           - name: UNIFI_USER
             valueFrom:
