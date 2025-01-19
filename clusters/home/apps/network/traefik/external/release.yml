@@ -24,8 +24,9 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        redirectTo:
-          port: websecure
+        redirections:
+          to: websecure
+          scheme: https
       websecure:
         port: 443
         tls:

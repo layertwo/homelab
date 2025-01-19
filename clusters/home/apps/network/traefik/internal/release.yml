@@ -24,8 +24,9 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        redirectTo:
-          port: websecure
+        redirections:
+          to: websecure
+          scheme: https
       websecure:
         port: 443
         tls:
@@ -38,7 +39,7 @@ spec:
       ldap:
         port: 389
         protocol: TCP
-        expose: 
+        expose:
           default: false
           ldap: true
         tls:
@@ -53,7 +54,7 @@ spec:
         kubernetes.io/ingress.class: &ingressName internal
         metallb.io/address-pool: internal
         metallb.io/loadBalancerIPs: "172.31.0.20"
-      additionalServices: 
+      additionalServices:
         ldap:
           type: LoadBalancer
           externalTrafficPolicy: Local
