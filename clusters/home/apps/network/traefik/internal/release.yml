@@ -29,6 +29,7 @@ spec:
           scheme: https
       websecure:
         port: 443
+        asDefault: true
         tls:
           enabled: true
         transport:
@@ -88,13 +89,17 @@ spec:
     providers:
 
       kubernetesCRD:
+        enabled: true
         allowCrossNamespace: true
         allowExternalNameServices: true
         ingressClass: *ingressName
 
       kubernetesIngress:
+        enabled: true
         allowExternalNameServices: true
         ingressClass: *ingressName
+        publishedService:
+          enabled: false
 
     logs:
       access:

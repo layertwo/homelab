@@ -29,6 +29,7 @@ spec:
           scheme: https
       websecure:
         port: 443
+        asDefault: true
         tls:
           enabled: true
         transport:
