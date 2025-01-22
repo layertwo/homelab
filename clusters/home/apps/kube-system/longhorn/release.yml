@@ -12,5 +12,5 @@ spec:
         kind: HelmRepository
         name: longhorn
         namespace: flux-system
-      version: 1.7.2
+      version: 1.8.0
   interval: 60m
