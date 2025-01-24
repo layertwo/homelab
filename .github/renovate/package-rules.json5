@@ -18,7 +18,7 @@
       "matchDataSources": ["docker", "helm"],
       "matchPackagePatterns": ["cloudnative-pg", "kube-prometheus-stack"],
       "schedule": ["on saturday"]
-    }
+    },
     {
       "description": ["Custom schedule for noisy NPM packages"],
       "matchDataSources": ["npm"],
