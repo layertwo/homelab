@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cloudflare-ddns"
+version = "0.1.0"
+dependencies = [
+    "cloudflare==3.1.1",
+    "requests==2.32.3",
+]
+
+[project.scripts]
+do-dns-update = "cloudflare_ddns.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+    "pytest-cov==6.0.0",
+    "black==24.10.0",
+    "isort==5.13.2",
+    "flake8==7.1.1",
+    "Flake8-pyproject==1.2.3",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-vvv --cov-report term-missing --strict-markers --cov-fail-under=100"
+
+[tool.coverage.run]
+source = ["src/cloudflare_ddns"]
+omit = ["*/tests/*"]
+
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+src = ["src/", "tests/"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+line_length = 100
