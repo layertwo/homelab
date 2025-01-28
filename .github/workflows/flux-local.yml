@@ -29,11 +29,6 @@ jobs:
     if: success()
     permissions:
       pull-requests: write
-    strategy:
-      matrix:
-        resource:
-          - helmrelease
-          - kustomization
 
     steps:
       - name: Checkout
@@ -45,7 +40,7 @@ jobs:
         with:
           live-branch: mainline
           path: clusters/home
-          resource: ${{ matrix.resource }}
+          resource: helmrelease
       - name: PR Comments
         uses: mshick/add-pr-comment@v2.8.2
         if: ${{ steps.diff.outputs.diff != '' }}
@@ -56,4 +51,3 @@ jobs:
           message: |
             `````diff
             ${{ steps.diff.outputs.diff }}
-            `
