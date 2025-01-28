@@ -27,6 +27,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: success()
+    permissions:
+      pull-requests: write
     strategy:
       matrix:
         resource:
@@ -45,7 +47,7 @@ jobs:
           path: clusters/home
           resource: ${{ matrix.resource }}
       - name: PR Comments
-        uses: mshick/add-pr-comment@v2
+        uses: mshick/add-pr-comment@v2.8.2
         if: ${{ steps.diff.outputs.diff != '' }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
