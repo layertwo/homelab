@@ -2,11 +2,12 @@ from ipaddress import IPv4Address, IPv6Address
 from typing import List, Optional, Union
 
 from cloudflare import Cloudflare
-from cloudflare.types.dns import Record
+from cloudflare.types.dns import AAAARecord, ARecord
 
 from cloudflare_ddns.utils import get_dns_record_type
 
 IPAddress = Union[IPv4Address, IPv6Address]
+Record = Union[ARecord, AAAARecord]
 
 
 class CloudflareAdapter:
