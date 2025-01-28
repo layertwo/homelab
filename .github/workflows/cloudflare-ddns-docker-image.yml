@@ -3,7 +3,6 @@ name: cloudflare-ddns
 on:
   workflow_dispatch:
   push:
-    branches: [ "mainline" ]
     paths:
       - containers/cloudflare-ddns/**
       - .github/workflows/cloudflare-ddns-docker-image.yml
@@ -57,7 +56,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     needs: build-and-test
-    if: success()
+    if: success() && (github.event_name == 'pull_request' || github.ref == 'refs/heads/main')
 
     permissions:
           contents: read
