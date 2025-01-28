@@ -1,0 +1,64 @@
+name: cdktf
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "mainline" ]
+    paths:
+      - cloud/backup/**
+      - .github/workflows/cdktf-backup.yml
+
+env:
+  TERRAFORM_BINARY_NAME: tofu
+
+jobs:
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./cloud/backup
+
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Install dependencies
+        run: |
+          npm install --global cdktf-cli
+          npm install
+
+      - name: Synthesize stacks
+        run: |
+          npx cdktf get
+          npm run build
+          npm run cdk:synth
+
+      - name: Plan
+        id: plan
+        run: npm run cdk:plan -- --no-color --skip-synth
+        env:
+          TF_VAR_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          TF_VAR_AWS_ACCESS_KEY: ${{ secrets.CLOUDFLARE_ACCESS_KEY }}
+          TF_VAR_AWS_SECRET_KEY: ${{ secrets.CLOUDFLARE_SECRET_KEY }}
+
+      - name: PR Comments
+        uses: mshick/add-pr-comment@v2.8.2
+        if: ${{ steps.plan.outputs.stdout != '' }}
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          message-id: ${{ github.event.pull_request.number }}/cloud/backup
+          message-failure: Unable to post comment
+          message: |
+            ```
+            ${{ steps.plan.outputs.stdout }}
+            ```
