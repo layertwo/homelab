@@ -62,7 +62,7 @@ spec:
           annotations:
             external-dns.alpha.kubernetes.io/enabled: "true"
             external-dns.alpha.kubernetes.io/hostname: "ldap.internal.layertwo.dev"
-            kubernetes.io/ingress.class: &ingressName internal
+            kubernetes.io/ingress.class: *ingressName
             metallb.io/address-pool: internal
             metallb.io/loadBalancerIPs: "172.31.0.21"
 
