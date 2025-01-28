@@ -30,7 +30,7 @@ spec:
           server:
             image:
               repository: ghcr.io/immich-app/immich-server
-              tag: v1.125.5
+              tag: v1.125.6
             env: &env
               DB_HOSTNAME:
                 valueFrom:
