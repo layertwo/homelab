@@ -42,12 +42,6 @@ data:
 
     homeassistant:
       auth_providers:
-      - type: trusted_networks
-        trusted_networks:
-          - 0.0.0.0/1
-          - 128.0.0.0/1
-          - 0000::/0
-        allow_bypass_login: true
       - type: homeassistant
 
     # Load frontend themes from the themes folder
