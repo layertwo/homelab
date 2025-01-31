@@ -25,5 +25,10 @@
     "fileMatch": [
       "(^|/)clusters/.+\\.ya?ml$"
     ]
+  },
+  "terraform": {
+      "fileMatch": [
+        "(^|/)cloud/.+\\.json$"
+      ]
   }
 }

@@ -30,6 +30,10 @@
           "eslint-config-prettier"
       ],
       "schedule": ["on saturday"]
+    },
+    {
+      "matchDatasources": ["terraform-provider"],
+      "registryUrls": ["https://registry.opentofu.org"]
     }
   ]
 }
