@@ -20,8 +20,9 @@ spec:
     ollama:
       models:
         pull:
-          - deepseek-r1
-          - llama3.2
+          - deepseek-r1:1.5b
+          - gemma:2b
+          - llama3.2:1b
     autoscaling:
       enabled: true
       minReplicas: 1
