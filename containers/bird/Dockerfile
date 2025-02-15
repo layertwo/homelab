@@ -1,4 +1,4 @@
-FROM alpine:3.21.2 AS builder
+FROM alpine:3.21.3 AS builder
 ENV BIRD_VERSION=2.15.1
 RUN apk update
 RUN apk upgrade
@@ -12,7 +12,7 @@ WORKDIR /bird-$BIRD_VERSION
 RUN ./configure
 RUN make install
 
-FROM alpine:3.21.2
+FROM alpine:3.21.3
 RUN apk update
 RUN apk upgrade
 RUN apk add bash libssh inotify-tools
