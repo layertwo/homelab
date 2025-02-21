@@ -5,7 +5,7 @@ metadata:
   name: cnpg-immich
   namespace: immich
 spec:
-  instances: 2
+  instances: 1
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   imageName: ghcr.io/layertwo/cloudnative-pgvecto-rs:16.6

@@ -5,7 +5,7 @@ metadata:
   name: cnpg-authentik
   namespace: authentik
 spec:
-  instances: 2
+  instances: 1
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   imageName: ghcr.io/cloudnative-pg/postgresql:16.6
