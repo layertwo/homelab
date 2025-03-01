@@ -10,6 +10,7 @@
     },
     "scripts": {
         "build": "tsc",
+        "clean": "find lib/**/*{.js,.d.ts} -type f -delete",
         "cdk:diff": "TERRAFORM_BINARY_NAME=tofu cdktf diff",
         "cdk:get": "TERRAFORM_BINARY_NAME=tofu cdktf get",
         "cdk:plan": "TERRAFORM_BINARY_NAME=tofu cdktf plan",
@@ -22,7 +23,7 @@
         "watch": "tsc -w"
     },
     "dependencies": {
-        "cdktf": "^0.20.10",
+        "cdktf": "^0.20.11",
         "constructs": "^10.4.2"
     },
     "devDependencies": {
