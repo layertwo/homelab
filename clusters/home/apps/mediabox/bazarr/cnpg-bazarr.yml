@@ -8,7 +8,7 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.6
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.8
   bootstrap:
     initdb:
       owner: bazarr
