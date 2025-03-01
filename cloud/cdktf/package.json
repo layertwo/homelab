@@ -10,12 +10,12 @@
     },
     "scripts": {
         "build": "tsc",
-        "clean": "find lib/**/*{.js,.d.ts} -type f -delete",
         "cdk:diff": "TERRAFORM_BINARY_NAME=tofu cdktf diff",
         "cdk:get": "TERRAFORM_BINARY_NAME=tofu cdktf get",
         "cdk:plan": "TERRAFORM_BINARY_NAME=tofu cdktf plan",
         "cdk:synth": "TERRAFORM_BINARY_NAME=tofu cdktf synth",
         "check-format": "eslint lib package.json eslint.config.mjs .prettierrc.js",
+        "clean": "find \"/lib/**/*{.js,.d.ts}\" -type f -delete",
         "compile": "tsc --pretty",
         "format": "npm run check-format -- --fix",
         "test": "jest",

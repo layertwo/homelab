@@ -4,7 +4,8 @@
   "projectId": "8d3a6cf5-4729-4aa1-8432-41fd89a8952e",
   "sendCrashReports": "false",
   "terraformProviders": [
-    "registry.opentofu.org/opentofu/aws@~>5.82.2"
+    "registry.opentofu.org/opentofu/aws@~>5.89.0",
+    "registry.opentofu.org/opentofu/cloudflare@~>5.1.0"
   ],
   "terraformModules": [],
   "context": {}
