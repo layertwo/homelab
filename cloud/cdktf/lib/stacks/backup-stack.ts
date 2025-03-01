@@ -5,7 +5,7 @@ import {BaseStack} from "../constructs/base-stack";
 
 export class BackupStack extends BaseStack {
     constructor(scope: Construct, id: string) {
-        super(scope, id);
+        super(scope, id, {backupKey: "r2"});
 
         new S3Bucket(this, "Volsync", {
             bucket: "layertwo-dev-volsync",
