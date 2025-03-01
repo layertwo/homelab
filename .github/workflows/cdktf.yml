@@ -5,8 +5,8 @@ on:
   pull_request:
     branches: [ "mainline" ]
     paths:
-      - cloud/backup/**
-      - .github/workflows/cdktf-backup.yml
+      - cloud/cdktf/**
+      - .github/workflows/cdktf.yml
 
 env:
   TERRAFORM_BINARY_NAME: tofu
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./cloud/backup
+        working-directory: ./cloud/cdktf
 
     permissions:
       pull-requests: write
@@ -56,7 +56,7 @@ jobs:
         if: ${{ steps.plan.outputs.stdout != '' }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          message-id: ${{ github.event.pull_request.number }}/cloud/backup
+          message-id: ${{ github.event.pull_request.number }}/cloud/cdktf
           message-failure: Unable to post comment
           message: |
             ```
