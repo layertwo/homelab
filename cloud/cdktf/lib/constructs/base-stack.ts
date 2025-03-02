@@ -1,8 +1,7 @@
+import {AwsProvider} from "@cdktf/provider-aws/lib/provider";
+import {CloudflareProvider} from "@cdktf/provider-cloudflare/lib/provider";
 import {S3Backend, TerraformStack, TerraformVariable} from "cdktf";
 import {Construct} from "constructs";
-
-import {AwsProvider} from "../../.gen/providers/aws/provider";
-import {CloudflareProvider} from "../../.gen/providers/cloudflare/provider";
 
 export interface BaseStackProps {
     backupKey: string;
@@ -11,9 +10,10 @@ export interface BaseStackProps {
 export class BaseStack extends TerraformStack {
     private readonly props: BaseStackProps;
 
-    private readonly accountId: TerraformVariable;
-    private readonly accessKey: TerraformVariable;
-    private readonly secretKey: TerraformVariable;
+    readonly accountId: TerraformVariable;
+    readonly accessKey: TerraformVariable;
+    readonly secretKey: TerraformVariable;
+    readonly cloudflareApiToken: TerraformVariable;
 
     constructor(scope: Construct, id: string, props: BaseStackProps) {
         super(scope, id);
@@ -32,6 +32,10 @@ export class BaseStack extends TerraformStack {
         this.secretKey = new TerraformVariable(this, "AWS_SECRET_KEY", {
             type: "string",
             description: "AWS secret key",
+        });
+        this.cloudflareApiToken = new TerraformVariable(this, "CLOUDFLARE_API_TOKEN", {
+            type: "string",
+            description: "Cloudflare API token",
         });
         this.setupAwsProvider();
         this.setupCloudflareProvider();
@@ -56,12 +60,8 @@ export class BaseStack extends TerraformStack {
     }
 
     private setupCloudflareProvider(): CloudflareProvider {
-        const apiToken = new TerraformVariable(this, "CLOUDFLARE_API_TOKEN", {
-            type: "string",
-            description: "Cloudflare API token",
-        });
         return new CloudflareProvider(this, "CloudflareProvider", {
-            apiToken: apiToken.value,
+            apiToken: this.cloudflareApiToken.value,
         });
     }
 

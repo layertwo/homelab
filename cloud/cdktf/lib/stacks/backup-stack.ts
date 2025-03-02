@@ -1,6 +1,6 @@
+import {S3Bucket} from "@cdktf/provider-aws/lib/s3-bucket";
 import {Construct} from "constructs";
 
-import {S3Bucket} from "../../.gen/providers/aws/s3-bucket";
 import {BaseStack} from "../constructs/base-stack";
 
 export class BackupStack extends BaseStack {
