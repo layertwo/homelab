@@ -10,7 +10,9 @@
     },
     "scripts": {
         "build": "tsc",
+        "cdk:apply": "TERRAFORM_BINARY_NAME=tofu cdktf apply",
         "cdk:diff": "TERRAFORM_BINARY_NAME=tofu cdktf diff",
+        "cdk:list": "TERRAFORM_BINARY_NAME=tofu cdktf list",
         "cdk:get": "TERRAFORM_BINARY_NAME=tofu cdktf get",
         "cdk:plan": "TERRAFORM_BINARY_NAME=tofu cdktf plan",
         "cdk:synth": "TERRAFORM_BINARY_NAME=tofu cdktf synth",
@@ -23,6 +25,8 @@
         "watch": "tsc -w"
     },
     "dependencies": {
+        "@cdktf/provider-aws": "^19.55.0",
+        "@cdktf/provider-cloudflare": "^12.1.0",
         "cdktf": "^0.20.11",
         "constructs": "^10.4.2"
     },
