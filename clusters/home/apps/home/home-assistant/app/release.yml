@@ -72,6 +72,10 @@ spec:
                   - DAC_OVERRIDE
                 drop:
                   - ALL
+              ulimits:
+              - name: nofile
+                softLimit: 4096
+                hardLimit: 65536
             resources:
               requests:
                 cpu: 20m
