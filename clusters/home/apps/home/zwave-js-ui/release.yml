@@ -26,6 +26,8 @@ spec:
     controllers:
       main:
         type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
         pod:
            nodeSelector:
              feature.node.kubernetes.io/zwave: "true"
