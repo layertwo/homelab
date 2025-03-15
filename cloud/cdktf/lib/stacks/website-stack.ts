@@ -71,6 +71,7 @@ export class WebsiteStack extends BaseStack {
     }
 
     private createRuleset(): Ruleset {
+        const domain = Token.asString(this.domainName.value);
         return new Ruleset(this, "WebsiteRuleset", {
             zoneId: this.zoneId.value,
             name: "redirect-to-index",
@@ -79,7 +80,8 @@ export class WebsiteStack extends BaseStack {
             rules: [
                 {
                     ref: "url_rewrite_index",
-                    expression: '(ends_with(http.request.uri.path, "/"))',
+                    /* eslint-disable-next-line max-len */
+                    expression: `(ends_with(http.request.uri.path, "/") and (http.host eq "${domain}" or http.host eq "www.${domain}"))`,
                     action: "rewrite",
                     actionParameters: {
                         uri: {
