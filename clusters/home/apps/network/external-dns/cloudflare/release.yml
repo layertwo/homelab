@@ -14,6 +14,16 @@ spec:
         namespace: flux-system
       version: 1.16.0
   interval: 60m
+  install:
+    disableSchemaValidation: true
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    disableSchemaValidation: true
+    remediation:
+      strategy: rollback
+      retries: 3
   values:
     logLevel: debug
     interval: 2m
