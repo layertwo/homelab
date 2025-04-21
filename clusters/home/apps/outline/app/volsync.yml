@@ -7,7 +7,7 @@ metadata:
 spec:
    sourcePVC: outline-data
    trigger:
-      schedule: "*5 * * * *"
+      schedule: "0 11 * * *"
    restic:
      pruneIntervalDays: 15
      repository: secrets-outline-volsync
