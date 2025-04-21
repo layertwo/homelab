@@ -19,7 +19,7 @@ spec:
   values:
     controllers:
       main:
-        type: statefulset
+        type: deployment
         containers:
           jellyfin:
             image:
@@ -33,43 +33,6 @@ spec:
               S6_READ_ONLY_ROOT: "1"
               JELLYFIN_PublishedServerUrl: http://127.0.0.1:8096
               MALLOC_TRIM_THRESHOLD_: 100000
-            probes:
-              liveness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: &port 8096
-                  initialDelaySeconds: 12
-                  periodSeconds: 15
-                  timeoutSeconds: 5
-                  failureThreshold: 5
-                  successThreshold: 1
-              readiness:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: *port
-                  initialDelaySeconds: 10
-                  periodSeconds: 12
-                  timeoutSeconds: 5
-                  failureThreshold: 4
-                  successThreshold: 2
-              startup:
-                enabled: true
-                custom: true
-                spec:
-                  httpGet:
-                    path: /
-                    port: *port
-                  initialDelaySeconds: 10
-                  periodSeconds: 5
-                  timeoutSeconds: 3
-                  failureThreshold: 60
-                  successThreshold: 1
             securityContext:
               readOnlyRootFilesystem: true
               privileged: true
@@ -107,7 +70,7 @@ spec:
         ports:
           http:
             enabled: true
-            port: *port
+            port: 8096
             protocol: HTTP
       autodiscovery:
         enabled: true
