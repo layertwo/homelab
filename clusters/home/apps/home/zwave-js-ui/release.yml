@@ -35,7 +35,7 @@ spec:
           main:
             image:
               repository: ghcr.io/zwave-js/zwave-js-ui
-              tag: 10.3.3
+              tag: 10.4.2
             env:
               TZ: "Etc/UTC"
               LOGLEVEL: info
