@@ -3,9 +3,6 @@
   "app": "npx ts-node lib/app.ts",
   "projectId": "8d3a6cf5-4729-4aa1-8432-41fd89a8952e",
   "sendCrashReports": "false",
-  "terraformProviders": [
-    "registry.opentofu.org/mastercard/restapi@~>1.20.0"
-  ],
   "terraformModules": [],
   "context": {}
 }
