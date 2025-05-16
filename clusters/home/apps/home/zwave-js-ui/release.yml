@@ -25,7 +25,6 @@ spec:
   values:
     controllers:
       main:
-        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
         pod:
@@ -35,7 +34,7 @@ spec:
           main:
             image:
               repository: ghcr.io/zwave-js/zwave-js-ui
-              tag: 10.4.2
+              tag: 10.5.1
             env:
               TZ: "Etc/UTC"
               LOGLEVEL: info
