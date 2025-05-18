@@ -56,8 +56,9 @@ spec:
         memory: 256Mi
     config:
       endpoints:
-        # External Ingress Services
+        # Documentation Services
         - name: Outline
+          group: Documentation
           url: https://outline.layertwo.dev
           interval: 1m
           conditions:
@@ -69,7 +70,9 @@ spec:
               success-threshold: 2
               description: "Outline is down"
 
+        # Authentication Services
         - name: Authentik
+          group: Authentication
           url: https://authentik.layertwo.dev
           interval: 1m
           conditions:
@@ -81,7 +84,9 @@ spec:
               success-threshold: 2
               description: "Authentik is down"
 
+        # Photo Management Services
         - name: Immich
+          group: Photo Management
           url: https://immich.layertwo.dev
           interval: 1m
           conditions:
@@ -93,7 +98,9 @@ spec:
               success-threshold: 2
               description: "Immich is down"
 
+        # Media Management Services
         - name: Jellyfin
+          group: Media Management
           url: https://jellyfin.layertwo.dev
           interval: 1m
           conditions:
@@ -105,7 +112,9 @@ spec:
               success-threshold: 2
               description: "Jellyfin is down"
 
+        # Home Automation Services
         - name: Home Assistant
+          group: Home Automation
           url: https://hass.layertwo.dev
           interval: 1m
           conditions:
@@ -117,8 +126,9 @@ spec:
               success-threshold: 2
               description: "Home Assistant is down"
         
-        # Mediabox Services
+        # Media Management Services (continued)
         - name: Bazarr
+          group: Media Management
           url: https://bazarr.layertwo.dev
           interval: 1m
           conditions:
@@ -131,6 +141,7 @@ spec:
               description: "Bazarr is down"
 
         - name: Prowlarr
+          group: Media Management
           url: https://prowlarr.layertwo.dev
           interval: 1m
           conditions:
@@ -143,6 +154,7 @@ spec:
               description: "Prowlarr is down"
 
         - name: qBittorrent
+          group: Media Management
           url: https://qt.layertwo.dev
           interval: 1m
           conditions:
@@ -155,6 +167,7 @@ spec:
               description: "qBittorrent is down"
 
         - name: Radarr
+          group: Media Management
           url: https://radarr.layertwo.dev
           interval: 1m
           conditions:
@@ -167,6 +180,7 @@ spec:
               description: "Radarr is down"
 
         - name: Sonarr
+          group: Media Management
           url: https://sonarr.layertwo.dev
           interval: 1m
           conditions:
@@ -178,9 +192,23 @@ spec:
               success-threshold: 2
               description: "Sonarr is down"
         
-        # Home Services
+        # Home Automation Services (continued)
+        - name: MQTT Dashboard
+          group: Home Automation
+          url: https://mqtt-dashboard.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "MQTT Dashboard is down"
+
         - name: MQTT
-          url: tcp://mqtt.home.svc.cluster.local:1883
+          group: Home Automation
+          url: tcp://mqtt-listeners.home-assistant.svc.cluster.local:1883
           interval: 1m
           conditions:
             - "[CONNECTED] == true"
@@ -192,6 +220,7 @@ spec:
               description: "MQTT is down"
 
         - name: Zigbee2MQTT
+          group: Home Automation
           url: https://zigbee.layertwo.dev
           interval: 1m
           conditions:
@@ -204,6 +233,7 @@ spec:
               description: "Zigbee2MQTT is down"
 
         - name: Z-Wave JS UI
+          group: Home Automation
           url: https://zwave.layertwo.dev
           interval: 1m
           conditions:
@@ -214,6 +244,128 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               description: "Z-Wave JS UI is down"
+
+        # Monitoring Services
+        - name: Grafana
+          group: Monitoring
+          url: https://monitoring.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Grafana is down"
+
+        - name: Gatus
+          group: Monitoring
+          url: https://gatus.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Gatus is down"
+
+        - name: Uptime Kuma
+          group: Monitoring
+          url: https://uptime.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Uptime Kuma is down"
+
+        # AI Services
+        - name: Open WebUI
+          group: AI
+          url: https://ai.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Open WebUI is down"
+
+        # Storage Services
+        - name: MinIO S3
+          group: Storage
+          url: https://s3.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "MinIO S3 is down"
+
+        - name: MinIO Console
+          group: Storage
+          url: https://console.s3.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "MinIO Console is down"
+
+        # Network Services
+        - name: Traefik External
+          group: Network
+          url: https://traefik-external.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Traefik External is down"
+
+        - name: Traefik Internal
+          group: Network
+          url: https://traefik-internal.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Traefik Internal is down"
+
+        # Authentication Services (continued)
+        - name: LDAP
+          group: Authentication
+          url: tcp://ldap.internal.layertwo.dev:389
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "LDAP outpost is down"
 
       alerting:
         pushover:
