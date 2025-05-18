@@ -1,6 +1,6 @@
-# Authentication with Authentik
+# Authentication Setup
 
-This document provides detailed information about the authentication setup in the homelab using Authentik.
+This document provides detailed information about the authentication setup in the homelab, including Authentik as the identity provider and Vaultwarden for password management.
 
 ## Overview
 
@@ -120,6 +120,45 @@ Authentik is updated automatically through Flux CD when new versions are availab
 
 - PostgreSQL database is backed up using CloudNative PG backups
 - Configuration is backed up using VolSync
+
+## Password Management with Vaultwarden
+
+Vaultwarden is an unofficial Bitwarden server implementation that provides password management capabilities. It's deployed as a standalone service in the homelab.
+
+### Overview
+
+Vaultwarden allows users to securely store and manage passwords, secure notes, credit card information, and identity information. It's API-compatible with the official Bitwarden clients, allowing users to use the official Bitwarden apps and browser extensions.
+
+### Authentication
+
+Vaultwarden uses its own authentication system, as it does not yet support OpenID Connect (OIDC) for integration with Authentik. Users need to create separate accounts in Vaultwarden.
+
+#### Configuration
+
+- **URL**: vault.layertwo.dev
+
+### Features
+
+- **Password Management**: Securely store and manage passwords
+- **Secure Notes**: Store sensitive information in secure notes
+- **Credit Card Information**: Store credit card details securely
+- **Identity Information**: Store identity information for form filling
+- **Attachments**: Attach files to vault items
+- **Two-factor Authentication**: Add an extra layer of security
+- **Password Sharing**: Share passwords with other users
+- **Organization Support**: Create organizations for team password management
+- **API Access**: Access vault items programmatically
+
+### Client Applications
+
+Vaultwarden is compatible with all official Bitwarden clients:
+
+- **Web Interface**: Available at https://vault.layertwo.dev
+- **Browser Extensions**: Chrome, Firefox, Safari, Edge, etc.
+- **Mobile Apps**: iOS and Android
+- **Desktop Apps**: Windows, macOS, Linux
+
+For detailed information about Vaultwarden, see the [Vaultwarden documentation](vaultwarden.md).
 
 ## Troubleshooting
 
