@@ -30,15 +30,6 @@ spec:
           requests:
             cpu: 200m
             memory: 200Mi
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - prometheus
-            topologyKey: kubernetes.io/hostname
         podMonitorNamespaceSelector: {}
         podMonitorSelector:
           matchLabels:
@@ -47,12 +38,3 @@ spec:
       defaultDashboardsEnabled: true
       admin:
         existingSecret: secrets-grafana
-      podAntiAffinity:
-        requiredDuringSchedulingIgnoredDuringExecution:
-        - labelSelector:
-            matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-              - grafana
-          topologyKey: kubernetes.io/hostname
