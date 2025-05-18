@@ -20,6 +20,8 @@ spec:
     controllers:
       main:
         type: statefulset
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           radarr:
             image:
@@ -142,4 +144,3 @@ spec:
               subPath: movies
             - path: /downloads
               subPath: downloads
-

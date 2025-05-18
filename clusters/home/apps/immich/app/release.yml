@@ -26,6 +26,8 @@ spec:
   values:
     controllers:
       server:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           server:
             image:
@@ -91,6 +93,8 @@ spec:
                 cpu: 1500m
                 memory: 2048M
       machine-learning:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           machine-learning:
             image:

@@ -4,6 +4,8 @@ kind: CronJob
 metadata:
   name: cloudflare-ddns
   namespace: traefik-system
+  annotations:
+    reloader.stakater.com/auto: "true"
 spec:
   schedule: "*/5 * * * *"
   concurrencyPolicy: Replace

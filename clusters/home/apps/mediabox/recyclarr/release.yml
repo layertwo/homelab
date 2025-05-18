@@ -19,6 +19,8 @@ spec:
     controllers:
       recyclarr:
         type: cronjob
+        annotations:
+          reloader.stakater.com/auto: "true"
         cronjob:
           schedule: "@daily"
         containers:
