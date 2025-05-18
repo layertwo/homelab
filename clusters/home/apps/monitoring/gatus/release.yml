@@ -20,7 +20,7 @@ spec:
     image:
       repository: twinproduction/gatus
       tag: latest
-    
+
     env:
       PUSHOVER_TOKEN:
         valueFrom:
@@ -32,7 +32,7 @@ spec:
           secretKeyRef:
             name: gatus-pushover
             key: PUSHOVER_USER_KEY
-    
+
     persistence:
       config:
         enabled: true
@@ -40,13 +40,13 @@ spec:
         hostPath: /config
         hostPathType: Directory
         readOnly: true
-    
+
     service:
       main:
         ports:
           https:
             port: 8080
-    
+
     resources:
       requests:
         cpu: 50m
@@ -125,7 +125,7 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               description: "Home Assistant is down"
-        
+
         # Media Management Services (continued)
         - name: Bazarr
           group: Media Management
@@ -191,7 +191,7 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               description: "Sonarr is down"
-        
+
         # Home Automation Services (continued)
         - name: MQTT Dashboard
           group: Home Automation
@@ -258,32 +258,6 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               description: "Grafana is down"
-
-        - name: Gatus
-          group: Monitoring
-          url: https://gatus.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "Gatus is down"
-
-        - name: Uptime Kuma
-          group: Monitoring
-          url: https://uptime.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "Uptime Kuma is down"
 
         # AI Services
         - name: Open WebUI
