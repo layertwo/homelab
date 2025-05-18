@@ -1,0 +1,221 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: gatus
+  namespace: monitoring
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: gatus
+      version: 1.2.0
+      sourceRef:
+        kind: HelmRepository
+        name: twin
+        namespace: flux-system
+  values:
+    annotations:
+      reloader.stakater.com/auto: "true"
+    image:
+      repository: twinproduction/gatus
+      tag: latest
+    
+    env:
+      PUSHOVER_TOKEN:
+        valueFrom:
+          secretKeyRef:
+            name: gatus-pushover
+            key: PUSHOVER_TOKEN
+      PUSHOVER_USER_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: gatus-pushover
+            key: PUSHOVER_USER_KEY
+    
+    persistence:
+      config:
+        enabled: true
+        type: hostPath
+        hostPath: /config
+        hostPathType: Directory
+        readOnly: true
+    
+    service:
+      main:
+        ports:
+          https:
+            port: 8080
+    
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 500m
+        memory: 256Mi
+    config:
+      endpoints:
+        # External Ingress Services
+        - name: Outline
+          url: https://outline.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Outline is down"
+
+        - name: Authentik
+          url: https://authentik.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Authentik is down"
+
+        - name: Immich
+          url: https://immich.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Immich is down"
+
+        - name: Jellyfin
+          url: https://jellyfin.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Jellyfin is down"
+
+        - name: Home Assistant
+          url: https://hass.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Home Assistant is down"
+        
+        # Mediabox Services
+        - name: Bazarr
+          url: https://bazarr.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Bazarr is down"
+
+        - name: Prowlarr
+          url: https://prowlarr.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Prowlarr is down"
+
+        - name: qBittorrent
+          url: https://qt.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "qBittorrent is down"
+
+        - name: Radarr
+          url: https://radarr.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Radarr is down"
+
+        - name: Sonarr
+          url: https://sonarr.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Sonarr is down"
+        
+        # Home Services
+        - name: MQTT
+          url: tcp://mqtt.home.svc.cluster.local:1883
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "MQTT is down"
+
+        - name: Zigbee2MQTT
+          url: https://zigbee.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Zigbee2MQTT is down"
+
+        - name: Z-Wave JS UI
+          url: https://zwave.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Z-Wave JS UI is down"
+
+      alerting:
+        pushover:
+          token: "${PUSHOVER_TOKEN}"
+          user-key: "${PUSHOVER_USER_KEY}"
