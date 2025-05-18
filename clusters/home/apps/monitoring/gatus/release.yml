@@ -369,5 +369,5 @@ spec:
 
       alerting:
         pushover:
-          token: "${PUSHOVER_TOKEN}"
+          application-token: "${PUSHOVER_TOKEN}"
           user-key: "${PUSHOVER_USER_KEY}"
