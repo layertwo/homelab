@@ -93,6 +93,19 @@ spec:
               success-threshold: 2
               description: "Authentik is down"
 
+        - name: Vaultwarden
+          group: Authentication
+          url: https://vault.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Vaultwarden is down"
+
         # Photo Management Services
         - name: Immich
           group: Photo Management

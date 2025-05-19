@@ -129,6 +129,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Authentication
 
 - **Authentik**: Identity provider and SSO solution
+- **Vaultwarden**: Self-hosted Bitwarden server for password management
 
 ## Custom Containers
 
