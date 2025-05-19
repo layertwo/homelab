@@ -13,6 +13,7 @@ The homelab is a GitOps-managed Kubernetes cluster built with K3S, Flux CD, and 
 - [Media Stack](media-stack.md): Documentation for the media management applications, including Sonarr, Radarr, and Jellyfin
 - [Home Automation](home-automation.md): Details about the home automation setup, including Home Assistant, MQTT, and device integration
 - [Monitoring](monitoring.md): Information about the monitoring stack, including Prometheus, Grafana, and alerting
+  - [Gatus PostgreSQL Backend](gatus-postgres.md): Details about the PostgreSQL backend implementation for Gatus
 - [Authentication](authentication.md): Documentation for the authentication setup using Authentik
 - [Backup Strategy](backup-strategy.md): Details about the backup strategy, including VolSync, CloudNative PG backups, and Cloudflare R2
 
