@@ -32,6 +32,11 @@ spec:
           secretKeyRef:
             name: gatus-pushover
             key: PUSHOVER_USER_KEY
+      POSTGRES_URI:
+        valueFrom:
+          secretKeyRef:
+            name: cnpg-gatus-app
+            key: uri
 
     persistence:
       config:
@@ -55,6 +60,10 @@ spec:
         cpu: 500m
         memory: 256Mi
     config:
+      storage:
+        type: postgres
+        path: "${POSTGRES_URI}"
+
       endpoints:
         # Documentation Services
         - name: Outline

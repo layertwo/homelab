@@ -13,7 +13,7 @@ The homelab includes:
 - Photo management (Immich)
 - Documentation (Outline)
 - Authentication (Authentik)
-- Monitoring (Prometheus, Grafana, Uptime Kuma, Gatus)
+- Monitoring (Prometheus, Grafana, Gatus)
 
 ## Architecture
 
@@ -92,7 +92,6 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Monitoring Components
 
 - **Prometheus & Grafana**: Metrics collection and visualization
-- **Uptime Kuma**: Uptime monitoring
 - **Gatus**: Service health checking
 
 ## Applications

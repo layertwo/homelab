@@ -7,3 +7,4 @@ resources:
   - secrets-pushover.sops.yml
   - ingressroute.yml
   - pdb.yml
+  - postgres

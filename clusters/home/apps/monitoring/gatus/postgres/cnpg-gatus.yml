@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-gatus
+  namespace: monitoring
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.9
+  enableSuperuserAccess: true
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 1Gi
