@@ -17,6 +17,8 @@ spec:
   dependsOn:
     - name: cert-manager
       namespace: cert-manager
+    - name: crowdsec
+      namespace: traefik-system
   values:
     ports:
       web:
@@ -37,6 +39,7 @@ spec:
             readTimeout: 0s
         middlewares:
           - traefik-system-secure-headers-middleware
+          - traefik-system-crowdsec-bouncer@kubernetescrd
 
     tlsStore:
       default:
@@ -108,3 +111,14 @@ spec:
         enabled: true
 
     globalArguments: []
+    volumes:
+    - name: crowdsec-bouncer-tls
+      mountPath: /etc/traefik/crowdsec-certs/
+      type: secret
+
+    experimental:
+      plugins:
+        crowdsec:
+          moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+          # renovate: datasource=github-releases depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
+          version: "v1.4.2"
