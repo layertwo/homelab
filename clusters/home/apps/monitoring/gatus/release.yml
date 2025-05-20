@@ -335,6 +335,19 @@ spec:
               success-threshold: 2
               description: "TrueNAS is down"
 
+        - name: Send
+          group: Storage
+          url: https://send.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              description: "Send is down"
+
         # Network Services
         - name: Traefik External
           group: Network
