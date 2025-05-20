@@ -1,0 +1,12 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: ServersTransport
+metadata: 
+  name: send-transport
+  namespace: send
+spec:
+  forwardingTimeouts:
+    dialTimeout: 600s
+    idleConnTimeout: 600s
+    responseHeaderTimeout: 600s
+    readIdleTimeout: 600s
