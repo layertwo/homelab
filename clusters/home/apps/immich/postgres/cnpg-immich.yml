@@ -8,10 +8,10 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/layertwo/cloudnative-pgvecto-rs:16.6
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:16.9-0.4.3
   postgresql:
     shared_preload_libraries:
-      - "vectors.so"
+      - "vchord.so"
     parameters:
       # WAL management parameters to prevent disk space issues
       wal_keep_size: "1GB"
@@ -22,10 +22,7 @@ spec:
   bootstrap:
     initdb:
       postInitSQL:
-        - ALTER SYSTEM SET search_path TO "$user", public, vectors;
-        - CREATE EXTENSION IF NOT EXISTS "vectors";
-        - CREATE EXTENSION IF NOT EXISTS "cube";
-        - CREATE EXTENSION IF NOT EXISTS "earthdistance";
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
   storage:
     storageClass: sunbeam-nfs-csi
     size: 4Gi
@@ -43,7 +40,7 @@ spec:
       destinationPath: s3://layertwo-dev-cloudnativepg/
       endpointURL: https://62eaebf5ed37822b342914fbdc45a08d.r2.cloudflarestorage.com
       serverName: immich
-      s3Credentials: 
+      s3Credentials:
         accessKeyId:
           name: &secretName secrets-cloudnativepg-r2
           key: ACCESS_KEY_ID
