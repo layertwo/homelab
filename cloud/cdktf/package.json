@@ -28,7 +28,7 @@
     "dependencies": {
         "@cdktf/provider-aws": "^19.63.0",
         "@cdktf/provider-cloudflare": "^12.4.0",
-        "cdktf": "^0.20.12",
+        "cdktf": "^0.21.0",
         "constructs": "^10.4.2"
     },
     "devDependencies": {
