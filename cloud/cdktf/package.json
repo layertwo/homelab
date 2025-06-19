@@ -26,7 +26,7 @@
         "watch": "tsc -w"
     },
     "dependencies": {
-        "@cdktf/provider-aws": "^20.0.0",
+        "@cdktf/provider-aws": "^21.0.0",
         "@cdktf/provider-cloudflare": "^13.0.0",
         "cdktf": "^0.21.0",
         "constructs": "^10.4.2"
