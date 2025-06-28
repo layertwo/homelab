@@ -281,20 +281,6 @@ spec:
               success-threshold: 2
               description: "Grafana is down"
 
-        # AI Services
-        - name: Open WebUI
-          group: AI
-          url: https://ai.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "Open WebUI is down"
-
         # Storage Services
         - name: MinIO S3
           group: Storage
