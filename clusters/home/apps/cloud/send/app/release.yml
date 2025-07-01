@@ -31,7 +31,7 @@ spec:
           send:
             image:
               repository: registry.gitlab.com/timvisee/send
-              tag: v3.4.25
+              tag: v3.4.27
             env:
               TZ: Etc/UTC
               BASE_URL: https://send.layertwo.dev
