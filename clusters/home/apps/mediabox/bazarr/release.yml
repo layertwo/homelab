@@ -99,3 +99,14 @@ spec:
           main:
             bazarr:
               - path: /config
+      media:
+        type: nfs
+        server: sunbeam.layertwo.lan
+        path: /mnt/storage0/media
+        advancedMounts:
+          main:
+            bazarr:
+            - path: /movies
+              subPath: movies
+            - path: /tv
+              subPath: tv
