@@ -18,4 +18,11 @@ spec:
     size: 4Gi
   walStorage:
     storageClass: sunbeam-nfs-csi
-    size: 4Gi
+    size: 10Gi
+  postgresql:
+    parameters:
+      # WAL management parameters to prevent disk space issues
+      wal_keep_size: "1GB"
+      max_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      archive_timeout: "300s"

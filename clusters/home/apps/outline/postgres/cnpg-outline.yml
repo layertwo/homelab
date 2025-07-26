@@ -12,6 +12,9 @@ spec:
   storage:
     storageClass: sunbeam-nfs-csi
     size: 16Gi
+  walStorage:
+    storageClass: sunbeam-nfs-csi
+    size: 10Gi
   backup:
     retentionPolicy: 30d
     barmanObjectStore:
@@ -30,3 +33,10 @@ spec:
         secretAccessKey:
           name: *secretName
           key: SECRET_ACCESS_KEY
+  postgresql:
+    parameters:
+      # WAL management parameters to prevent disk space issues
+      wal_keep_size: "1GB"
+      max_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      archive_timeout: "300s"
