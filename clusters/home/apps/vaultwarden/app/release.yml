@@ -32,7 +32,7 @@ spec:
           vaultwarden:
             image:
               repository: ghcr.io/dani-garcia/vaultwarden
-              tag: 1.34.1-alpine
+              tag: 1.34.3-alpine
             env:
               TZ: "Etc/UTC"
               WEBSOCKET_ENABLED: "true"
