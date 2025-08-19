@@ -34,6 +34,13 @@
     {
       "matchDatasources": ["terraform-provider"],
       "registryUrls": ["https://registry.opentofu.org"]
+    },
+    {
+      "description": ["Group Immich container updates"],
+      "matchDatasources": ["docker"],
+      "matchPackagePatterns": ["ghcr.io/immich-app/immich-.*"],
+      "groupName": "immich",
+      "groupSlug": "immich-containers"
     }
   ]
 }
