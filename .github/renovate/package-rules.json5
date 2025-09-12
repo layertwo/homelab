@@ -41,6 +41,13 @@
       "matchPackagePatterns": ["ghcr.io/immich-app/immich-.*"],
       "groupName": "immich",
       "groupSlug": "immich-containers"
+    },
+    {
+      "description": ["Group Traefik updates"],
+      "matchDatasources": ["helm", "git-tags"],
+      "matchPackagePatterns": ["traefik"],
+      "groupName": "traefik",
+      "groupSlug": "traefik"
     }
   ]
 }
