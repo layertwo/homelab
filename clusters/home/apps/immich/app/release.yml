@@ -23,6 +23,15 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
+  reliesOn:
+    - name: cnpg-immich-app
+      namespace: immich
+    - name: cnpg-immich-superuser
+      namespace: immich
+    - name: secrets-immich-redis
+      namespace: immich
+    - name: immich-redis
+      namespace: immich
   values:
     controllers:
       server:
