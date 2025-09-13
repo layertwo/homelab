@@ -48,6 +48,13 @@
       "matchPackagePatterns": ["traefik"],
       "groupName": "traefik",
       "groupSlug": "traefik"
+    },
+    {
+      "description": ["Group Intel device updates"],
+      "matchDatasources": ["helm"],
+      "matchPackagePatterns": ["intel-device"],
+      "groupName": "intel-device",
+      "groupSlug": "intel-device"
     }
   ]
 }
