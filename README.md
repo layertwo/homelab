@@ -9,7 +9,6 @@ This repository contains the configuration for a complete homelab infrastructure
 The homelab includes:
 - Media management (Sonarr, Radarr, Jellyfin, etc.)
 - Home automation (Home Assistant, MQTT, Zigbee2MQTT, Z-Wave JS UI)
-- AI applications (Ollama, Open WebUI)
 - Photo management (Immich)
 - Documentation (Outline)
 - Authentication (Authentik)
@@ -21,13 +20,11 @@ The homelab includes:
 
 The homelab runs on a K3S Kubernetes cluster with the following nodes:
 - 3 server nodes (node1, node2, node3)
-- 1 edge node (edge1)
 
 ```
 node1.layertwo.dev (172.31.0.10)
 node2.layertwo.dev (172.31.0.11)
 node3.layertwo.dev (172.31.0.12)
-edge1.layertwo.dev (172.31.0.40)
 ```
 
 ### Network Architecture
@@ -113,11 +110,6 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 - **Zigbee2MQTT**: Bridge for Zigbee devices
 - **Z-Wave JS UI**: Management for Z-Wave devices
 
-### AI Applications
-
-- **Ollama**: Local LLM server
-- **Open WebUI**: Web interface for Ollama
-
 ### Photo Management
 
 - **Immich**: Self-hosted photo and video backup solution
@@ -129,7 +121,6 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Authentication
 
 - **Authentik**: Identity provider and SSO solution
-- **Vaultwarden**: Self-hosted Bitwarden server for password management
 
 ## Custom Containers
 
