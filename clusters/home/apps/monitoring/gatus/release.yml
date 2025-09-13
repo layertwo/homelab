@@ -268,33 +268,6 @@ spec:
               success-threshold: 2
               description: "Grafana is down"
 
-        # Storage Services
-        - name: MinIO S3
-          group: Storage
-          url: https://s3.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "MinIO S3 is down"
-
-        - name: MinIO Console
-          group: Storage
-          url: https://console.s3.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "MinIO Console is down"
-
         - name: TrueNAS
           group: Storage
           url: https://sunbeam.layertwo.dev

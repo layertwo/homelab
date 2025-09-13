@@ -22,8 +22,6 @@ Democratic CSI is used to connect to a TrueNAS server for NFS storage. This prov
   - 172.31.0.10 (node1)
   - 172.31.0.11 (node2)
   - 172.31.0.12 (node3)
-  - 172.31.0.40 (edge1)
-  - 172.31.0.41
 
 #### Features
 
