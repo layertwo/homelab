@@ -82,7 +82,6 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 - **Democratic CSI**: CSI driver for TrueNAS NFS storage
 - **Longhorn**: Distributed block storage
 - **CloudNative PG**: PostgreSQL operator
-- **MinIO**: S3-compatible object storage
 
 ### Security Components
 
