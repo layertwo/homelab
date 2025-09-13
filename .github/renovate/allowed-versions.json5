@@ -5,11 +5,6 @@
       "matchDatasources": ["docker"],
       "matchPackagePatterns": ["postgresql"],
       "allowedVersions": "<=16"
-    },
-    {
-      "matchDatasources": ["docker"],
-      "matchPackagePatterns": ["cloudnative-pgvecto.rs"],
-      "allowedVersions": "<=16.5"
     }
   ]
 }
