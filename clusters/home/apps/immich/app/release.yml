@@ -23,7 +23,7 @@ spec:
     remediation:
       strategy: rollback
       retries: 3
-  reliesOn:
+  dependsOn:
     - name: cnpg-immich-app
       namespace: immich
     - name: cnpg-immich-superuser
