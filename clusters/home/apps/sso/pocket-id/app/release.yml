@@ -1,0 +1,68 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      main:
+        annotations:
+          secret.reloader.stakater.com/reload: secrets-pocket-id
+        containers:
+          pocket-id:
+            image:
+              repository: ghcr.io/pocket-id/pocket-id
+              tag: v1.11.1
+            env:
+              APP_URL: "https://idp.layertwo.dev"
+              APP_NAME: "layertwo"
+              ANALYTICS_DISABLED: "true"
+              UI_CONFIG_DISABLED: "true"
+              ALLOW_USER_SIGNUPS: "withToken"
+              TRUST_PROXY: "true"
+              KEYS_STORAGE: "database"
+              DB_PROVIDER: "postgres"
+              DB_CONNECTION_STRING:
+                secretKeyRef:
+                  name: cnpg-pocket-id-app
+                  key: uri
+            envFrom:
+              - secretRef:
+                  name: secrets-pocket-id
+            securityContext:
+              allowPrivilegeEscalation: false
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256Mi
+              limits:
+                memory: 512Mi
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: 1411
+            protocol: HTTP
