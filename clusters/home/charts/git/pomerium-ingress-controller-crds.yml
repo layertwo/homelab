@@ -1,0 +1,16 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: pomerium-ingress-controller-crds
+  namespace: flux-system
+spec:
+  interval: 30m
+  url: https://github.com/pomerium/ingress-controller.git
+  ref:
+    tag: v0.30.6
+  ignore: |
+    # exclude all
+    /*
+    # path to crds
+    !/config/
