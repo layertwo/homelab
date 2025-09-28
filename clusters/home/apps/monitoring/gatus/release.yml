@@ -254,20 +254,6 @@ spec:
               success-threshold: 2
               description: "Z-Wave JS UI is down"
 
-        # Monitoring Services
-        - name: Grafana
-          group: Monitoring
-          url: https://monitoring.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              description: "Grafana is down"
-
         - name: TrueNAS
           group: Storage
           url: https://sunbeam.layertwo.dev
