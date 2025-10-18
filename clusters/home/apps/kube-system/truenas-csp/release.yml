@@ -1,0 +1,33 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: truenas-csp
+  namespace: hpe-storage
+spec:
+  interval: 60m
+  chart:
+    spec:
+      chart: truenas-csp
+      version: 1.2.2
+      sourceRef:
+        kind: HelmRepository
+        name: hpe-truenas-csp
+        namespace: flux-system
+  values:
+    # TrueNAS CSP specific settings
+    logDebug: false
+    optimizeFor: "Default"
+    targetPortal: "hpe-csi"
+    
+    # HPE CSI Driver settings (passed through to dependency chart)
+    hpe-csi-driver:
+      disable:
+        nimble: true
+        primera: true
+        alletra6000: true
+        alletra9000: true
+        alletraStorageMP: true
+        b10000FileService: true
+      logLevel: info
+      disableNodeMonitor: false

@@ -1,0 +1,9 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: hpe-csi
+  namespace: flux-system
+spec:
+  interval: 60m
+  url: https://hpe-storage.github.io/co-deployments
