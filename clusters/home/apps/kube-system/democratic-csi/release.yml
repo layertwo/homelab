@@ -45,7 +45,7 @@ spec:
         instance_id: null
         httpConnection:
           protocol: https
-          host: sunbeam.layertwo.lan
+          host: 172.31.0.9
           port: 443
           allowInsecure: true
           apiVersion: 2
@@ -58,7 +58,7 @@ spec:
           datasetPermissionsUser: 3001
           datasetPermissionsGroup: 3001
         nfs:
-          shareHost: sunbeam.layertwo.lan
+          shareHost: 172.31.0.9
           shareAlldirs: false
           shareAllowedHosts:
             - 172.31.0.10
@@ -76,7 +76,7 @@ spec:
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
-          tag: v1.9.3
+          tag: next
         enabled: true
         logLevel: debug
       csiProxy:
