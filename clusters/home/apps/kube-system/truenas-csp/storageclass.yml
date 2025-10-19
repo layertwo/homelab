@@ -19,7 +19,7 @@ parameters:
   csi.storage.k8s.io/provisioner-secret-namespace: hpe-storage
   csi.storage.k8s.io/fstype: xfs
   allowOverrides: sparse,compression,deduplication,volblocksize,sync,description
-  root: storage0/kubernetes/persistent-volume/iscsi/volumes
+  root: storage0/kube/iscsi
 reclaimPolicy: Delete
 allowVolumeExpansion: true
 volumeBindingMode: Immediate

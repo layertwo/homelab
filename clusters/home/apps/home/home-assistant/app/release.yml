@@ -25,7 +25,6 @@ spec:
   values:
     controllers:
       main:
-        type: statefulset
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
@@ -94,7 +93,8 @@ spec:
     persistence:
       config:
         enabled: true
-        storageClass: sunbeam-nfs-csi
+        type: persistentVolumeClaim
+        storageClass: sunbeam-iscsi-csi
         accessMode: "ReadWriteOnce"
         size: 32Gi
         globalMounts:

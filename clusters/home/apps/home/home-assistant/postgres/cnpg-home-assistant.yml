@@ -15,10 +15,10 @@ spec:
       database: home-assistant
       owner: home-assistant
   storage:
-    storageClass: sunbeam-nfs-csi
+    storageClass: sunbeam-iscsi-csi
     size: 4Gi
   walStorage:
-    storageClass: sunbeam-nfs-csi
+    storageClass: sunbeam-iscsi-csi
     size: 4Gi
   affinity:
     enablePodAntiAffinity: true
