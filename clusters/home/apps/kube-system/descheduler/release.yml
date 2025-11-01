@@ -62,3 +62,10 @@ spec:
       enabled: true
     leaderElection:
       enabled: true
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi

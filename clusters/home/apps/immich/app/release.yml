@@ -93,7 +93,7 @@ spec:
                   failureThreshold: 30
             resources:
               requests:
-                cpu: 1500m
+                cpu: 1000m
                 memory: 2048M
       machine-learning:
         annotations:
