@@ -9,10 +9,10 @@ metadata:
 spec:
   schedule: "*/5 * * * *"
   concurrencyPolicy: Replace
-  failedJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
-      backoffLimit: 3
+      backoffLimit: 1
       template:
         spec:
           containers:
