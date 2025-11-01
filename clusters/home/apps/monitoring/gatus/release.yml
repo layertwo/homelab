@@ -319,7 +319,7 @@ spec:
             - "[STATUS] == 200"
           alerts:
             - type: pushover
-              enabled: true
+              enabled: false
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
