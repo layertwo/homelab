@@ -77,6 +77,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Outline is down"
 
         # Authentication Services
@@ -91,6 +92,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Authentik is down"
 
         # Photo Management Services
@@ -105,6 +107,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Immich is down"
 
         # Media Management Services
@@ -119,6 +122,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Jellyfin is down"
 
         # Home Automation Services
@@ -133,6 +137,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Home Assistant is down"
 
         # Media Management Services (continued)
@@ -147,6 +152,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Bazarr is down"
 
         - name: Prowlarr
@@ -160,6 +166,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Prowlarr is down"
 
         - name: qBittorrent
@@ -173,6 +180,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "qBittorrent is down"
 
         - name: Radarr
@@ -186,6 +194,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Radarr is down"
 
         - name: Sonarr
@@ -199,6 +208,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Sonarr is down"
 
         # Home Automation Services (continued)
@@ -213,6 +223,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "MQTT Dashboard is down"
 
         - name: MQTT
@@ -226,6 +237,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "MQTT is down"
 
         - name: Zigbee2MQTT
@@ -239,6 +251,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Zigbee2MQTT is down"
 
         - name: Z-Wave JS UI
@@ -252,6 +265,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Z-Wave JS UI is down"
 
         - name: TrueNAS
@@ -265,6 +279,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "TrueNAS is down"
 
         - name: Send
@@ -278,6 +293,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Send is down"
 
         # Network Services
@@ -292,6 +308,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Traefik External is down"
 
         - name: Traefik Internal
@@ -305,6 +322,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "Traefik Internal is down"
 
         # Authentication Services (continued)
@@ -319,6 +337,7 @@ spec:
               enabled: true
               failure-threshold: 3
               success-threshold: 2
+              send-on-resolved: true
               description: "LDAP outpost is down"
 
       alerting:
