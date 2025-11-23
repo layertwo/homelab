@@ -8,7 +8,7 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/cloudnative-pg/postgresql:16.10
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.11
   enableSuperuserAccess: true
   storage:
     storageClass: sunbeam-nfs-csi
