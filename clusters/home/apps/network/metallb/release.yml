@@ -15,6 +15,11 @@ spec:
       version: 0.15.2
   interval: 60m
   values:
+    controller:
+      nodeSelector:
+        location: home
     speaker:
+      nodeSelector:
+        location: home
       frr:
         enabled: false

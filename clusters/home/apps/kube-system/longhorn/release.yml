@@ -14,3 +14,13 @@ spec:
         namespace: flux-system
       version: 1.10.1
   interval: 60m
+  values:
+    longhornManager:
+      nodeSelector:
+        location: home
+    longhornDriver:
+      nodeSelector:
+        location: home
+    longhornUI:
+      nodeSelector:
+        location: home
