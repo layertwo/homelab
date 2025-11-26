@@ -55,15 +55,6 @@ spec:
         options:
           - { name: ndots, value: "1" }
     persistence:
-      config:
-        enabled: true
-        storageClass: sunbeam-nfs-csi
-        accessMode: "ReadWriteOnce"
-        size: 1Gi
-        advancedMounts:
-          recyclarr:
-            app:
-              - path: /config
       config-file:
         type: configMap
         name: recyclarr-configmap
@@ -71,3 +62,15 @@ spec:
           - path: /config/recyclarr.yml
             subPath: recyclarr.yml
             readOnly: true
+      tmp:
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
+      cache:
+        type: emptyDir
+        globalMounts:
+          - path: /config/cache
+      repos:
+        type: emptyDir
+        globalMounts:
+          - path: /config/repositories
