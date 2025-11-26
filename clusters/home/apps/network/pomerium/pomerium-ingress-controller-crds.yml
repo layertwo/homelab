@@ -11,4 +11,4 @@ spec:
     kind: GitRepository
     name: pomerium-ingress-controller-crds
     namespace: flux-system
-  path: "./config/default"
+  path: "./config/crd"
