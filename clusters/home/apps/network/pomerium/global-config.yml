@@ -1,0 +1,19 @@
+---
+apiVersion: ingress.pomerium.io/v1
+kind: Pomerium
+metadata:
+  name: global
+spec:
+  authenticate:
+    url: https://pom.layertwo.dev
+  
+  certificates:
+    - pomerium/pom-layertwo-dev-tls
+    - traefik-system/wildcard-layertwo-dev-tls
+  
+  identityProvider:
+    provider: oidc
+    secret: pomerium/idp
+    url: https://authentik.layertwo.dev/application/o/pomerium/
+  
+  secrets: pomerium/bootstrap
