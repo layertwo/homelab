@@ -27,6 +27,9 @@ spec:
       main:
         annotations:
           reloader.stakater.com/auto: "true"
+        pod:
+          nodeSelector:
+            location: home
         containers:
           home-assistant:
             image:

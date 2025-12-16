@@ -23,3 +23,5 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     podAntiAffinityType: required
+    nodeSelector:
+      location: home
