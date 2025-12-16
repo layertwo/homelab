@@ -4539,6 +4539,7 @@ spec:
           name: tmp
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 1337
@@ -6017,6 +6018,7 @@ spec:
           name: temp
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 1337
@@ -8754,6 +8756,7 @@ spec:
           name: temp
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       priorityClassName: system-cluster-critical
       securityContext:
         fsGroup: 1337
@@ -10186,6 +10189,7 @@ spec:
           name: temp
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       securityContext:
         fsGroup: 1337
       serviceAccountName: notification-controller
@@ -11495,6 +11499,7 @@ spec:
           name: data
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       securityContext:
         fsGroup: 1337
       serviceAccountName: image-reflector-controller
@@ -12431,6 +12436,7 @@ spec:
           name: temp
       nodeSelector:
         kubernetes.io/os: linux
+        location: home
       securityContext:
         fsGroup: 1337
       serviceAccountName: image-automation-controller
