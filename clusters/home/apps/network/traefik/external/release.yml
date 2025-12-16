@@ -39,7 +39,7 @@ spec:
             readTimeout: 0s
         middlewares:
           - traefik-system-secure-headers-middleware
-          - traefik-system-crowdsec-bouncer@kubernetescrd
+          # - traefik-system-crowdsec-bouncer@kubernetescrd
 
     tlsStore:
       default:
