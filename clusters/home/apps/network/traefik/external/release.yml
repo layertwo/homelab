@@ -116,9 +116,9 @@ spec:
       mountPath: /etc/traefik/crowdsec-certs/
       type: secret
 
-    experimental:
-      plugins:
-        crowdsec:
-          moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
-          # renovate: datasource=github-releases depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
-          version: v1.4.7
+    # experimental:
+    #   plugins:
+    #     crowdsec:
+    #       moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+    #       # renovate: datasource=github-releases depName=maxlerebourg/crowdsec-bouncer-traefik-plugin
+    #       version: v1.4.7
