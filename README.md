@@ -11,8 +11,8 @@ The homelab includes:
 - Home automation (Home Assistant, MQTT, Zigbee2MQTT, Z-Wave JS UI)
 - Photo management (Immich)
 - Documentation (Outline)
-- Authentication (Authentik)
-- Monitoring (Prometheus, Grafana, Gatus)
+- Authentication (Authentik, Pocket ID)
+- Monitoring (Gatus)
 
 ## Architecture
 
@@ -87,8 +87,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 
 ### Monitoring Components
 
-- **Prometheus & Grafana**: Metrics collection and visualization
-- **Gatus**: Service health checking
+- **Gatus**: Service health checking and uptime monitoring
 
 ## Applications
 
@@ -120,16 +119,13 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Authentication
 
 - **Authentik**: Identity provider and SSO solution
+- **Pocket ID**: Lightweight OIDC provider
 
 ## Custom Containers
 
 ### cloudflare-ddns
 
 A Python script that updates DNS records on Cloudflare dynamically. It retrieves the external IP address of the machine it's running on and updates the specified DNS record accordingly.
-
-### cloudnative-pgvecto.rs
-
-Container images for CloudNative PostgreSQL with the pgvecto.rs extension installed, adding vector search capabilities to PostgreSQL for AI applications.
 
 ### bird
 

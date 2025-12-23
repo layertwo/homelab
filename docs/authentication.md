@@ -1,10 +1,15 @@
 # Authentication Setup
 
-This document provides detailed information about the authentication setup in the homelab, including Authentik as the identity provider and Vaultwarden for password management.
+This document provides detailed information about the authentication setup in the homelab.
 
 ## Overview
 
-Authentik is an open-source Identity Provider that provides authentication, authorization, and user management for the homelab. It serves as a central authentication system for various applications and services.
+The homelab uses two identity providers for authentication:
+
+- **Authentik**: Full-featured open-source Identity Provider for authentication, authorization, and user management
+- **Pocket ID**: Lightweight OIDC provider for simpler authentication needs
+
+Authentik serves as the primary authentication system for most applications and services.
 
 ## Architecture
 
@@ -50,6 +55,15 @@ Redis is used for caching and session management in Authentik.
 #### Configuration
 
 - **Storage**: PVC for Redis data
+
+### Pocket ID
+
+Pocket ID is a lightweight OIDC provider that can be used for simpler authentication scenarios.
+
+#### Configuration
+
+- Deployed in the sso namespace alongside Authentik
+- Provides OpenID Connect authentication
 
 ## Integration Methods
 

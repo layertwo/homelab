@@ -4,46 +4,18 @@ This document provides detailed information about the monitoring stack in the ho
 
 ## Overview
 
-The monitoring stack is a collection of applications that work together to monitor the health, performance, and availability of the homelab infrastructure and applications. The stack includes:
-
-- **Prometheus & Grafana**: Metrics collection and visualization
-- **Gatus**: Service health checking
+The monitoring stack provides health checking and uptime monitoring for the homelab infrastructure and applications using Gatus.
 
 ## Architecture
 
 The monitoring stack follows the following workflow:
 
-1. **Prometheus** collects metrics from various sources (nodes, Kubernetes, applications)
-2. **Grafana** visualizes the metrics collected by Prometheus
-3. **Gatus** performs health checks on services and sends alerts when issues are detected
+1. **Gatus** performs health checks on services at regular intervals
+2. Health check results are stored in a PostgreSQL database
+3. The Gatus dashboard displays service status and history
+4. Alerts are sent when services become unhealthy
 
 ## Components
-
-### Prometheus & Grafana
-
-Prometheus is a monitoring system and time series database, while Grafana is a visualization tool that works well with Prometheus.
-
-#### Prometheus Configuration
-
-- **Storage**: PVC for time series data
-- **Scrape Interval**: 15s (default)
-- **Retention**: 15d (default)
-- **Targets**:
-  - Kubernetes nodes
-  - Kubernetes API server
-  - Kubernetes services
-  - Application-specific exporters
-
-#### Grafana Configuration
-
-- **URL**: grafana.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Data Sources**:
-  - Prometheus
-- **Dashboards**:
-  - Node Exporter
-  - Kubernetes
-  - Application-specific dashboards
 
 ### Gatus
 
@@ -62,45 +34,35 @@ Gatus is a health dashboard that checks the health of services and sends alerts 
 
 ## Storage
 
-The monitoring stack uses persistent storage for configuration and data:
+The monitoring stack uses persistent storage for data:
 
-- **Prometheus**: PVC for time series data
-- **Grafana**: PVC for configuration and database
 - **Gatus**: PostgreSQL database for storage (CloudNativePG cluster)
 
 ## Networking
 
 The monitoring stack is exposed through the internal Traefik instance:
 
-- Each application has its own subdomain (e.g., grafana.layertwo.dev)
+- Gatus is accessible at uptime.layertwo.dev
 - Authentication is handled by Authentik
 
 ## Alerting
 
-The monitoring stack provides alerting capabilities to notify administrators of issues:
-
-- **Prometheus AlertManager**: Sends alerts based on Prometheus metrics
-- **Gatus**: Sends alerts when health checks fail
+Gatus provides alerting capabilities to notify administrators when services become unhealthy:
 
 ### Alert Channels
 
-- **Pushover**: Mobile notifications
-- **Email**: Email notifications
-- **Webhook**: Integration with other systems
+- **Pushover**: Mobile notifications for service failures
+- **Email**: Email notifications (if configured)
+- **Webhook**: Integration with other systems (if configured)
 
 ## Dashboards
 
-The monitoring stack provides various dashboards for visualizing metrics and status:
+The Gatus dashboard provides visualization of service health and status:
 
-- **Grafana Dashboards**:
-  - Node Exporter: System metrics (CPU, memory, disk, network)
-  - Kubernetes: Cluster metrics (pods, deployments, nodes)
-  - Application-specific dashboards
-
-- **Gatus Dashboard**:
-  - Service health
-  - Response time
-  - Status history
+- Service health status (up/down)
+- Response time metrics
+- Status history and uptime percentage
+- Endpoint-specific details
 
 ## Maintenance
 
@@ -110,33 +72,9 @@ The applications are updated automatically through Flux CD when new versions are
 
 ### Backup
 
-- Configuration is backed up using VolSync
-- Prometheus data is not backed up as it can be regenerated
-
-### Data Retention
-
-- Prometheus data is retained for 15 days by default
-- Consider adjusting retention based on storage capacity and requirements
+- Gatus PostgreSQL database is backed up using CloudNative PG backups to Cloudflare R2
 
 ## Troubleshooting
-
-### Prometheus Issues
-
-If Prometheus is not collecting metrics:
-
-1. Check that Prometheus is running and accessible
-2. Verify that targets are configured correctly
-3. Check that targets are reachable
-4. Check Prometheus logs for errors
-
-### Grafana Issues
-
-If Grafana is not displaying metrics:
-
-1. Check that Grafana is running and accessible
-2. Verify that data sources are configured correctly
-3. Check that dashboards are properly configured
-4. Check Grafana logs for errors
 
 ### Gatus Issues
 

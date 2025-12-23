@@ -125,11 +125,11 @@ Regular backup testing is essential to ensure that backups are working correctly
 
 ## Monitoring Backups
 
-Backup jobs are monitored to ensure they are completing successfully:
+Backup jobs should be monitored to ensure they are completing successfully. Consider implementing:
 
-- **Prometheus Metrics**: Backup job metrics are collected by Prometheus
-- **Grafana Dashboards**: Backup job status is visualized in Grafana
-- **Alerts**: Alerts are configured for backup job failures
+- Kubernetes job monitoring
+- Alerts for backup job failures
+- Regular verification of backup integrity
 
 ## Security Considerations
 
