@@ -1,0 +1,26 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: authenticate-layertwo-dev
+  namespace: pomerium
+spec:
+  secretName: authenticate-layertwo-dev-tls
+  dnsNames:
+    - authenticate.layertwo.dev
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pom-layertwo-dev
+  namespace: pomerium
+spec:
+  secretName: pom-layertwo-dev-tls
+  dnsNames:
+    - pom.layertwo.dev
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
