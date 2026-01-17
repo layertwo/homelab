@@ -7,12 +7,15 @@ A GitOps-managed Kubernetes homelab built with K3S, Flux CD, and a variety of se
 This repository contains the configuration for a complete homelab infrastructure based on Kubernetes. It uses a GitOps approach with Flux CD to manage deployments, ensuring that the cluster state always matches what's defined in this repository.
 
 The homelab includes:
-- Media management (Sonarr, Radarr, Jellyfin, etc.)
+- Media management (Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, Prowlarr, Recyclarr)
 - Home automation (Home Assistant, MQTT, Zigbee2MQTT, Z-Wave JS UI)
 - Photo management (Immich)
+- Cloud file sharing (Send)
 - Documentation (Outline)
-- Authentication (Authentik, Pocket ID)
+- Authentication/SSO (Authentik, Pocket ID)
 - Monitoring (Gatus)
+
+> **For AI Agents**: See [AGENTS.md](AGENTS.md) for comprehensive context including project structure, technology stack, and development workflows.
 
 ## Architecture
 
