@@ -1,0 +1,129 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: ocis
+  namespace: owncloud
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: charts/ocis
+      version: 0.7.0
+      sourceRef:
+        kind: GitRepository
+        name: ocis
+        namespace: flux-system
+      interval: 12h
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      retries: 3
+  values:
+    # oCIS configuration
+    externalDomain: oc.layertwo.dev
+    
+    features:
+      externalUserManagement:
+        enabled: true
+        oidc:
+          issuerURI: &oidc_isser https://authentik.layertwo.dev/application/o/owncloud/
+          webClientID: owncloud
+          userIDClaim: preferred_username
+          userIDClaimAttributeMapping: username
+    
+    # Image configuration
+    image:
+      repository: owncloud/ocis
+      tag: 5.0.0
+      pullPolicy: IfNotPresent
+    
+    # Ingress configuration (disabled - using Traefik IngressRoute)
+    ingress:
+      enabled: false
+    
+    # Service configuration
+    services:
+      proxy:
+        service:
+          type: ClusterIP
+          port: 9200
+    
+    # Environment variables
+    env:
+      OCIS_INSECURE: "false"
+      OCIS_LOG_LEVEL: "info"
+      OCIS_LOG_COLOR: "false"
+      OCIS_LOG_PRETTY: "false"
+      
+      # Admin user configuration
+      OCIS_ADMIN_USER_ID: "admin"
+      IDM_ADMIN_PASSWORD:
+        valueFrom:
+          secretKeyRef:
+            name: ocis-secrets
+            key: admin-password
+      
+      # JWT secret
+      OCIS_JWT_SECRET:
+        valueFrom:
+          secretKeyRef:
+            name: ocis-secrets
+            key: jwt-secret
+      
+      # Transfer secret
+      OCIS_TRANSFER_SECRET:
+        valueFrom:
+          secretKeyRef:
+            name: ocis-secrets
+            key: transfer-secret
+      
+      # Machine auth API key
+      OCIS_MACHINE_AUTH_API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: ocis-secrets
+            key: machine-auth-api-key
+      
+      # OIDC Configuration
+      PROXY_OIDC_ISSUER: *oidc_isser
+      WEB_OIDC_CLIENT_ID: "owncloud"
+      WEB_OIDC_CLIENT_SECRET:
+        valueFrom:
+          secretKeyRef:
+            name: ocis-secrets
+            key: oidc-client-secret
+      PROXY_OIDC_INSECURE: "false"
+      OCIS_OIDC_ISSUER: *oidc_isser
+      
+      # User management
+      PROXY_USER_OIDC_CLAIM: "preferred_username"
+      PROXY_USER_CS3_CLAIM: "username"
+      
+      # Auto provision users from OIDC
+      PROXY_AUTOPROVISION_ACCOUNTS: "true"
+      PROXY_ROLE_ASSIGNMENT_DRIVER: "oidc"
+    
+    # Persistence
+    persistence:
+      enabled: true
+      storageClassName: truenas-iscsi
+      size: 100Gi
+    
+    # Resources
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+    
+    # Security context
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
