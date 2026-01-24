@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mediamtx-config
+  namespace: tak
+  labels:
+    app.kubernetes.io/component: mediamtx
+data:
+  mediamtx.yml: |
+    # MediaMTX configuration for OpenTAKServer
+    logLevel: info
+    logDestinations: [stdout]
+    logFile: ""
+    
+    # API configuration
+    api: yes
+    apiAddress: 0.0.0.0:9997
+    
+    # Metrics
+    metrics: no
+    metricsAddress: 127.0.0.1:9998
+    
+    # PPROF
+    pprof: no
+    pprofAddress: 127.0.0.1:9999
+    
+    # Playback server
+    playback: no
+    playbackAddress: :9996
+    
+    # RTSP server
+    rtspDisable: no
+    protocols: [tcp]
+    encryption: "no"
+    rtspAddress: :8554
+    rtspsAddress: :8322
+    rtpAddress: :8000
+    rtcpAddress: :8001
+    multicastIPRange: 224.1.0.0/16
+    multicastRTPPort: 8002
+    multicastRTCPPort: 8003
+    serverKey: /certs/server.key
+    serverCert: /certs/server.crt
+    authMethods: [basic, digest]
+    
+    # RTMP server
+    rtmpDisable: no
+    rtmpAddress: :1935
+    rtmpEncryption: "no"
+    rtmpsAddress: :1936
+    rtmpServerKey: /certs/server.key
+    rtmpServerCert: /certs/server.crt
+    
+    # HLS server
+    hlsDisable: no
+    hlsAddress: :8888
+    hlsEncryption: no
+    hlsServerKey: /certs/server.key
+    hlsServerCert: /certs/server.crt
+    hlsAlwaysRemux: no
+    hlsVariant: lowLatency
+    hlsSegmentCount: 7
+    hlsSegmentDuration: 1s
+    hlsPartDuration: 200ms
+    hlsSegmentMaxSize: 50M
+    hlsAllowOrigin: "*"
+    hlsTrustedProxies: []
+    hlsDirectory: ""
+    
+    # WebRTC server
+    webrtcDisable: no
+    webrtcAddress: :8889
+    webrtcEncryption: no
+    webrtcServerKey: /certs/server.key
+    webrtcServerCert: /certs/server.crt
+    webrtcAllowOrigin: "*"
+    webrtcTrustedProxies: []
+    webrtcLocalUDPAddress: :8189
+    webrtcLocalTCPAddress: :8189
+    webrtcIPsFromInterfaces: yes
+    webrtcIPsFromInterfacesList: []
+    webrtcAdditionalHosts: []
+    webrtcICEServers2: []
+    
+    # Default path settings
+    pathDefaults:
+      source: publisher
+      sourceFingerprint: ""
+      sourceOnDemand: no
+      sourceOnDemandStartTimeout: 10s
+      sourceOnDemandCloseAfter: 10s
+      maxReaders: 0
+      srtReadPassphrase: ""
+      srtPublishPassphrase: ""
+      fallback: ""
+      
+      # Recording
+      record: no
+      recordPath: /recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+      recordFormat: fmp4
+      recordPartDuration: 1s
+      recordSegmentDuration: 1h
+      recordDeleteAfter: 24h
+      
+      # Authentication
+      publishUser: ""
+      publishPass: ""
+      publishIPs: []
+      readUser: ""
+      readPass: ""
+      readIPs: []
+      
+      # External commands
+      runOnInit: ""
+      runOnInitRestart: no
+      runOnDemand: ""
+      runOnDemandRestart: no
+      runOnDemandStartTimeout: 10s
+      runOnDemandCloseAfter: 10s
+      runOnUnDemand: ""
+      runOnReady: ""
+      runOnNotReady: ""
+      runOnRead: ""
+      runOnUnread: ""
+      runOnRecordSegmentCreate: ""
+      runOnRecordSegmentComplete: ""
+    
+    # Paths for OpenTAKServer video streams
+    paths:
+      # Default path for any stream
+      "~^.*$":
+        source: publisher
+        record: true
+        recordPath: /recordings/%path/%Y-%m-%d_%H-%M-%S-%f
+        recordFormat: fmp4
+        recordDeleteAfter: 24h

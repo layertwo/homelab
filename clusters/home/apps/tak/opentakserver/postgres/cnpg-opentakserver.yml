@@ -1,0 +1,31 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-opentakserver
+  namespace: tak
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  imageName: ghcr.io/cloudnative-pg/postgis:18.1-3.6.1-system-trixie
+  bootstrap:
+    initdb:
+      postInitTemplateSQL:
+        - CREATE EXTENSION postgis;
+        - CREATE EXTENSION postgis_topology;
+        - CREATE EXTENSION fuzzystrmatch;
+        - CREATE EXTENSION postgis_tiger_geocoder;
+  storage:
+    storageClass: sunbeam-iscsi-csi
+    size: 16Gi
+  walStorage:
+    storageClass: sunbeam-iscsi-csi
+    size: 10Gi
+  postgresql:
+    parameters:
+      # WAL management parameters to prevent disk space issues
+      wal_keep_size: "1GB"
+      max_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      archive_timeout: "300s"
