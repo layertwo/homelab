@@ -5,14 +5,7 @@ RUN apt update && apt upgrade && \
     apt install build-essential curl ffmpeg libpq-dev unzip -y --no-install-recommends && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
-# Create user and directories
-RUN addgroup --gid 1024 ots && \
-    adduser --home /app --disabled-password --gecos "" --force-badname --gid 1024 ots && \
-    mkdir -p /var/lib/opentakserver /app && \
-    chown -R ots:ots /app /var/lib/opentakserver
-
-# Switch to ots user
-USER ots
+RUN mkdir -p /var/lib/opentakserver /app
 
 # Download OpenTAKServer-UI
 WORKDIR /var/lib/opentakserver
@@ -23,12 +16,12 @@ RUN mkdir -p ui && cd ui && \
     rm -rf opentakserver opentakserver-ui.zip
 
 WORKDIR /app
-COPY --chown=ots:ots requirements.txt /app
+COPY requirements.txt /app
 RUN pip install -r requirements.txt 
 
 WORKDIR /var/lib/opentakserver
 EXPOSE 8081 8088 8089
-COPY --chown=ots:ots entrypoint.sh /app
+COPY entrypoint.sh /app
 
 CMD ["/app/entrypoint.sh"]
 # Flask will stop gracefully on SIGINT (Ctrl-C).
