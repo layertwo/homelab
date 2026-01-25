@@ -1,1 +1,2 @@
 OpenTAKServer==1.7.4
+gunicorn==24.1.1
