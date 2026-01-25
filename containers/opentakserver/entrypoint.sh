@@ -18,4 +18,4 @@ fi
 echo "Initializing database..."
 python -m flask --app opentakserver.app ots init-db || echo "Database already initialized or init-db command not available"
 
-exec python -m gunicorn opentakserver.app:start --bind $OTS_LISTENER_ADDRESS:$OTS_LISTENER_PORT
+exec python -m gunicorn "opentakserver.app:start()" --bind $OTS_LISTENER_ADDRESS:$OTS_LISTENER_PORT

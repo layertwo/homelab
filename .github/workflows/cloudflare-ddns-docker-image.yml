@@ -3,6 +3,7 @@ name: cloudflare-ddns
 on:
   workflow_dispatch:
   push:
+    branches: [ "mainline" ]
     paths:
       - containers/cloudflare-ddns/**
       - .github/workflows/cloudflare-ddns-docker-image.yml
