@@ -35,7 +35,7 @@ spec:
           server:
             image:
               repository: ghcr.io/immich-app/immich-server
-              tag: v2.4.1
+              tag: v2.5.0
             env: &env
               DB_HOSTNAME:
                 valueFrom:
@@ -102,7 +102,7 @@ spec:
           machine-learning:
             image:
               repository: ghcr.io/immich-app/immich-machine-learning
-              tag: v2.4.1
+              tag: v2.5.0
             env:
               <<: *env
               TRANSFORMERS_CACHE: /cache
