@@ -24,27 +24,28 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        redirections:
-          to: websecure
-          scheme: https
+        http:
+          redirections:
+            to: websecure
+            scheme: https
       websecure:
         port: 443
         asDefault: true
-        tls:
-          enabled: true
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        middlewares:
-          - traefik-system-secure-headers-middleware
+        http:
+          tls:
+            enabled: true
+          middlewares:
+            - traefik-system-secure-headers-middleware
+
       ldap:
         port: 389
         protocol: TCP
         expose:
           default: false
           ldap: true
-        tls:
-          enabled: false
 
     service:
       spec:
@@ -104,4 +105,3 @@ spec:
     logs:
       access:
         enabled: true
-    globalArguments: []
