@@ -46,10 +46,16 @@
         "prettier-plugin-pkgsort": "^0.3.0",
         "ts-jest": "^29.2.5",
         "ts-node": "^10.9.2",
-        "typescript": "~5.9.0"
+        "typescript": "~5.9.0",
+        "brace-expansion": "^2.0.2",
+        "glob": "^10.5.0",
+        "lodash-es": "^4.17.23",
+        "lodash": "^4.17.23"
     },
     "overrides": {
-        "lodash-es": "4.17.23",
-        "lodash": "4.17.23"
+        "brace-expansion": "^2.0.2",
+        "glob": "^10.5.0",
+        "lodash-es": "^4.17.23",
+        "lodash": "^4.17.23"
     }
 }
