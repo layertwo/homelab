@@ -12,7 +12,7 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
-      version: 38.0.2
+      version: 39.0.0
   interval: 60m
   dependsOn:
     - name: cert-manager
@@ -24,19 +24,21 @@ spec:
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        redirections:
-          to: websecure
-          scheme: https
+        http:
+          redirections:
+            to: websecure
+            scheme: https
       websecure:
         port: 443
         asDefault: true
-        tls:
-          enabled: true
         transport:
           respondingTimeouts:
             readTimeout: 0s
-        middlewares:
-          - traefik-system-secure-headers-middleware
+        http:
+          tls:
+            enabled: true
+          middlewares:
+            - traefik-system-secure-headers-middleware
 
     tlsStore:
       default:
@@ -106,5 +108,3 @@ spec:
     logs:
       access:
         enabled: true
-
-    globalArguments: []
