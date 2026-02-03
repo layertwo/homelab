@@ -301,14 +301,14 @@ spec:
           url: https://send.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
-          # alerts:
-          #   - type: pushover
-          #     enabled: true
-          #     failure-threshold: 3
-          #     success-threshold: 2
-          #     send-on-resolved: true
-          #     description: "Send is down"
+            - "[STATUS] == 401"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "Send is down"
 
         # Network Services
         - name: Traefik External
