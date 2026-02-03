@@ -1,0 +1,15 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: send-oidc
+  namespace: send
+spec:
+  plugin:
+    oidc:
+      Secret: "urn:k8s:secret:secrets-send-oidc:pluginSecret"
+      Provider:
+        Url: "https://idp.layertwo.dev/"
+        ClientId: "urn:k8s:secret:secrets-send-oidc:clientId"
+        ClientSecret: "urn:k8s:secret:secrets-send-oidc:clientSecret"
+      Scopes: ["openid", "profile", "email", "groups"]
