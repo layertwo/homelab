@@ -37,6 +37,16 @@ spec:
           secretKeyRef:
             name: cnpg-gatus-app
             key: uri
+      OIDC_CLIENT_ID:
+        valueFrom:
+          secretKeyRef:
+            name: gatus-oidc
+            key: CLIENT_ID
+      OIDC_CLIENT_SECRET:
+        valueFrom:
+          secretKeyRef:
+            name: gatus-oidc
+            key: CLIENT_SECRET
 
     persistence:
       config:
@@ -358,3 +368,11 @@ spec:
         pushover:
           application-token: "${PUSHOVER_TOKEN}"
           user-key: "${PUSHOVER_USER_KEY}"
+
+      security:
+        oidc:
+          issuer-url: https://idp.layertwo.dev
+          client-id: "${OIDC_CLIENT_ID}"
+          client-secret: "${OIDC_CLIENT_SECRET}"
+          redirect-url: "https://status.layertwo.dev/authorization-code/callback"
+          scopes: [openid]
