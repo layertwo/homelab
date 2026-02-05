@@ -1,7 +1,7 @@
 FROM python:3.14.3-slim
 ARG UI_VERSION=v1.7.2
 
-RUN apt update && apt upgrade && \
+RUN apt update && apt upgrade -y && \
     apt install build-essential curl ffmpeg libpq-dev unzip -y --no-install-recommends && \
     apt clean && rm -rf /var/lib/apt/lists/*
 
