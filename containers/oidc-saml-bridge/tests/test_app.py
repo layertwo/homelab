@@ -66,7 +66,7 @@ class TestApp:
             status=200,
         )
 
-        response = client.get("/saml/sso")
+        response = client.post("/saml/sso")
 
         assert response.status_code == 302
         assert "https://idp.example.com/authorize" in response.location
@@ -93,7 +93,7 @@ class TestApp:
 
         encoded_request = base64.b64encode(authn_request.encode()).decode()
 
-        response = client.get(f"/saml/sso?SAMLRequest={encoded_request}&RelayState=test-relay")
+        response = client.post(f"/saml/sso?SAMLRequest={encoded_request}&RelayState=test-relay")
 
         assert response.status_code == 302
         assert "https://idp.example.com/authorize" in response.location

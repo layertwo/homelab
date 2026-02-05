@@ -36,7 +36,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         metadata = saml_builder.generate_metadata(sso_url)
         return metadata, 200, {"Content-Type": "application/xml"}
 
-    @app.route("/saml/sso")
+    @app.route("/saml/sso", methods=["GET", "POST"])
     def saml_sso() -> Any:
         """Handle SAML AuthnRequest and redirect to OIDC provider."""
         saml_request = request.args.get("SAMLRequest")
