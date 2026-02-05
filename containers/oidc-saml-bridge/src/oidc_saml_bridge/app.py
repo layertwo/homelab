@@ -1,12 +1,17 @@
 """Flask application for the OIDC to SAML bridge."""
 
+import logging
 import secrets
 from typing import Any, Optional
 
+import requests
 from flask import Flask, redirect, request, session
+from markupsafe import escape
 
 from oidc_saml_bridge.environment import ServiceProvider
 from oidc_saml_bridge.saml import parse_authn_request
+
+logger = logging.getLogger(__name__)
 
 
 def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
@@ -25,9 +30,18 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
     saml_audience = service_provider.saml_audience
 
     @app.route("/health")
-    def health() -> dict[str, str]:
-        """Health check endpoint."""
-        return {"status": "healthy"}
+    def health() -> tuple[dict[str, str], int]:
+        """Health check endpoint with OIDC provider connectivity check."""
+        try:
+            # Check OIDC provider is reachable by fetching config
+            _ = oidc_client.config
+            return {"status": "healthy"}, 200
+        except Exception:
+            logging.exception("Health check failed")
+            return {
+                "status": "unhealthy",
+                "error": "OIDC health check failed",
+            }, 503
 
     @app.route("/saml/metadata")
     def saml_metadata() -> Any:
@@ -54,8 +68,14 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         session["oidc_state"] = state
         session["oidc_nonce"] = nonce
 
-        auth_url = oidc_client.get_authorization_url(state, nonce)
-        return redirect(auth_url)
+        try:
+            auth_url = oidc_client.get_authorization_url(state, nonce)
+            return redirect(auth_url)
+        except requests.exceptions.RequestException:
+            return {
+                "error": "provider_error",
+                "description": "Failed to contact OIDC provider",
+            }, 502
 
     @app.route("/callback")
     def callback() -> Any:
@@ -70,25 +90,69 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         if not code:
             return {"error": "missing_code", "description": "No authorization code provided"}, 400
 
-        if state != session.get("oidc_state"):
+        stored_state = session.get("oidc_state")
+        if not stored_state or state != stored_state:
             return {"error": "invalid_state", "description": "State mismatch"}, 400
 
-        tokens = oidc_client.exchange_code(code)
-        access_token = tokens.get("access_token")
+        stored_nonce = session.get("oidc_nonce")
 
+        # Exchange authorization code for tokens
+        try:
+            tokens = oidc_client.exchange_code(code, expected_nonce=stored_nonce)
+        except ValueError as e:
+            logging.exception(f"Error while exchanging authorization code: {e}")
+            return {
+                "error": "invalid_token",
+                "description": "Invalid token provided",
+            }, 400
+        except requests.exceptions.HTTPError as e:
+            return {
+                "error": "token_exchange_failed",
+                "description": f"Failed to exchange code: {e.response.status_code}",
+            }, 502
+        except requests.exceptions.RequestException:
+            return {
+                "error": "provider_error",
+                "description": "Failed to contact OIDC provider",
+            }, 502
+
+        access_token = tokens.get("access_token")
         if not access_token:
             return {"error": "no_token", "description": "No access token received"}, 400
 
-        user_info = oidc_client.get_userinfo(access_token)
+        # Fetch user information
+        try:
+            user_info = oidc_client.get_userinfo(access_token)
+        except requests.exceptions.HTTPError as e:
+            return {
+                "error": "userinfo_failed",
+                "description": f"Failed to fetch user info: {e.response.status_code}",
+            }, 502
+        except requests.exceptions.RequestException:
+            return {
+                "error": "provider_error",
+                "description": "Failed to contact OIDC provider",
+            }, 502
+
+        except Exception as e:  # pragma: nocover
+            logger.exception(f"Failed to build SAML response: {e}")
 
         saml_request_id = session.get("saml_request_id")
         relay_state = session.get("relay_state", "")
 
-        saml_response = saml_builder.build_response(
-            user_info=user_info,
-            request_id=saml_request_id,
-            audience=saml_audience,
-        )
+        # Build SAML response
+        try:
+            saml_response = saml_builder.build_response(
+                user_info=user_info,
+                request_id=saml_request_id,
+                audience=saml_audience,
+            )
+        except Exception as e:
+            logger.exception(f"Failed to build SAML response {e}")
+            return {
+                "error": "saml_build_failed",
+                "description": "Failed to build SAML response",
+            }, 500
 
         session.clear()
 
@@ -99,9 +163,9 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
 <head><title>SAML Response</title></head>
 <body onload="document.forms[0].submit()">
 <noscript><p>JavaScript is required. Please click the button below.</p></noscript>
-<form method="POST" action="{service_provider.saml_acs_url}">
-<input type="hidden" name="SAMLResponse" value="{saml_response}"/>
-<input type="hidden" name="RelayState" value="{relay_state}"/>
+<form method="POST" action="{escape(service_provider.saml_acs_url)}">
+<input type="hidden" name="SAMLResponse" value="{escape(saml_response)}"/>
+<input type="hidden" name="RelayState" value="{escape(relay_state)}"/>
 <noscript><input type="submit" value="Continue"/></noscript>
 </form>
 </body>

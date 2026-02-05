@@ -271,11 +271,18 @@ def parse_authn_request(encoded_request: str) -> dict[str, str | None]:
     """Parse a SAML AuthnRequest and extract relevant fields."""
     try:
         decoded = base64.b64decode(encoded_request)
-        root = etree.fromstring(decoded)
+        # Secure parser to prevent XXE attacks
+        parser = etree.XMLParser(
+            resolve_entities=False,
+            no_network=True,
+            dtd_validation=False,
+            load_dtd=False,
+        )
+        root = etree.fromstring(decoded, parser=parser)
         return {
             "id": root.get("ID"),
             "issuer": root.findtext("{%s}Issuer" % SAML_NS),
             "acs_url": root.get("AssertionConsumerServiceURL"),
         }
-    except Exception:
+    except base64.binascii.Error, etree.XMLSyntaxError:
         return {"id": None, "issuer": None, "acs_url": None}
