@@ -3,6 +3,7 @@
 import secrets
 from typing import Any, Optional
 import logging
+import logging
 
 import requests
 from flask import Flask, redirect, request, session
@@ -93,7 +94,11 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
             return {"error": "invalid_state", "description": "State mismatch"}, 400
 
         stored_nonce = session.get("oidc_nonce")
-
+            logging.exception("Error while exchanging authorization code")
+            return {
+                "error": "invalid_token",
+                "description": "Invalid token provided",
+            }, 400
         # Exchange authorization code for tokens
         try:
             tokens = oidc_client.exchange_code(code, expected_nonce=stored_nonce)
