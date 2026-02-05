@@ -2,6 +2,7 @@
 
 import secrets
 from typing import Any, Optional
+import logging
 
 import requests
 from flask import Flask, redirect, request, session
@@ -33,8 +34,12 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
             # Check OIDC provider is reachable by fetching config
             _ = oidc_client.config
             return {"status": "healthy"}, 200
-        except Exception as e:
-            return {"status": "unhealthy", "error": str(e)}, 503
+        except Exception:
+            logging.exception("Health check failed")
+            return {
+                "status": "unhealthy",
+                "error": "OIDC health check failed",
+            }, 503
 
     @app.route("/saml/metadata")
     def saml_metadata() -> Any:
