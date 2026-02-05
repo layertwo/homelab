@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oidc-saml-bridge"
+version = "0.1.0"
+dependencies = [
+    "flask==3.1.2",
+    "authlib==1.6.6",
+    "lxml==6.0.2",
+    "signxml==4.2.2",
+    "cryptography==46.0.4",
+    "requests==2.32.5",
+]
+
+[project.scripts]
+oidc-saml-bridge = "oidc_saml_bridge.app:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.2",
+    "pytest-cov==7.0.0",
+    "black==25.12.0",
+    "isort==7.0.0",
+    "flake8==7.3.0",
+    "Flake8-pyproject==1.2.4",
+    "responses==0.25.8",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--verbose",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=term",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-fail-under=100"
+]
+
+[tool.coverage.run]
+source = ["oidc_saml_bridge"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+branch = true
+parallel = true
+relative_files = true
+
+[tool.black]
+line-length = 100
+target-version = ["py314"]
+src = ["src/", "tests/"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = ["E203"]
