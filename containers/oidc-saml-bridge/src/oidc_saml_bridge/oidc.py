@@ -1,8 +1,10 @@
 """OIDC client for authenticating with pocket-id."""
 
+from functools import cached_property
 from typing import Any
 from urllib.parse import urlencode
 
+import jwt
 import requests
 
 
@@ -22,19 +24,13 @@ class OIDCClient:
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.scopes = scopes
-        self._config: dict[str, Any] | None = None
+        self._session = requests.Session()
 
-    @property
+    @cached_property
     def config(self) -> dict[str, Any]:
-        """Fetch and cache OIDC discovery configuration."""
-        if self._config is None:
-            self._config = self._fetch_config()
-        return self._config
-
-    def _fetch_config(self) -> dict[str, Any]:
         """Fetch OIDC discovery document."""
         url = f"{self.issuer}/.well-known/openid-configuration"
-        response = requests.get(url, timeout=10)
+        response = self._session.get(url, timeout=10)
         response.raise_for_status()
         return response.json()
 
@@ -50,8 +46,8 @@ class OIDCClient:
         }
         return f"{self.config['authorization_endpoint']}?{urlencode(params)}"
 
-    def exchange_code(self, code: str) -> dict[str, Any]:
-        """Exchange authorization code for tokens."""
+    def exchange_code(self, code: str, expected_nonce: str | None = None) -> dict[str, Any]:
+        """Exchange authorization code for tokens and validate nonce."""
         data = {
             "grant_type": "authorization_code",
             "code": code,
@@ -59,17 +55,38 @@ class OIDCClient:
             "client_id": self.client_id,
             "client_secret": self.client_secret,
         }
-        response = requests.post(
+        response = self._session.post(
             self.config["token_endpoint"],
             data=data,
             timeout=10,
         )
         response.raise_for_status()
-        return response.json()
+        tokens = response.json()
+
+        # Validate ID token nonce if provided
+        if expected_nonce and "id_token" in tokens:
+            self._validate_id_token(tokens["id_token"], expected_nonce)
+
+        return tokens
+
+    def _validate_id_token(self, id_token: str, expected_nonce: str) -> None:
+        """Validate ID token nonce without full signature verification."""
+        # Decode without verification to check nonce (signature verification requires jwks)
+        try:
+            payload = jwt.decode(
+                id_token,
+                options={"verify_signature": False},
+                algorithms=["RS256", "HS256"],
+            )
+            token_nonce = payload.get("nonce")
+            if token_nonce != expected_nonce:
+                raise ValueError("ID token nonce mismatch")
+        except jwt.PyJWTError as e:
+            raise ValueError(f"Invalid ID token: {e}")
 
     def get_userinfo(self, access_token: str) -> dict[str, Any]:
         """Fetch user information from the OIDC provider."""
-        response = requests.get(
+        response = self._session.get(
             self.config["userinfo_endpoint"],
             headers={"Authorization": f"Bearer {access_token}"},
             timeout=10,

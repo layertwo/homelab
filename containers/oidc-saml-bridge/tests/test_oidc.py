@@ -204,3 +204,111 @@ class TestOIDCClient:
         assert client.issuer == "https://idp.example.com"
         _ = client.config
         assert len(responses.calls) == 1
+
+    @responses.activate
+    def test_exchange_code_with_nonce_validation(self, oidc_config):
+        """Test exchanging code with nonce validation."""
+        import jwt
+
+        # Create a valid JWT with nonce
+        id_token = jwt.encode(
+            {"sub": "user123", "nonce": "test-nonce", "aud": "test-client"},
+            "secret",
+            algorithm="HS256",
+        )
+
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "id_token": id_token,
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+
+        client = OIDCClient(
+            issuer="https://idp.example.com",
+            client_id="test-client",
+            client_secret="test-secret",
+            redirect_uri="https://bridge.example.com/callback",
+        )
+
+        tokens = client.exchange_code("auth-code", expected_nonce="test-nonce")
+        assert tokens["access_token"] == "test-access-token"
+
+    @responses.activate
+    def test_exchange_code_nonce_mismatch(self, oidc_config):
+        """Test nonce mismatch raises ValueError."""
+        import jwt
+
+        # Create a JWT with wrong nonce
+        id_token = jwt.encode(
+            {"sub": "user123", "nonce": "wrong-nonce", "aud": "test-client"},
+            "secret",
+            algorithm="HS256",
+        )
+
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "id_token": id_token,
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+
+        client = OIDCClient(
+            issuer="https://idp.example.com",
+            client_id="test-client",
+            client_secret="test-secret",
+            redirect_uri="https://bridge.example.com/callback",
+        )
+
+        with pytest.raises(ValueError, match="ID token nonce mismatch"):
+            client.exchange_code("auth-code", expected_nonce="test-nonce")
+
+    @responses.activate
+    def test_exchange_code_invalid_jwt(self, oidc_config):
+        """Test invalid JWT raises ValueError."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "id_token": "invalid.jwt.token",
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+
+        client = OIDCClient(
+            issuer="https://idp.example.com",
+            client_id="test-client",
+            client_secret="test-secret",
+            redirect_uri="https://bridge.example.com/callback",
+        )
+
+        with pytest.raises(ValueError, match="Invalid ID token"):
+            client.exchange_code("auth-code", expected_nonce="test-nonce")

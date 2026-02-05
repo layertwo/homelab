@@ -32,8 +32,15 @@ class TestApp:
         """Create test client."""
         return app.test_client()
 
-    def test_health_endpoint(self, client):
+    @responses.activate
+    def test_health_endpoint(self, client, oidc_config):
         """Test health check endpoint."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
         response = client.get("/health")
         assert response.status_code == 200
         assert response.json == {"status": "healthy"}
@@ -210,3 +217,229 @@ class TestApp:
 
         assert response.status_code == 400
         assert response.json["error"] == "no_token"
+
+    @responses.activate
+    def test_health_endpoint_unhealthy(self, client):
+        """Test health check endpoint when OIDC provider is unreachable."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            status=500,
+        )
+
+        response = client.get("/health")
+
+        assert response.status_code == 503
+        assert response.json["status"] == "unhealthy"
+
+    @responses.activate
+    def test_saml_sso_provider_error(self, client, oidc_config):
+        """Test SAML SSO when OIDC provider is unreachable."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            status=500,
+        )
+
+        response = client.get("/saml/sso")
+
+        assert response.status_code == 502
+        assert response.json["error"] == "provider_error"
+
+    @responses.activate
+    def test_callback_exchange_code_value_error(self, client, oidc_config):
+        """Test callback when exchange_code raises ValueError."""
+        import jwt
+
+        # Create a JWT with wrong nonce
+        id_token = jwt.encode(
+            {"sub": "user123", "nonce": "wrong-nonce", "aud": "test-client"},
+            "secret",
+            algorithm="HS256",
+        )
+
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "id_token": id_token,
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+
+        with client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+            sess["oidc_nonce"] = "test-nonce"
+
+        response = client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 400
+        assert response.json["error"] == "invalid_token"
+
+    @responses.activate
+    def test_callback_exchange_code_http_error(self, client, oidc_config):
+        """Test callback when token endpoint returns HTTP error."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            status=400,
+        )
+
+        with client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 502
+        assert response.json["error"] == "token_exchange_failed"
+
+    @responses.activate
+    def test_callback_exchange_code_request_exception(self, client, oidc_config):
+        """Test callback when token endpoint is unreachable."""
+        import requests as req
+
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            body=req.exceptions.ConnectionError("Connection error"),
+        )
+
+        with client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 502
+        assert response.json["error"] == "provider_error"
+
+    @responses.activate
+    def test_callback_userinfo_http_error(self, client, oidc_config):
+        """Test callback when userinfo endpoint returns HTTP error."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/userinfo",
+            status=403,
+        )
+
+        with client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 502
+        assert response.json["error"] == "userinfo_failed"
+
+    @responses.activate
+    def test_callback_userinfo_request_exception(self, client, oidc_config):
+        """Test callback when userinfo endpoint is unreachable."""
+        import requests as req
+
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/userinfo",
+            body=req.exceptions.ConnectionError("Connection error"),
+        )
+
+        with client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 502
+        assert response.json["error"] == "provider_error"
+
+    @responses.activate
+    def test_callback_saml_build_error(self, service_provider, oidc_config, monkeypatch):
+        """Test callback when SAML response building fails."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/userinfo",
+            json={
+                "sub": "user123",
+                "email": "user@example.com",
+                "name": "Test User",
+            },
+            status=200,
+        )
+
+        # Mock build_response to raise an exception
+        def failing_build(*args, **kwargs):
+            raise Exception("SAML build error")
+
+        monkeypatch.setattr(service_provider.saml_builder, "build_response", failing_build)
+
+        app = create_app(service_provider=service_provider)
+        test_client = app.test_client()
+
+        with test_client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = test_client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 500
+        assert response.json["error"] == "saml_build_failed"
