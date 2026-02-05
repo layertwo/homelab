@@ -75,20 +75,6 @@ spec:
         path: "${POSTGRES_URI}"
 
       endpoints:
-        # Documentation Services
-        - name: Outline
-          group: Documentation
-          url: https://outline.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "Outline is down"
 
         # Authentication Services
         - name: Authentik
