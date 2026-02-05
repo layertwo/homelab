@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir .
 
 EXPOSE 8080
 
-ENTRYPOINT ["oidc-saml-bridge"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8080", "oidc_saml_bridge.app:create_app()"]

@@ -12,10 +12,8 @@ dependencies = [
     "signxml==4.2.2",
     "cryptography==46.0.4",
     "requests==2.32.5",
+    "gunicorn==25.0.1",
 ]
-
-[project.scripts]
-oidc-saml-bridge = "oidc_saml_bridge.app:main"
 
 [project.optional-dependencies]
 dev = [
@@ -47,7 +45,7 @@ addopts = [
 ]
 
 [tool.coverage.run]
-source = ["oidc_saml_bridge"]
+source = ["src"]
 omit = [
     "*/tests/*",
     "*/test_*",
