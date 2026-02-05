@@ -4,13 +4,16 @@ import secrets
 from typing import Any, Optional
 import logging
 import logging
+import logging
 
 import requests
 from flask import Flask, redirect, request, session
 from markupsafe import escape
 
 from oidc_saml_bridge.environment import ServiceProvider
+logger = logging.getLogger(__name__)
 from oidc_saml_bridge.saml import parse_authn_request
+
 
 
 def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
@@ -133,10 +136,11 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 "description": "Failed to contact OIDC provider",
             }, 502
 
-        saml_request_id = session.get("saml_request_id")
+        except Exception:
+            logger.exception("Failed to build SAML response")
         relay_state = session.get("relay_state", "")
 
-        # Build SAML response
+                "description": "Failed to build SAML response",
         try:
             saml_response = saml_builder.build_response(
                 user_info=user_info,
