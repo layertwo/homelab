@@ -1,19 +1,17 @@
 """Flask application for the OIDC to SAML bridge."""
 
+import logging
 import secrets
 from typing import Any, Optional
-import logging
-import logging
-import logging
 
 import requests
 from flask import Flask, redirect, request, session
 from markupsafe import escape
 
 from oidc_saml_bridge.environment import ServiceProvider
-logger = logging.getLogger(__name__)
 from oidc_saml_bridge.saml import parse_authn_request
 
+logger = logging.getLogger(__name__)
 
 
 def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
@@ -97,16 +95,16 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
             return {"error": "invalid_state", "description": "State mismatch"}, 400
 
         stored_nonce = session.get("oidc_nonce")
-            logging.exception("Error while exchanging authorization code")
-            return {
-                "error": "invalid_token",
-                "description": "Invalid token provided",
-            }, 400
+
         # Exchange authorization code for tokens
         try:
             tokens = oidc_client.exchange_code(code, expected_nonce=stored_nonce)
         except ValueError as e:
-            return {"error": "invalid_token", "description": str(e)}, 400
+            logging.exception(f"Error while exchanging authorization code: {e}")
+            return {
+                "error": "invalid_token",
+                "description": "Invalid token provided",
+            }, 400
         except requests.exceptions.HTTPError as e:
             return {
                 "error": "token_exchange_failed",
@@ -136,11 +134,13 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 "description": "Failed to contact OIDC provider",
             }, 502
 
-        except Exception:
-            logger.exception("Failed to build SAML response")
+        except Exception as e:  # pragma: nocover
+            logger.exception(f"Failed to build SAML response: {e}")
+
+        saml_request_id = session.get("saml_request_id")
         relay_state = session.get("relay_state", "")
 
-                "description": "Failed to build SAML response",
+        # Build SAML response
         try:
             saml_response = saml_builder.build_response(
                 user_info=user_info,
@@ -148,9 +148,10 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 audience=saml_audience,
             )
         except Exception as e:
+            logger.exception(f"Failed to build SAML response {e}")
             return {
                 "error": "saml_build_failed",
-                "description": f"Failed to build SAML response: {e}",
+                "description": "Failed to build SAML response",
             }, 500
 
         session.clear()
