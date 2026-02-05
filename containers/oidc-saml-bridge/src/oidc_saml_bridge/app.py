@@ -1,7 +1,7 @@
 """Flask application for the OIDC to SAML bridge."""
 
 import secrets
-from typing import Any
+from typing import Any, Optional
 
 from flask import Flask, redirect, request, session
 
@@ -9,8 +9,10 @@ from oidc_saml_bridge.environment import ServiceProvider
 from oidc_saml_bridge.saml import parse_authn_request
 
 
-def create_app(service_provider: ServiceProvider) -> Flask:
+def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
     """Create and configure the Flask application."""
+    if not service_provider:  # pragma: no cover
+        service_provider = ServiceProvider()
     app = Flask(__name__)
 
     app.config["SECRET_KEY"] = service_provider.secret_key
