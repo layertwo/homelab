@@ -2,9 +2,10 @@
 
 import base64
 
+import pytest
 from lxml import etree
 
-from src.oidc_saml_bridge.saml import SAMLBuilder, parse_authn_request
+from oidc_saml_bridge.saml import SAMLBuilder, parse_authn_request
 
 
 class TestSAMLBuilder:
@@ -77,7 +78,7 @@ class TestSAMLBuilder:
             "groups": ["admin", "users"],
         }
 
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -105,7 +106,9 @@ class TestSAMLBuilder:
         )
 
         user_info = {"email": "user@example.com"}
-        response = builder.build_response(user_info, request_id="_abc123")
+        response = builder.build_response(
+            user_info, request_id="_abc123", audience="https://test-audience"
+        )
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -144,7 +147,7 @@ class TestSAMLBuilder:
         )
 
         user_info = {"email": "testuser"}
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -177,7 +180,7 @@ class TestSAMLBuilder:
             "groups": "admin,users",
         }
 
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -206,7 +209,7 @@ class TestSAMLBuilder:
         )
 
         user_info = {"email": "user@example.com", "name": "Test User"}
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -233,7 +236,7 @@ class TestSAMLBuilder:
         )
 
         user_info = {"email": "user@example.com"}
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         decoded_str = decoded.decode("utf-8")
@@ -253,7 +256,7 @@ class TestSAMLBuilder:
         )
 
         user_info = {"email": "user@example.com"}
-        response = builder.build_response(user_info)
+        response = builder.build_response(user_info, audience="https://test-audience")
 
         decoded = base64.b64decode(response)
         root = etree.fromstring(decoded)
@@ -270,6 +273,20 @@ class TestSAMLBuilder:
         assert name_attr is not None
         value = name_attr.find("saml:AttributeValue", ns)
         assert value.text == "user@example.com"
+
+    def test_build_response_missing_audience_raises(self, temp_certs):
+        """Test that building response without audience raises ValueError."""
+        cert_path, key_path = temp_certs
+        builder = SAMLBuilder(
+            entity_id="https://bridge.example.com",
+            acs_url="https://sp.example.com/acs",
+            cert_path=cert_path,
+            key_path=key_path,
+        )
+
+        user_info = {"email": "user@example.com"}
+        with pytest.raises(ValueError, match="audience is required"):
+            builder.build_response(user_info)
 
 
 class TestParseAuthnRequest:

@@ -53,8 +53,8 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
     @app.route("/saml/sso", methods=["GET", "POST"])
     def saml_sso() -> Any:
         """Handle SAML AuthnRequest and redirect to OIDC provider."""
-        saml_request = request.args.get("SAMLRequest")
-        relay_state = request.args.get("RelayState", "")
+        saml_request = request.args.get("SAMLRequest") or request.form.get("SAMLRequest")
+        relay_state = request.args.get("RelayState", "") or request.form.get("RelayState", "")
 
         request_data = {"id": None, "issuer": None, "acs_url": None}
         if saml_request:

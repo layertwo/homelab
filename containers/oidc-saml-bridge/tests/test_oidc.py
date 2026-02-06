@@ -3,7 +3,7 @@
 import pytest
 import responses
 
-from src.oidc_saml_bridge.oidc import OIDCClient
+from oidc_saml_bridge.oidc import OIDCClient
 
 
 class TestOIDCClient:
