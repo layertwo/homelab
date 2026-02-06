@@ -399,6 +399,45 @@ class TestApp:
         assert response.json["error"] == "provider_error"
 
     @responses.activate
+    def test_callback_userinfo_unexpected_exception(
+        self, service_provider, oidc_config, monkeypatch
+    ):
+        """Test callback when userinfo fetching raises unexpected exception."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+        responses.add(
+            responses.POST,
+            "https://idp.example.com/token",
+            json={
+                "access_token": "test-access-token",
+                "token_type": "Bearer",
+            },
+            status=200,
+        )
+
+        # Mock get_userinfo to raise an unexpected exception
+        def failing_get_userinfo(*args, **kwargs):
+            raise KeyError("Unexpected error in userinfo processing")
+
+        monkeypatch.setattr(service_provider.oidc_client, "get_userinfo", failing_get_userinfo)
+
+        app = create_app(service_provider=service_provider)
+        test_client = app.test_client()
+
+        with test_client.session_transaction() as sess:
+            sess["oidc_state"] = "test-state"
+
+        response = test_client.get("/callback?code=auth-code&state=test-state")
+
+        assert response.status_code == 500
+        assert response.json["error"] == "userinfo_error"
+        assert "Unexpected error" in response.json["description"]
+
+    @responses.activate
     def test_callback_saml_build_error(self, service_provider, oidc_config, monkeypatch):
         """Test callback when SAML response building fails."""
         responses.add(

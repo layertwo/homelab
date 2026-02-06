@@ -85,7 +85,8 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         error = request.args.get("error")
 
         if error:
-            return {"error": error, "description": request.args.get("error_description")}, 400
+            error_description = escape(request.args.get("error_description"))
+            return {"error": escape(error), "description": error_description}, 400
 
         if not code:
             return {"error": "missing_code", "description": "No authorization code provided"}, 400
@@ -133,9 +134,12 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 "error": "provider_error",
                 "description": "Failed to contact OIDC provider",
             }, 502
-
-        except Exception as e:  # pragma: nocover
-            logger.exception(f"Failed to build SAML response: {e}")
+        except Exception as e:
+            logger.exception(f"Unexpected error fetching userinfo: {e}")
+            return {
+                "error": "userinfo_error",
+                "description": "Unexpected error fetching user information",
+            }, 500
 
         saml_request_id = session.get("saml_request_id")
         relay_state = session.get("relay_state", "")
