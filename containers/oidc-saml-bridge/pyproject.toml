@@ -7,7 +7,7 @@ name = "oidc-saml-bridge"
 version = "0.1.0"
 dependencies = [
     "flask==3.1.2",
-    "authlib==1.6.6",
+    "authlib==1.6.7",
     "lxml==6.0.2",
     "signxml==4.2.2",
     "cryptography==46.0.4",
