@@ -284,5 +284,5 @@ def parse_authn_request(encoded_request: str) -> dict[str, str | None]:
             "issuer": root.findtext("{%s}Issuer" % SAML_NS),
             "acs_url": root.get("AssertionConsumerServiceURL"),
         }
-    except base64.binascii.Error, etree.XMLSyntaxError:
+    except (base64.binascii.Error, etree.XMLSyntaxError):
         return {"id": None, "issuer": None, "acs_url": None}

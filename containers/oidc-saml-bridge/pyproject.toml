@@ -58,7 +58,7 @@ relative_files = true
 
 [tool.black]
 line-length = 100
-target-version = ["py314"]
+target-version = ["py312"]
 src = ["src/", "tests/"]
 
 [tool.isort]
