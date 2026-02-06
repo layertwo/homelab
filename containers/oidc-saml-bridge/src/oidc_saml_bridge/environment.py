@@ -1,8 +1,8 @@
 import os
 from functools import cached_property
 
-from src.oidc_saml_bridge.oidc import OIDCClient
-from src.oidc_saml_bridge.saml import SAMLBuilder
+from oidc_saml_bridge.oidc import OIDCClient
+from oidc_saml_bridge.saml import SAMLBuilder
 
 
 class ServiceProvider:
@@ -37,7 +37,7 @@ class ServiceProvider:
 
     @cached_property
     def saml_audience(self) -> str:
-        return os.environ.get("SAML_AUDIENCE")
+        return os.environ["SAML_AUDIENCE"]
 
     @cached_property
     def cert_path(self) -> str:

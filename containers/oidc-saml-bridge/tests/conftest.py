@@ -10,7 +10,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 
-from src.oidc_saml_bridge.environment import ServiceProvider
+from oidc_saml_bridge.environment import ServiceProvider
 
 
 @pytest.fixture
@@ -65,6 +65,7 @@ def environment(temp_certs, monkeypatch):
     monkeypatch.setenv("OIDC_REDIRECT_URI", "https://bridge.example.com/callback")
     monkeypatch.setenv("SAML_ENTITY_ID", "https://bridge.example.com")
     monkeypatch.setenv("SAML_ACS_URL", "https://sp.example.com/saml/acs")
+    monkeypatch.setenv("SAML_AUDIENCE", "https://us-east-1.signin.aws/platform/saml/d-test123")
     monkeypatch.setenv("SECRET_KEY", "test-secret-key")
     monkeypatch.setenv("CERT_PATH", cert_path)
     monkeypatch.setenv("KEY_PATH", key_path)

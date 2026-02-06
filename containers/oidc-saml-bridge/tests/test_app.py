@@ -6,7 +6,7 @@ import pytest
 import responses
 from lxml import etree
 
-from src.oidc_saml_bridge.app import create_app
+from oidc_saml_bridge.app import create_app
 
 
 class TestApp:
@@ -101,6 +101,34 @@ class TestApp:
         encoded_request = base64.b64encode(authn_request.encode()).decode()
 
         response = client.post(f"/saml/sso?SAMLRequest={encoded_request}&RelayState=test-relay")
+
+        assert response.status_code == 302
+        assert "https://idp.example.com/authorize" in response.location
+
+    @responses.activate
+    def test_saml_sso_post_binding(self, client, oidc_config):
+        """Test SAML SSO with AuthnRequest via POST binding."""
+        responses.add(
+            responses.GET,
+            "https://idp.example.com/.well-known/openid-configuration",
+            json=oidc_config,
+            status=200,
+        )
+
+        authn_request = """<?xml version="1.0" encoding="UTF-8"?>
+<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+    ID="_post_request123"
+    AssertionConsumerServiceURL="https://sp.example.com/acs">
+    <saml:Issuer>https://sp.example.com</saml:Issuer>
+</samlp:AuthnRequest>"""
+
+        encoded_request = base64.b64encode(authn_request.encode()).decode()
+
+        response = client.post(
+            "/saml/sso",
+            data={"SAMLRequest": encoded_request, "RelayState": "post-relay"},
+        )
 
         assert response.status_code == 302
         assert "https://idp.example.com/authorize" in response.location

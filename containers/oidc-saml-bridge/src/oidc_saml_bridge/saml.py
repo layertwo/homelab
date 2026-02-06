@@ -121,8 +121,8 @@ class SAMLBuilder:
         not_on_or_after = now + timedelta(minutes=15)
         session_not_on_or_after = now + timedelta(hours=8)
 
-        if audience is None:
-            audience = self.acs_url
+        if not audience:
+            raise ValueError("audience is required for SAML response")
 
         email = user_info.get("email", "")
         name = user_info.get("name", email)
