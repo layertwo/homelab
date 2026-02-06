@@ -31,6 +31,9 @@ NSMAP = {
 }
 
 NAME_ID_FORMAT = "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress"
+PERSISTENT_NAME_ID_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:persistent"
+X509_SUBJECT_NAME_ID_FORMAT = "urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName"
+TRANSIENT_NAME_ID_FORMAT = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient"
 BINDING_POST = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
 BINDING_REDIRECT = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
 
@@ -93,6 +96,21 @@ class SAMLBuilder:
             idp_descriptor,
             "{%s}NameIDFormat" % MD_NS,
         ).text = NAME_ID_FORMAT
+
+        etree.SubElement(
+            idp_descriptor,
+            "{%s}NameIDFormat" % MD_NS,
+        ).text = PERSISTENT_NAME_ID_FORMAT
+
+        etree.SubElement(
+            idp_descriptor,
+            "{%s}NameIDFormat" % MD_NS,
+        ).text = X509_SUBJECT_NAME_ID_FORMAT
+
+        etree.SubElement(
+            idp_descriptor,
+            "{%s}NameIDFormat" % MD_NS,
+        ).text = TRANSIENT_NAME_ID_FORMAT
 
         etree.SubElement(
             idp_descriptor,
