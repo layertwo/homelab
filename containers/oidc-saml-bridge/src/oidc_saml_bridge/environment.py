@@ -8,6 +8,10 @@ from oidc_saml_bridge.saml import SAMLBuilder
 class ServiceProvider:
 
     @cached_property
+    def bridge_url(self) -> str:
+        return os.environ["BRIDGE_URL"]
+
+    @cached_property
     def oidc_issuer(self) -> str:
         return os.environ["OIDC_ISSUER"]
 

@@ -63,7 +63,10 @@ class SAMLBuilder:
         with open(self.cert_path, "rb") as f:
             return f.read()
 
-    def generate_metadata(self, sso_url: str) -> bytes:
+    def generate_metadata(
+        self,
+        sso_url: str,
+    ) -> bytes:
         """Generate SAML IdP metadata XML."""
         root = etree.Element(
             "{%s}EntityDescriptor" % MD_NS,

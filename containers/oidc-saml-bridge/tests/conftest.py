@@ -59,6 +59,7 @@ def temp_certs():
 def environment(temp_certs, monkeypatch):
     """Set up environment variables for config testing."""
     cert_path, key_path = temp_certs
+    monkeypatch.setenv("BRIDGE_URL", "https://bridge.example.com")
     monkeypatch.setenv("OIDC_ISSUER", "https://idp.example.com")
     monkeypatch.setenv("OIDC_CLIENT_ID", "test-client")
     monkeypatch.setenv("OIDC_CLIENT_SECRET", "test-secret")
