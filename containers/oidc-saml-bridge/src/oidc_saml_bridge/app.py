@@ -46,7 +46,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
     @app.route("/saml/metadata")
     def saml_metadata() -> Any:
         """Return SAML IdP metadata."""
-        sso_url = request.url_root.rstrip("/") + "/saml/sso"
+        sso_url = saml_builder.entity_id.rstrip("/") + "/saml/sso"
         metadata = saml_builder.generate_metadata(sso_url)
         return metadata, 200, {"Content-Type": "application/xml"}
 
