@@ -60,6 +60,14 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         if saml_request:
             request_data = parse_authn_request(saml_request)
 
+        logger.info(
+            "AuthnRequest parsed: id=%s, issuer=%s, acs_url=%s (configured: %s)",
+            request_data.get("id"),
+            request_data.get("issuer"),
+            request_data.get("acs_url"),
+            service_provider.saml_acs_url,
+        )
+
         state = secrets.token_urlsafe(32)
         nonce = secrets.token_urlsafe(32)
 
