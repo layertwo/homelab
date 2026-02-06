@@ -21,7 +21,7 @@ from signxml.util import strip_pem_header
 SAML_NS = "urn:oasis:names:tc:SAML:2.0:assertion"
 SAMLP_NS = "urn:oasis:names:tc:SAML:2.0:protocol"
 MD_NS = "urn:oasis:names:tc:SAML:2.0:metadata"
-DS_NS = "http://www.w3.org/2000/09/xmlsig#"
+DS_NS = "http://www.w3.org/2000/09/xmldsig#"
 
 NSMAP = {
     "saml": SAML_NS,

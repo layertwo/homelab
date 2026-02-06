@@ -1,5 +1,6 @@
 """Flask application for the OIDC to SAML bridge."""
 
+import logging
 import secrets
 from typing import Any, Optional
 
@@ -16,6 +17,10 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
     if not service_provider:  # pragma: no cover
         service_provider = ServiceProvider()
     app = Flask(__name__)
+
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
     app.config["SECRET_KEY"] = service_provider.secret_key
     app.config["SESSION_COOKIE_SECURE"] = service_provider.session_cookie_secure
