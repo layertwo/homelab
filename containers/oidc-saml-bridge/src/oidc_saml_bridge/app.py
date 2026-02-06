@@ -1,6 +1,5 @@
 """Flask application for the OIDC to SAML bridge."""
 
-import logging
 import secrets
 from typing import Any, Optional
 
@@ -10,8 +9,6 @@ from markupsafe import escape
 
 from oidc_saml_bridge.environment import ServiceProvider
 from oidc_saml_bridge.saml import parse_authn_request
-
-logger = logging.getLogger(__name__)
 
 
 def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
@@ -37,7 +34,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
             _ = oidc_client.config
             return {"status": "healthy"}, 200
         except Exception:
-            logging.exception("Health check failed")
+            app.logger.exception("Health check failed")
             return {
                 "status": "unhealthy",
                 "error": "OIDC health check failed",
@@ -60,7 +57,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         if saml_request:
             request_data = parse_authn_request(saml_request)
 
-        logger.info(
+        app.logger.info(
             "AuthnRequest parsed: id=%s, issuer=%s, acs_url=%s (configured: %s)",
             request_data.get("id"),
             request_data.get("issuer"),
@@ -109,7 +106,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
         try:
             tokens = oidc_client.exchange_code(code, expected_nonce=stored_nonce)
         except ValueError as e:
-            logging.exception(f"Error while exchanging authorization code: {e}")
+            app.logger.exception(f"Error while exchanging authorization code: {e}")
             return {
                 "error": "invalid_token",
                 "description": "Invalid token provided",
@@ -143,7 +140,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 "description": "Failed to contact OIDC provider",
             }, 502
         except Exception as e:
-            logger.exception(f"Unexpected error fetching userinfo: {e}")
+            app.logger.exception(f"Unexpected error fetching userinfo: {e}")
             return {
                 "error": "userinfo_error",
                 "description": "Unexpected error fetching user information",
@@ -160,7 +157,7 @@ def create_app(service_provider: Optional[ServiceProvider] = None) -> Flask:
                 audience=saml_audience,
             )
         except Exception as e:
-            logger.exception(f"Failed to build SAML response {e}")
+            app.logger.exception(f"Failed to build SAML response {e}")
             return {
                 "error": "saml_build_failed",
                 "description": "Failed to build SAML response",
