@@ -1,0 +1,94 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: aws-sso-saml-bridge
+  namespace: pocket-id
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 4.6.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      main:
+        annotations:
+          secret.reloader.stakater.com/reload: secrets-saml-bridge
+        containers:
+          saml-bridge:
+            image:
+              repository: ghcr.io/layertwo/oidc-saml-bridge
+              tag: latest
+            env:
+              CERT_PATH: "/certs/saml.crt"
+              KEY_PATH: "/certs/saml.key"
+            envFrom:
+            - secretRef:
+                name: secrets-saml-bridge
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop:
+                  - ALL
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                memory: 256Mi
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /health
+                    port: 8080
+                  initialDelaySeconds: 5
+                  periodSeconds: 10
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          http:
+            enabled: true
+            port: 8080
+            protocol: HTTP
+    persistence:
+      certs:
+        enabled: true
+        type: secret
+        name: secrets-saml-bridge
+        globalMounts:
+          - path: /certs
+            readOnly: true
+      tmp:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /tmp
