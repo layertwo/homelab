@@ -164,15 +164,6 @@ After the K3S cluster is running, Flux CD is installed to manage the GitOps work
 
 ## Cloud Infrastructure
 
-The cloud infrastructure is managed using Terraform CDK (cdktf) with the following components:
-
-### Backup Infrastructure
-
-- **Cloudflare R2**: S3-compatible storage for backups
-  - VolSync backups
-  - CloudNative PostgreSQL backups
-  - Terraform state files
-
 ### DNS Management
 
 - **Cloudflare**: DNS management with automatic updates via External DNS and Cloudflare DDNS

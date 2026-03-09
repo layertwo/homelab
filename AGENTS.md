@@ -27,12 +27,6 @@ Self-hosted infrastructure for:
 - **Backups**: Cloudflare R2 (S3-compatible) via VolSync and CloudNative PG
 - **Security**: SOPS for secrets encryption, cert-manager for TLS, Authentik for SSO
 
-### Cloud Infrastructure
-
-- **Oracle Cloud**: Additional compute nodes with autoscaling
-- **Cloudflare**: DNS management, R2 storage buckets, DDNS updates
-- **Infrastructure as Code**: Terraform CDK (TypeScript) and OpenTofu
-
 ---
 
 ## Project Structure
@@ -42,7 +36,6 @@ Self-hosted infrastructure for:
 ```
 /
 ├── bootstrap/          # K3S cluster bootstrap utilities
-├── cloud/             # Cloud infrastructure (IaC)
 ├── clusters/          # Kubernetes manifests (GitOps)
 ├── containers/        # Custom container images
 ├── docs/              # Documentation
@@ -56,21 +49,6 @@ K3S cluster setup and initialization:
 - `devices.json`: Node configuration for k3sup
 - `plan.sh`: Planning script for cluster setup
 - `kubeconfig`: Cluster access credentials
-
-### Cloud Infrastructure (`cloud/`)
-
-#### CDKTF (`cloud/cdktf/`)
-TypeScript-based infrastructure for Cloudflare R2 and backups:
-- `lib/app.ts`: Main application entry point
-- `lib/constructs/`: Reusable CDK constructs
-- `lib/stacks/`: Infrastructure stacks (backup, website)
-- `cdktf.out/`: Generated Terraform configurations
-- `.gen/`: Generated provider bindings
-
-#### Oracle Cloud (`cloud/oracle/`)
-Terraform configurations for Oracle Cloud:
-- `compute-stack/`: VM instances and autoscaling
-- `network-stack/`: VPC, subnets, VPN configuration
 
 ### Kubernetes Manifests (`clusters/home/`)
 
@@ -202,16 +180,9 @@ Single-component applications:
 - **Helm**: Package manager (HelmRelease resources via Flux)
 - **Kustomize**: Kubernetes manifest customization
 
-#### Infrastructure as Code
-- **Terraform CDK (cdktf)**: Cloud infrastructure using TypeScript
-- **OpenTofu**: Open-source Terraform alternative (binary: `tofu`)
-- **Terraform**: Oracle Cloud infrastructure
-
 #### Languages & Runtimes
-- **TypeScript**: Cloud infrastructure (CDKTF)
 - **Python**: Custom containers (cloudflare-ddns)
 - **Shell**: Bootstrap scripts, container entrypoints
-- **Node.js**: >=18.0 for CDKTF projects
 
 #### Storage & Databases
 - **CloudNative PG**: PostgreSQL operator for Kubernetes
@@ -231,17 +202,6 @@ Single-component applications:
 - **Authentik**: Identity provider and SSO
 
 ### Common Commands
-
-#### CDKTF (Cloud Infrastructure)
-```bash
-cd cloud/cdktf
-npm run build              # Compile TypeScript
-npm run cdk:synth          # Generate Terraform config
-npm run cdk:plan           # Show planned changes
-npm run cdk:apply          # Apply infrastructure changes
-npm run cdk:destroy        # Destroy infrastructure
-npm test                   # Run tests
-```
 
 #### Python (cloudflare-ddns)
 ```bash
@@ -273,22 +233,7 @@ kubectl logs -n <namespace> <pod>
 kubectl describe helmrelease -n <namespace> <name>
 ```
 
-#### Terraform (Oracle Cloud)
-```bash
-cd cloud/oracle/compute-stack
-terraform init
-terraform plan
-terraform apply
-terraform destroy
-```
-
 ### Development Tools
-
-#### TypeScript/CDKTF
-- **ESLint**: Linting with TypeScript support
-- **Prettier**: Code formatting
-- **Jest**: Testing framework
-- **ts-node**: TypeScript execution
 
 #### Python
 - **pytest**: Testing with 100% coverage requirement
@@ -298,6 +243,5 @@ terraform destroy
 
 ### Build Artifacts
 
-- **CDKTF**: `cdktf.out/` directory contains generated Terraform
 - **TypeScript**: Compiled `.js` and `.d.ts` files in `lib/`
 - **Python**: `.egg-info/` and `__pycache__/` directories
