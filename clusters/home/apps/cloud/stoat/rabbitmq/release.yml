@@ -1,0 +1,85 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stoat-rabbitmq
+  namespace: stoat
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: docker.io/rabbitmq
+              tag: "4"
+            env:
+              RABBITMQ_DEFAULT_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-rabbitmq
+                    key: RABBITMQ_USER
+              RABBITMQ_DEFAULT_PASS:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-rabbitmq
+                    key: RABBITMQ_PASSWORD
+            probes:
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - rabbitmq-diagnostics
+                      - -q
+                      - ping
+                  initialDelaySeconds: 20
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  exec:
+                    command:
+                      - rabbitmq-diagnostics
+                      - -q
+                      - ping
+                  initialDelaySeconds: 20
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                  failureThreshold: 3
+            resources:
+              requests:
+                cpu: 100m
+                memory: 256M
+              limits:
+                memory: 512M
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          amqp:
+            enabled: true
+            port: 5672
+    persistence:
+      data:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /var/lib/rabbitmq

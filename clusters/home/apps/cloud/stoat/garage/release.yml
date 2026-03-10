@@ -1,0 +1,75 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stoat-garage
+  namespace: stoat
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 3.7.3
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        containers:
+          main:
+            image:
+              repository: dxflrs/garage
+              tag: v1.1.0
+            env:
+              GARAGE_RPC_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-garage
+                    key: GARAGE_RPC_SECRET
+              GARAGE_ADMIN_TOKEN:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-garage
+                    key: GARAGE_ADMIN_TOKEN
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64M
+              limits:
+                memory: 256M
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          s3:
+            enabled: true
+            port: 3900
+          rpc:
+            enabled: true
+            port: 3901
+          web:
+            enabled: true
+            port: 3902
+          admin:
+            enabled: true
+            port: 3903
+    persistence:
+      config:
+        enabled: true
+        type: configMap
+        name: stoat-garage-config
+        globalMounts:
+          - path: /etc/garage.toml
+            subPath: garage.toml
+            readOnly: true
+      data:
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: ReadWriteOnce
+        size: 50Gi
+        globalMounts:
+          - path: /var/lib/garage
