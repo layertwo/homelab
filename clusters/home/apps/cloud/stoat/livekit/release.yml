@@ -20,17 +20,20 @@ spec:
       main:
         pod:
           hostNetwork: true
+          annotations:
+            reloader.stakater.com/auto: "true"
         initContainers:
           assemble-config:
             image:
-              repository: docker.io/alpine
-              tag: "3.21"
+              repository: docker.io/busybox
+              tag: latest
             command:
               - sh
             args:
               - -c
               - |
                 cp /config-template/livekit.yml /config/livekit.yml
+                echo "  password: ${REDIS_PASSWORD}" >> /config/livekit.yml
                 echo "" >> /config/livekit.yml
                 echo "keys:" >> /config/livekit.yml
                 echo "  ${LIVEKIT_KEY}: ${LIVEKIT_SECRET}" >> /config/livekit.yml
@@ -50,6 +53,11 @@ spec:
                   secretKeyRef:
                     name: secrets-stoat-livekit
                     key: LIVEKIT_SECRET
+              REDIS_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-redis
+                    key: REDIS_PASSWORD
         containers:
           main:
             image:

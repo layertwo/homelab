@@ -6,6 +6,5 @@ resources:
   - mongodb
   - redis
   - rabbitmq
-  - garage
   - livekit
   - app

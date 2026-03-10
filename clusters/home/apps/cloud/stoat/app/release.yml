@@ -27,66 +27,152 @@ spec:
       namespace: stoat
     - name: stoat-rabbitmq
       namespace: stoat
-    - name: stoat-garage
-      namespace: stoat
   values:
+    defaultPodOptions: &podDefaults
+      annotations:
+        reloader.stakater.com/auto: "true"
     controllers:
       api:
-        annotations:
-          reloader.stakater.com/auto: "true"
+        initContainers: &initContainers
+          render-config:
+            image: &envsubstImage
+              repository: docker.io/busybox
+              tag: latest
+            command: &envsubstCommand
+              - sh
+            args: &envsubstArgs
+              - -c
+              - |
+                sed \
+                  -e "s|\${MONGODB_PASSWORD}|${MONGODB_PASSWORD}|g" \
+                  -e "s|\${REDIS_PASSWORD}|${REDIS_PASSWORD}|g" \
+                  -e "s|\${RABBITMQ_USER}|${RABBITMQ_USER}|g" \
+                  -e "s|\${RABBITMQ_PASSWORD}|${RABBITMQ_PASSWORD}|g" \
+                  -e "s|\${LIVEKIT_KEY}|${LIVEKIT_KEY}|g" \
+                  -e "s|\${LIVEKIT_SECRET}|${LIVEKIT_SECRET}|g" \
+                  -e "s|\${VAPID_PRIVATE_KEY}|${VAPID_PRIVATE_KEY}|g" \
+                  -e "s|\${VAPID_PUBLIC_KEY}|${VAPID_PUBLIC_KEY}|g" \
+                  -e "s|\${FILES_ENCRYPTION_KEY}|${FILES_ENCRYPTION_KEY}|g" \
+                  -e "s|\${GARAGE_ACCESS_KEY_ID}|${GARAGE_ACCESS_KEY_ID}|g" \
+                  -e "s|\${GARAGE_SECRET_ACCESS_KEY}|${GARAGE_SECRET_ACCESS_KEY}|g" \
+                  /config-template/Revolt.toml > /config/Revolt.toml
+            env: &secretEnv
+              MONGODB_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-mongodb
+                    key: MONGODB_PASSWORD
+              REDIS_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-redis
+                    key: REDIS_PASSWORD
+              RABBITMQ_USER:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-rabbitmq
+                    key: RABBITMQ_USER
+              RABBITMQ_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-rabbitmq
+                    key: RABBITMQ_PASSWORD
+              LIVEKIT_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-livekit
+                    key: LIVEKIT_KEY
+              LIVEKIT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-livekit
+                    key: LIVEKIT_SECRET
+              VAPID_PRIVATE_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat
+                    key: VAPID_PRIVATE_KEY
+              VAPID_PUBLIC_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat
+                    key: VAPID_PUBLIC_KEY
+              FILES_ENCRYPTION_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat
+                    key: FILES_ENCRYPTION_KEY
+              GARAGE_ACCESS_KEY_ID:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-s3
+                    key: GARAGE_ACCESS_KEY_ID
+              GARAGE_SECRET_ACCESS_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-s3
+                    key: GARAGE_SECRET_ACCESS_KEY
         containers:
           api:
             image:
               repository: ghcr.io/stoatchat/api
               tag: v0.11.5
       events:
+        initContainers: *initContainers
         containers:
           events:
             image:
               repository: ghcr.io/stoatchat/events
               tag: v0.11.5
       autumn:
+        initContainers: *initContainers
         containers:
           autumn:
             image:
               repository: ghcr.io/stoatchat/file-server
               tag: v0.11.5
       january:
+        initContainers: *initContainers
         containers:
           january:
             image:
               repository: ghcr.io/stoatchat/proxy
               tag: v0.11.5
       gifbox:
+        initContainers: *initContainers
         containers:
           gifbox:
             image:
               repository: ghcr.io/stoatchat/gifbox
               tag: v0.11.5
       crond:
+        initContainers: *initContainers
         containers:
           crond:
             image:
               repository: ghcr.io/stoatchat/crond
               tag: v0.11.5
       pushd:
+        initContainers: *initContainers
         containers:
           pushd:
             image:
               repository: ghcr.io/stoatchat/pushd
               tag: v0.11.5
       voice-ingress:
+        initContainers: *initContainers
         containers:
           voice-ingress:
             image:
               repository: ghcr.io/stoatchat/voice-ingress
               tag: v0.11.5
       web:
+        replicas: 2
         containers:
           web:
             image:
               repository: ghcr.io/stoatchat/for-web
-              tag: stoat-for-web-v0.3.0
+              tag: 103d2bf
             env:
               REVOLT_PUBLIC_URL: "https://stoat.layertwo.dev/api"
               VITE_API_URL: "https://stoat.layertwo.dev/api"
@@ -145,48 +231,58 @@ spec:
             enabled: true
             port: 5000
     persistence:
-      revolt-toml:
+      config-template:
         enabled: true
-        type: secret
-        name: secrets-stoat-revolt-toml
+        type: configMap
+        name: stoat-revolt-toml-template
         advancedMounts:
           api:
-            api:
+            render-config: &templateMount
+              - path: /config-template
+                readOnly: true
+          events:
+            render-config: *templateMount
+          autumn:
+            render-config: *templateMount
+          january:
+            render-config: *templateMount
+          gifbox:
+            render-config: *templateMount
+          crond:
+            render-config: *templateMount
+          pushd:
+            render-config: *templateMount
+          voice-ingress:
+            render-config: *templateMount
+      config:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          api:
+            render-config: &configWriteMount
+              - path: /config
+            api: &configReadMount
               - path: /Revolt.toml
                 subPath: Revolt.toml
                 readOnly: true
           events:
-            events:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            events: *configReadMount
           autumn:
-            autumn:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            autumn: *configReadMount
           january:
-            january:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            january: *configReadMount
           gifbox:
-            gifbox:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            gifbox: *configReadMount
           crond:
-            crond:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            crond: *configReadMount
           pushd:
-            pushd:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            pushd: *configReadMount
           voice-ingress:
-            voice-ingress:
-              - path: /Revolt.toml
-                subPath: Revolt.toml
-                readOnly: true
+            render-config: *configWriteMount
+            voice-ingress: *configReadMount
