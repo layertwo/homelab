@@ -1,0 +1,192 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stoat
+  namespace: stoat
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 4.6.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  dependsOn:
+    - name: stoat-redis
+      namespace: stoat
+    - name: stoat-rabbitmq
+      namespace: stoat
+    - name: stoat-garage
+      namespace: stoat
+  values:
+    controllers:
+      api:
+        annotations:
+          reloader.stakater.com/auto: "true"
+        containers:
+          api:
+            image:
+              repository: ghcr.io/stoatchat/api
+              tag: v0.11.5
+      events:
+        containers:
+          events:
+            image:
+              repository: ghcr.io/stoatchat/events
+              tag: v0.11.5
+      autumn:
+        containers:
+          autumn:
+            image:
+              repository: ghcr.io/stoatchat/file-server
+              tag: v0.11.5
+      january:
+        containers:
+          january:
+            image:
+              repository: ghcr.io/stoatchat/proxy
+              tag: v0.11.5
+      gifbox:
+        containers:
+          gifbox:
+            image:
+              repository: ghcr.io/stoatchat/gifbox
+              tag: v0.11.5
+      crond:
+        containers:
+          crond:
+            image:
+              repository: ghcr.io/stoatchat/crond
+              tag: v0.11.5
+      pushd:
+        containers:
+          pushd:
+            image:
+              repository: ghcr.io/stoatchat/pushd
+              tag: v0.11.5
+      voice-ingress:
+        containers:
+          voice-ingress:
+            image:
+              repository: ghcr.io/stoatchat/voice-ingress
+              tag: v0.11.5
+      web:
+        containers:
+          web:
+            image:
+              repository: ghcr.io/stoatchat/for-web
+              tag: stoat-for-web-v0.3.0
+            env:
+              REVOLT_PUBLIC_URL: "https://stoat.layertwo.dev/api"
+              VITE_API_URL: "https://stoat.layertwo.dev/api"
+              VITE_WS_URL: "wss://stoat.layertwo.dev/ws"
+              VITE_MEDIA_URL: "https://stoat.layertwo.dev/autumn"
+              VITE_PROXY_URL: "https://stoat.layertwo.dev/january"
+              VITE_CFG_ENABLE_VIDEO: "true"
+    service:
+      api:
+        enabled: true
+        controller: api
+        ports:
+          http:
+            enabled: true
+            port: 14702
+      events:
+        enabled: true
+        controller: events
+        ports:
+          http:
+            enabled: true
+            port: 14703
+      autumn:
+        enabled: true
+        controller: autumn
+        ports:
+          http:
+            enabled: true
+            port: 14704
+      january:
+        enabled: true
+        controller: january
+        ports:
+          http:
+            enabled: true
+            port: 14705
+      gifbox:
+        enabled: true
+        controller: gifbox
+        ports:
+          http:
+            enabled: true
+            port: 14706
+      voice-ingress:
+        enabled: true
+        controller: voice-ingress
+        ports:
+          http:
+            enabled: true
+            port: 8500
+      web:
+        enabled: true
+        controller: web
+        ports:
+          http:
+            enabled: true
+            port: 5000
+    persistence:
+      revolt-toml:
+        enabled: true
+        type: secret
+        name: secrets-stoat-revolt-toml
+        advancedMounts:
+          api:
+            api:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          events:
+            events:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          autumn:
+            autumn:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          january:
+            january:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          gifbox:
+            gifbox:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          crond:
+            crond:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          pushd:
+            pushd:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
+          voice-ingress:
+            voice-ingress:
+              - path: /Revolt.toml
+                subPath: Revolt.toml
+                readOnly: true
