@@ -29,7 +29,7 @@ jobs:
           skip-invalid-kustomization-paths: true
 
       - name: PR Comments
-        uses: mshick/add-pr-comment@v3.2.0
+        uses: mshick/add-pr-comment@v3.5.0
         if: ${{ steps.diff.outputs.diff != '' }}
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
