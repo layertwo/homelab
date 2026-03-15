@@ -1,0 +1,27 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: layertwo-website
+  namespace: website
+  annotations:
+    external-dns.alpha.kubernetes.io/enabled: "true"
+    external-dns.alpha.kubernetes.io/hostname: "www.layertwo.dev,layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`www.layertwo.dev`) || Host(`layertwo.dev`)
+    kind: Rule
+    middlewares:
+    - name: compress
+      namespace: garage
+    services:
+    - name: garage
+      namespace: garage
+      port: 3902
+      serversTransport: garage-transport
