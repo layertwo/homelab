@@ -120,9 +120,9 @@ spec:
               send-on-resolved: true
               description: "Immich is down"
 
-        # Media Management Services
+        # Mediabox Services
         - name: Jellyfin
-          group: Media Management
+          group: Mediabox
           url: https://jellyfin.layertwo.dev
           interval: 1m
           conditions:
@@ -150,13 +150,12 @@ spec:
               send-on-resolved: true
               description: "Home Assistant is down"
 
-        # Media Management Services (continued)
         - name: Bazarr
-          group: Media Management
+          group: Mediabox
           url: https://bazarr.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 401"
           alerts:
             - type: pushover
               enabled: true
@@ -166,11 +165,11 @@ spec:
               description: "Bazarr is down"
 
         - name: Prowlarr
-          group: Media Management
+          group: Mediabox
           url: https://prowlarr.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 401"
           alerts:
             - type: pushover
               enabled: true
@@ -180,11 +179,11 @@ spec:
               description: "Prowlarr is down"
 
         - name: qBittorrent
-          group: Media Management
+          group: Mediabox
           url: https://qt.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 401"
           alerts:
             - type: pushover
               enabled: true
@@ -194,11 +193,11 @@ spec:
               description: "qBittorrent is down"
 
         - name: Radarr
-          group: Media Management
+          group: Mediabox
           url: https://radarr.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 401"
           alerts:
             - type: pushover
               enabled: true
@@ -208,11 +207,11 @@ spec:
               description: "Radarr is down"
 
         - name: Sonarr
-          group: Media Management
+          group: Mediabox
           url: https://sonarr.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 401"
           alerts:
             - type: pushover
               enabled: true
