@@ -17,6 +17,8 @@ spec:
   - match: Host(`www.layertwo.dev`) || Host(`layertwo.dev`)
     kind: Rule
     middlewares:
+    - name: website-redirect
+      namespace: website
     - name: compress
       namespace: garage
     services:
