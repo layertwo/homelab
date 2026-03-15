@@ -45,6 +45,7 @@ spec:
     sources:
       - service
       - traefik-proxy
+      - crd
     domainFilters:
       - layertwo.dev
     serviceMonitor:
