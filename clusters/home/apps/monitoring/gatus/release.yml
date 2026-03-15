@@ -311,7 +311,7 @@ spec:
           url: https://s3.layertwo.dev
           interval: 1m
           conditions:
-            - "[STATUS] == 200"
+            - "[STATUS] == 403"
           alerts:
             - type: pushover
               enabled: true
@@ -319,6 +319,20 @@ spec:
               success-threshold: 2
               send-on-resolved: true
               description: "Garage is down"
+
+        - name: Garage S3 Website
+          group: Storage
+          url: https://nonexistent-bucket.s3-website.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 404"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "Garage website is down"
 
         # Network Services
         - name: Traefik External

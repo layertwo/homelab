@@ -6,5 +6,7 @@ resources:
   - garage-metadata-pvc.yml
   - garage-data-pvc.yml
   - configmap.yml
-  - release.yml
   - secrets-garage.sops.yml
+  - release.yml
+  - cert.yml
+  - ingressroute.yml

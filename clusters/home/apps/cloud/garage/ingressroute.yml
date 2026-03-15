@@ -38,6 +38,8 @@ spec:
     - name: garage
       port: 3900
       serversTransport: garage-transport
+  tls:
+    secretName: s3-layertwo-dev-tls
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -62,6 +64,8 @@ spec:
     - name: garage
       port: 3902
       serversTransport: garage-transport
+  tls:
+    secretName: s3-website-layertwo-dev-tls
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
