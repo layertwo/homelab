@@ -306,6 +306,20 @@ spec:
               send-on-resolved: true
               description: "Send is down"
 
+        - name: Garage S3
+          group: Storage
+          url: https://s3.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "Garage is down"
+
         # Network Services
         - name: Traefik External
           group: Network
