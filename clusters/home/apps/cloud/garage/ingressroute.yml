@@ -38,9 +38,6 @@ spec:
     - name: garage
       port: 3900
       serversTransport: garage-transport
-      healthCheck:
-        path: /health
-        port: 3903
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -65,9 +62,6 @@ spec:
     - name: garage
       port: 3902
       serversTransport: garage-transport
-      healthCheck:
-        path: /health
-        port: 3903
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
