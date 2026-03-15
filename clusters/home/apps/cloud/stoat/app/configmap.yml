@@ -1,0 +1,198 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: stoat-revolt-toml-template
+  namespace: stoat
+data:
+  Revolt.toml: |
+    [database]
+    mongodb = "mongodb://stoat:${MONGODB_PASSWORD}@stoat-mongodb-0.stoat-mongodb-svc.stoat.svc.cluster.local:27017/revolt?replicaSet=stoat-mongodb&authSource=admin"
+    redis = "redis://:${REDIS_PASSWORD}@stoat-redis.stoat.svc.cluster.local:6379/"
+
+    [hosts]
+    app = "https://stoat.layertwo.dev"
+    api = "https://stoat.layertwo.dev/api"
+    events = "wss://stoat.layertwo.dev/ws"
+    autumn = "https://stoat.layertwo.dev/autumn"
+    january = "https://stoat.layertwo.dev/january"
+    voso_legacy = ""
+    voso_legacy_ws = ""
+
+    [hosts.livekit]
+    worldwide = "wss://stoat.layertwo.dev/livekit"
+
+    [rabbit]
+    host = "stoat-rabbitmq.stoat.svc.cluster.local"
+    port = 5672
+    username = "${RABBITMQ_USER}"
+    password = "${RABBITMQ_PASSWORD}"
+
+    [api]
+
+    [api.registration]
+    invite_only = true
+
+    [api.smtp]
+    host = ""
+    username = ""
+    password = ""
+    from_address = "noreply@stoat.layertwo.dev"
+
+    [api.security]
+    authifier_shield_key = ""
+    voso_legacy_token = ""
+    trust_cloudflare = false
+    easypwned = ""
+    tenor_key = ""
+
+    [api.security.captcha]
+    hcaptcha_key = ""
+    hcaptcha_sitekey = ""
+
+    [api.workers]
+    max_concurrent_connections = 50
+
+    [api.livekit]
+    call_ring_duration = 30
+
+    [api.livekit.nodes.worldwide]
+    url = "http://stoat-livekit.stoat.svc.cluster.local:7880"
+    lat = 0.0
+    lon = 0.0
+    key = "${LIVEKIT_KEY}"
+    secret = "${LIVEKIT_SECRET}"
+
+    [api.users]
+
+    [pushd]
+    production = true
+    mass_mention_chunk_size = 200
+    exchange = "revolt.notifications"
+    message_queue = "notifications.origin.message"
+    mass_mention_queue = "notifications.origin.mass_mention"
+    fr_accepted_queue = "notifications.ingest.fr_accepted"
+    fr_received_queue = "notifications.ingest.fr_received"
+    dm_call_queue = "notifications.ingest.dm_call"
+    generic_queue = "notifications.ingest.generic"
+    ack_queue = "notifications.process.ack"
+
+    [pushd.vapid]
+    queue = "notifications.outbound.vapid"
+    private_key = "${VAPID_PRIVATE_KEY}"
+    public_key = "${VAPID_PUBLIC_KEY}"
+
+    [pushd.fcm]
+    queue = "notifications.outbound.fcm"
+    key_type = ""
+    project_id = ""
+    private_key_id = ""
+    private_key = ""
+    client_email = ""
+    client_id = ""
+    auth_uri = ""
+    token_uri = ""
+    auth_provider_x509_cert_url = ""
+    client_x509_cert_url = ""
+
+    [pushd.apn]
+    sandbox = false
+    queue = "notifications.outbound.apn"
+    pkcs8 = ""
+    key_id = ""
+    team_id = ""
+
+    [files]
+    encryption_key = "${FILES_ENCRYPTION_KEY}"
+    webp_quality = 80.0
+    blocked_mime_types = []
+    clamd_host = ""
+    scan_mime_types = []
+
+    [files.limit]
+    min_file_size = 1
+    min_resolution = [1, 1]
+    max_mega_pixels = 40
+    max_pixel_side = 10_000
+
+    [files.preview]
+    attachments = [1280, 1280]
+    avatars = [128, 128]
+    backgrounds = [1280, 720]
+    icons = [128, 128]
+    banners = [480, 480]
+    emojis = [128, 128]
+
+    [files.s3]
+    endpoint = "http://garage.garage.svc.cluster.local:3900"
+    path_style_buckets = true
+    region = "garage"
+    access_key_id = "${GARAGE_ACCESS_KEY_ID}"
+    secret_access_key = "${GARAGE_SECRET_ACCESS_KEY}"
+    default_bucket = "revolt-uploads"
+
+    [features]
+    webhooks_enabled = false
+    mass_mentions_send_notifications = true
+    mass_mentions_enabled = true
+
+    [features.limits]
+
+    [features.limits.global]
+    group_size = 100
+    message_embeds = 5
+    message_replies = 5
+    message_reactions = 20
+    server_emoji = 100
+    server_roles = 200
+    server_channels = 200
+    new_user_hours = 72
+    body_limit_size = 20_000_000
+
+    [features.limits.new_user]
+    outgoing_friend_requests = 5
+    bots = 2
+    message_length = 2000
+    message_attachments = 5
+    servers = 50
+    voice_quality = 16000
+    video = true
+    video_resolution = [1920, 1080]
+    video_aspect_ratio = [0.3, 10]
+
+    [features.limits.new_user.file_upload_size_limit]
+    attachments = 20_000_000
+    avatars = 4_000_000
+    backgrounds = 6_000_000
+    icons = 2_500_000
+    banners = 6_000_000
+    emojis = 500_000
+
+    [features.limits.default]
+    outgoing_friend_requests = 10
+    bots = 5
+    message_length = 2000
+    message_attachments = 5
+    servers = 100
+    voice_quality = 16000
+    video = true
+    video_resolution = [1920, 1080]
+    video_aspect_ratio = [0.3, 10]
+
+    [features.limits.default.file_upload_size_limit]
+    attachments = 20_000_000
+    avatars = 4_000_000
+    backgrounds = 6_000_000
+    icons = 2_500_000
+    banners = 6_000_000
+    emojis = 500_000
+
+    [sentry]
+    api = ""
+    events = ""
+    voice_ingress = ""
+    files = ""
+    proxy = ""
+    pushd = ""
+    crond = ""
+    gifbox = ""

@@ -1,0 +1,104 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: stoat-livekit
+  namespace: stoat
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 4.6.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  values:
+    controllers:
+      main:
+        pod:
+          hostNetwork: true
+          annotations:
+            reloader.stakater.com/auto: "true"
+        initContainers:
+          assemble-config:
+            image:
+              repository: docker.io/busybox
+              tag: latest
+            command:
+              - sh
+            args:
+              - -c
+              - |
+                cp /config-template/livekit.yml /config/livekit.yml
+                echo "  password: ${REDIS_PASSWORD}" >> /config/livekit.yml
+                echo "" >> /config/livekit.yml
+                echo "keys:" >> /config/livekit.yml
+                echo "  ${LIVEKIT_KEY}: ${LIVEKIT_SECRET}" >> /config/livekit.yml
+                echo "" >> /config/livekit.yml
+                echo "webhook:" >> /config/livekit.yml
+                echo "  api_key: ${LIVEKIT_KEY}" >> /config/livekit.yml
+                echo "  urls:" >> /config/livekit.yml
+                echo "  - \"http://stoat-voice-ingress.stoat.svc.cluster.local:8500/worldwide\"" >> /config/livekit.yml
+            env:
+              LIVEKIT_KEY:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-livekit
+                    key: LIVEKIT_KEY
+              LIVEKIT_SECRET:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-livekit
+                    key: LIVEKIT_SECRET
+              REDIS_PASSWORD:
+                valueFrom:
+                  secretKeyRef:
+                    name: secrets-stoat-redis
+                    key: REDIS_PASSWORD
+        containers:
+          main:
+            image:
+              repository: ghcr.io/stoatchat/livekit-server
+              tag: v1.9.12
+            args:
+              - --config
+              - /config/livekit.yml
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128M
+              limits:
+                memory: 512M
+    service:
+      main:
+        enabled: true
+        controller: main
+        type: LoadBalancer
+        annotations:
+          metallb.io/address-pool: external
+        ports:
+          http:
+            enabled: true
+            port: 7880
+          rtc-tcp:
+            enabled: true
+            port: 7881
+            protocol: TCP
+    persistence:
+      config-template:
+        enabled: true
+        type: configMap
+        name: stoat-livekit-config
+        advancedMounts:
+          main:
+            assemble-config:
+              - path: /config-template
+                readOnly: true
+      config:
+        enabled: true
+        type: emptyDir
+        globalMounts:
+          - path: /config
