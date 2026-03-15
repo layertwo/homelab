@@ -32,7 +32,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`*.s3.layertwo.dev`) || Host(`s3.layertwo.dev`)
+  - match: HostRegexp(`^[^.]+\.s3\.layertwo\.dev$`) || Host(`s3.layertwo.dev`)
     kind: Rule
     services:
     - name: garage
@@ -56,7 +56,7 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`*.s3-website.layertwo.dev`)
+  - match: HostRegexp(`^[^.]+\.s3-website\.layertwo\.dev$`)
     kind: Rule
     middlewares:
     - name: compress
