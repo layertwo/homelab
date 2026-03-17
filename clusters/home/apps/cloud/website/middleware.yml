@@ -1,0 +1,10 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: website-redirect
+  namespace: website
+spec:
+  redirectRegex:
+    regex: ^https://layertwo.dev/(.*)
+    replacement: https://www.layertwo.dev/${1}
