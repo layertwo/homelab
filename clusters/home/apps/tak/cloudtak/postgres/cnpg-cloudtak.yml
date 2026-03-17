@@ -8,7 +8,7 @@ spec:
   instances: 2
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
-  imageName: ghcr.io/cloudnative-pg/postgis:17.9
+  imageName: ghcr.io/cloudnative-pg/postgis:17.9-3.6.2-standard-trixie
   bootstrap:
     initdb:
       postInitApplicationSQL:
