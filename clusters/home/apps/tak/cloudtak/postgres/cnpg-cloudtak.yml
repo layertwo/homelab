@@ -1,0 +1,21 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-cloudtak
+  namespace: tak
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  imageName: ghcr.io/cloudnative-pg/postgis:17.9
+  bootstrap:
+    initdb:
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS postgis CASCADE;
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 4Gi
+  walStorage:
+    storageClass: sunbeam-nfs-csi
+    size: 10Gi
