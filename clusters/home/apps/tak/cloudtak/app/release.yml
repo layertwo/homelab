@@ -41,6 +41,7 @@ spec:
               PMTILES_URL: "http://cloudtak-tiles.tak.svc.cluster.local:5002"
               ASSET_BUCKET: "cloudtak"
               AWS_S3_Endpoint: "http://garage.garage.svc.cluster.local:3900"
+              AWS_REGION: "garage"
               SigningSecret:
                 secretKeyRef:
                   name: secrets-cloudtak
@@ -73,6 +74,7 @@ spec:
             env:
               ASSET_BUCKET: "cloudtak"
               AWS_S3_Endpoint: "http://garage.garage.svc.cluster.local:3900"
+              AWS_REGION: "garage"
               SigningSecret:
                 secretKeyRef:
                   name: secrets-cloudtak
