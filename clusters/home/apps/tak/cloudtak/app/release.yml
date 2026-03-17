@@ -99,7 +99,7 @@ spec:
               tag: v9.1.1
               pullPolicy: IfNotPresent
             env:
-              API_URL: "https://cloudtak.layertwo.dev"
+              API_URL: "http://cloudtak-api.tak.svc.cluster.local:5000"
               CLOUDTAK_Config_media_url: "http://cloudtak-media.tak.svc.cluster.local:9997"
               SigningSecret:
                 secretKeyRef:
