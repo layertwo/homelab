@@ -14,8 +14,8 @@ spec:
       postInitApplicationSQL:
         - CREATE EXTENSION IF NOT EXISTS postgis CASCADE;
   storage:
-    storageClass: sunbeam-nfs-csi
+    storageClass: sunbeam-iscsi-csi
     size: 4Gi
   walStorage:
-    storageClass: sunbeam-nfs-csi
+    storageClass: sunbeam-iscsi-csi
     size: 10Gi
