@@ -69,7 +69,7 @@ spec:
           tiles:
             image:
               repository: ghcr.io/dfpc-coe/cloudtak-pmtiles
-              tag: v12.104.0
+              tag: v12.108.0
               pullPolicy: IfNotPresent
             env:
               ASSET_BUCKET: "cloudtak"
