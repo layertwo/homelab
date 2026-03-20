@@ -33,7 +33,7 @@ spec:
           api:
             image:
               repository: ghcr.io/dfpc-coe/cloudtak-api
-              tag: v12.104.0
+              tag: v12.108.0
               pullPolicy: IfNotPresent
             env:
               API_URL: "https://cloudtak.layertwo.dev"
