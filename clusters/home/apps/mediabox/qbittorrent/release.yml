@@ -26,8 +26,8 @@ spec:
           qbittorrent:
             dependsOn: port-forward
             image:
-              repository: ghcr.io/onedr0p/qbittorrent
-              tag: "5.0.4"
+              repository: ghcr.io/home-operations/qbittorrent
+              tag: 5.1.4
             env:
               TZ: Etc/UTC
               QBITTORRENT__PORT: &port 9091
