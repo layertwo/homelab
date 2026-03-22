@@ -25,7 +25,7 @@ spec:
         containers:
           sonarr:
             image:
-              repository: ghcr.io/onedr0p/sonarr
+              repository: ghcr.io/home-operations/sonarr
               tag: 4.0.17.2950
             env:
               TZ: Etc/UTC
