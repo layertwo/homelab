@@ -76,21 +76,6 @@ spec:
 
       endpoints:
 
-        # Authentication Services
-        - name: Authentik
-          group: Authentication
-          url: https://authentik.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "Authentik is down"
-
         - name: PocketID
           group: Authentication
           url: https://idp.layertwo.dev
