@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 3.7.3
+      version: 4.6.2
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -23,6 +23,12 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    defaultPodOptions:
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
+
     controllers:
       main:
         annotations:
@@ -34,16 +40,27 @@ spec:
               tag: v3.4.27
             env:
               TZ: Etc/UTC
+              NODE_ENV: production
               BASE_URL: https://send.layertwo.dev
               PORT: 8080
               MAX_FILE_SIZE: 10737418240
-              REDIS_HOSTNAME: send-redis.send.svc.cluster.local
+              MAX_DOWNLOADS: 10
+              DEFAULT_EXPIRE_SECONDS: 86400
+              REDIS_HOST: send-redis.send.svc.cluster.local
               REDIS_PORT: 6379
               REDIS_PASSWORD:
                 valueFrom:
                   secretKeyRef:
                     name: secrets-send-redis
                     key: SEND_REDIS_PASSWORD
+              AWS_REGION: garage
+              S3_BUCKET: send
+              S3_ENDPOINT: s3.layertwo.dev
+              S3_USE_PATH_STYLE_ENDPOINT: true
+            envFrom:
+              - secretRef:
+                  name: secrets-send-s3
+
     service:
       main:
         enabled: true
@@ -53,11 +70,3 @@ spec:
             enabled: true
             port: 8080
             protocol: HTTP
-    persistence:
-      config:
-        enabled: true
-        storageClass: sunbeam-nfs-csi
-        accessMode: "ReadWriteOnce"
-        size: 256Gi
-        globalMounts:
-          - path: /uploads
