@@ -1,0 +1,24 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-forgejo
+  namespace: forgejo
+spec:
+  instances: 2
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.13
+  storage:
+    storageClass: sunbeam-iscsi-csi
+    size: 256Gi
+  walStorage:
+    storageClass: sunbeam-iscsi-csi
+    size: 10Gi
+  postgresql:
+    parameters:
+      # WAL management parameters to prevent disk space issues
+      wal_keep_size: "1GB"
+      max_wal_size: "2GB"
+      checkpoint_completion_target: "0.9"
+      archive_timeout: "300s"

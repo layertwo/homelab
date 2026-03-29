@@ -1,0 +1,125 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  chartRef:
+    kind: OCIRepository
+    name: forgejo
+    namespace: flux-system
+  interval: 30m
+  timeout: 5m
+  install:
+    crds: CreateReplace
+    remediation:
+      retries: 3
+  upgrade:
+    crds: CreateReplace
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    redis-cluster:
+      enabled: false
+    redis:
+      enabled: false
+    postgresql:
+      enabled: false
+    postgresql-ha:
+      enabled: false
+
+    persistence:
+      enabled: true
+      storageClass: sunbeam-iscsi-csi
+      accessModes:
+        - ReadWriteOnce
+      size: 256Gi
+
+    gitea:
+      readinessProbe:
+        enabled: false
+      livenessProbe:
+        enabled: false
+      startupProbe:
+        enabled: false
+      metrics:
+        enabled: false
+      admin:
+        existingSecret: secrets-forgejo-admin
+
+      oauth:
+      - name: "pocket-id"
+        provider: "openidConnect"
+        autoDiscoverUrl: "https://idp.layertwo.dev/.well-known/openid-configuration"
+        scopes: "openid email profile"
+        existingSecret: secrets-forgejo-oidc
+
+      config:
+        database:
+          DB_TYPE: postgres
+        indexer:
+          ISSUE_INDEXER_TYPE: bleve
+          REPO_INDEXER_ENABLED: true
+      additionalConfigFromEnvs:
+        - name: FORGEJO__SERVICE__DISABLE_REGISTRATION
+          value: "false"
+        - name: FORGEJO__SERVICE__ALLOW_ONLY_EXTERNAL_REGISTRATION
+          value: "true"
+        - name: FORGEJO__SERVICE__SHOW_REGISTRATION_BUTTON
+          value: "false"
+        - name: FORGEJO__openid__ENABLE_OPENID_SIGNIN
+          value: "false"
+        - name: FORGEJO__openid__ENABLE_OPENID_SIGNUP
+          value: "true"
+        - name: FORGEJO__openid__WHITELISTED_URIS
+          value: "idp.layertwo.dev"
+        - name: FORGEJO__DATABASE__USER
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-forgejo-app
+              key: user
+        - name: FORGEJO__DATABASE__NAME
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-forgejo-app
+              key: dbname
+        - name: FORGEJO__DATABASE__HOST
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-forgejo-app
+              key: host
+        - name: FORGEJO__DATABASE__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: cnpg-forgejo-app
+              key: password
+        - name: FORGEJO__server__DOMAIN
+          value: code.layertwo.dev
+        - name: FORGEJO__server__ROOT_URL
+          value: https://code.layertwo.dev
+        - name: FORGEJO__server__SSH_DOMAIN
+          value: ssh.code.layertwo.dev
+        - name: FORGEJO__server__SSH_PORT
+          value: "22"
+
+    service:
+      ssh:
+        type: LoadBalancer
+        annotations:
+          metallb.io/address-pool: external
+        externalTrafficPolicy: Cluster
+
+    ingress:
+      enabled: false
+
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
