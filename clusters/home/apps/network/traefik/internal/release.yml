@@ -40,12 +40,6 @@ spec:
           middlewares:
             - traefik-system-secure-headers-middleware
 
-      ldap:
-        port: 389
-        protocol: TCP
-        expose:
-          default: false
-          ldap: true
 
     service:
       spec:
@@ -56,16 +50,6 @@ spec:
         kubernetes.io/ingress.class: &ingressName internal
         metallb.io/address-pool: internal
         metallb.io/loadBalancerIPs: "172.31.0.20"
-      additionalServices:
-        ldap:
-          type: LoadBalancer
-          externalTrafficPolicy: Local
-          annotations:
-            external-dns.alpha.kubernetes.io/enabled: "true"
-            external-dns.alpha.kubernetes.io/hostname: "ldap.internal.layertwo.dev"
-            kubernetes.io/ingress.class: *ingressName
-            metallb.io/address-pool: internal
-            metallb.io/loadBalancerIPs: "172.31.0.21"
 
     autoscaling:
       enabled: true
