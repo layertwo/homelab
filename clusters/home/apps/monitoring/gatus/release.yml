@@ -365,21 +365,6 @@ spec:
               send-on-resolved: true
               description: "Traefik Internal is down"
 
-        # Authentication Services (continued)
-        - name: LDAP
-          group: Authentication
-          url: tcp://ldap.internal.layertwo.dev:389
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "LDAP outpost is down"
-
       alerting:
         pushover:
           application-token: "${PUSHOVER_TOKEN}"
