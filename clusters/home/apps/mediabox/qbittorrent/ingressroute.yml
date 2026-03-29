@@ -14,11 +14,16 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`qt.layertwo.dev`)
+  - match: Host(`qt.layertwo.dev`) && PathPrefix(`/api/v2/app/version`)
     kind: Rule
-    services:
+    services: &services
     - name: qbittorrent
       port: 9091
+    middlewares:
+      - name: default-headers-mediabox
+  - match: Host(`qt.layertwo.dev`)
+    kind: Rule
+    services: *services
     middlewares:
       - name: default-headers-mediabox
       - name: mediabox-oidc

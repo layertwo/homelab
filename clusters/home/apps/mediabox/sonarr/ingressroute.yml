@@ -14,11 +14,16 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`sonarr.layertwo.dev`)
+  - match: Host(`sonarr.layertwo.dev`) && PathPrefix(`/ping`)
     kind: Rule
-    services:
+    services: &services
     - name: sonarr
       port: 8989
+    middlewares:
+      - name: default-headers-mediabox
+  - match: Host(`sonarr.layertwo.dev`)
+    kind: Rule
+    services: *services
     middlewares:
       - name: default-headers-mediabox
       - name: mediabox-oidc

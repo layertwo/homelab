@@ -14,11 +14,16 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`prowlarr.layertwo.dev`)
+  - match: Host(`prowlarr.layertwo.dev`) && PathPrefix(`/ping`)
     kind: Rule
-    services:
+    services: &services
     - name: prowlarr
       port: 9696
+    middlewares:
+      - name: default-headers-mediabox
+  - match: Host(`prowlarr.layertwo.dev`)
+    kind: Rule
+    services: *services
     middlewares:
       - name: default-headers-mediabox
       - name: mediabox-oidc
