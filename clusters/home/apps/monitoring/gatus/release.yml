@@ -132,6 +132,20 @@ spec:
               send-on-resolved: true
               description: "immich is down"
 
+        - name: forgejo
+          group: prod
+          url: https://code.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "forgejo is down"
+
         - name: jellyfin
           group: media
           url: https://jellyfin.layertwo.dev
