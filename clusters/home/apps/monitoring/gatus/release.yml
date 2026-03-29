@@ -76,8 +76,8 @@ spec:
 
       endpoints:
 
-        - name: PocketID
-          group: Authentication
+        - name: pocket-id
+          group: prod
           url: https://idp.layertwo.dev
           interval: 1m
           conditions:
@@ -88,11 +88,38 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "PocketID is down"
+              description: "pocket-id is down"
 
-        # Photo Management Services
-        - name: Immich
-          group: Photo Management
+        - name: send
+          group: prod
+          url: https://send.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 401"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "send is down"
+
+        - name: layertwo.dev
+          group: prod
+          url: https://www.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "layertwo.dev website is down"
+
+        - name: immich
+          group: prod
           url: https://immich.layertwo.dev
           interval: 1m
           conditions:
@@ -103,11 +130,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Immich is down"
+              description: "immich is down"
 
-        # Mediabox Services
-        - name: Jellyfin
-          group: Mediabox
+        - name: jellyfin
+          group: media
           url: https://jellyfin.layertwo.dev
           interval: 1m
           conditions:
@@ -118,25 +144,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Jellyfin is down"
+              description: "jellyfin is down"
 
-        # Home Automation Services
-        - name: Home Assistant
-          group: Home Automation
-          url: https://hass.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "Home Assistant is down"
-
-        - name: Bazarr
-          group: Mediabox
+        - name: bazarr
+          group: media
           url: https://bazarr.layertwo.dev
           interval: 1m
           conditions:
@@ -147,10 +158,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Bazarr is down"
+              description: "bazarr is down"
 
-        - name: Prowlarr
-          group: Mediabox
+        - name: prowlarr
+          group: media
           url: https://prowlarr.layertwo.dev/ping
           interval: 1m
           conditions:
@@ -162,10 +173,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Prowlarr is down"
+              description: "prowlarr is down"
 
-        - name: qBittorrent
-          group: Mediabox
+        - name: qbittorrent
+          group: media
           url: https://qt.layertwo.dev/api/v2/app/version
           interval: 1m
           conditions:
@@ -176,10 +187,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "qBittorrent is down"
+              description: "qbittorent is down"
 
-        - name: Radarr
-          group: Mediabox
+        - name: radarr
+          group: media
           url: https://radarr.layertwo.dev/ping
           interval: 1m
           conditions:
@@ -191,10 +202,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Radarr is down"
+              description: "radarr is down"
 
-        - name: Sonarr
-          group: Mediabox
+        - name: sonarr
+          group: media
           url: https://sonarr.layertwo.dev/ping
           interval: 1m
           conditions:
@@ -206,11 +217,24 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Sonarr is down"
+              description: "sonarr is down"
 
-        # Home Automation Services (continued)
-        - name: MQTT Dashboard
-          group: Home Automation
+        - name: home-assistant
+          group: home
+          url: https://hass.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "home-assistant is down"
+
+        - name: mqtt-dashboard
+          group: home
           url: https://mqtt-dashboard.layertwo.dev
           interval: 1m
           conditions:
@@ -221,10 +245,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "MQTT Dashboard is down"
+              description: "mqtt-dashboard is down"
 
-        - name: MQTT
-          group: Home Automation
+        - name: mqtt-listeners
+          group: home
           url: tcp://mqtt-listeners.home-assistant.svc.cluster.local:1883
           interval: 1m
           conditions:
@@ -235,10 +259,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "MQTT is down"
+              description: "mqtt-listeners is down"
 
-        - name: Zigbee2MQTT
-          group: Home Automation
+        - name: zigbee2mqtt
+          group: home
           url: https://zigbee.layertwo.dev
           interval: 1m
           conditions:
@@ -249,10 +273,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Zigbee2MQTT is down"
+              description: "zigbee2mqtt is down"
 
-        - name: Z-Wave JS UI
-          group: Home Automation
+        - name: zwave
+          group: home
           url: https://zwave.layertwo.dev
           interval: 1m
           conditions:
@@ -263,10 +287,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Z-Wave JS UI is down"
+              description: "zwave is down"
 
-        - name: TrueNAS
-          group: Storage
+        - name: truenas
+          group: infrastructure
           url: https://sunbeam.layertwo.dev
           interval: 1m
           conditions:
@@ -277,24 +301,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "TrueNAS is down"
+              description: "truenas is down"
 
-        - name: Send
-          group: Storage
-          url: https://send.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 401"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "Send is down"
-
-        - name: Garage S3
-          group: Storage
+        - name: garage
+          group: infrastructure
           url: https://s3.layertwo.dev
           interval: 1m
           conditions:
@@ -305,25 +315,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Garage is down"
+              description: "garage is down"
 
-        - name: Garage S3 Website
-          group: Storage
-          url: https://nonexistent-bucket.s3-website.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 404"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "Garage website is down"
-
-        # Network Services
-        - name: Traefik External
-          group: Network
+        - name: traefik-external
+          group: infrastructure
           url: https://traefik-external.layertwo.dev
           interval: 1m
           conditions:
@@ -334,10 +329,10 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Traefik External is down"
+              description: "traefik-external is down"
 
-        - name: Traefik Internal
-          group: Network
+        - name: traefik-internal
+          group: infrastructure
           url: https://traefik-internal.layertwo.dev
           interval: 1m
           conditions:
@@ -348,11 +343,11 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Traefik Internal is down"
+              description: "traefik-internal is down"
 
-        - name: layertwo.dev Website
-          group: Website
-          url: https://www.layertwo.dev
+        - name: stoat-web
+          group: stoat
+          url: https://stoat.layertwo.dev
           interval: 1m
           conditions:
             - "[STATUS] == 200"
@@ -362,7 +357,63 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "Website is down"
+              description: "stoat-web is down"
+
+        - name: stoat-mongodb
+          group: stoat
+          url: tcp://stoat-mongodb-0.stoat-mongodb-svc.stoat.svc.cluster.local:27017
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "stoat-mongodb is down"
+
+        - name: stoat-rabbitmq
+          group: stoat
+          url: tcp://stoat-rabbitmq.stoat.svc.cluster.local:5672
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "stoat-rabbitmq is down"
+
+        - name: stoat-redis
+          group: stoat
+          url: tcp://stoat-redis.stoat.svc.cluster.local:6379
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "stoat-redis is down"
+
+        - name: stoat-livekit
+          group: stoat
+          url: "http://stoat-livekit.stoat.svc.cluster.local:7880"
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "stoat-livekit is down"
 
       alerting:
         pushover:
