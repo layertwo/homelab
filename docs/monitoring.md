@@ -4,7 +4,7 @@ This document provides detailed information about the monitoring stack in the ho
 
 ## Overview
 
-The monitoring stack provides health checking and uptime monitoring for the homelab infrastructure and applications using Gatus.
+The monitoring stack provides health checking and status monitoring for the homelab infrastructure and applications using Gatus.
 
 ## Architecture
 
@@ -23,8 +23,8 @@ Gatus is a health dashboard that checks the health of services and sends alerts 
 
 #### Configuration
 
-- **URL**: uptime.layertwo.dev
-- **Storage**: PostgreSQL database (see [Gatus PostgreSQL Backend](gatus-postgres.md) for details)
+- **URL**: status.layertwo.dev
+- **Storage**: PostgreSQL database
 - **Endpoints**:
   - Internal services
   - External services
@@ -42,8 +42,7 @@ The monitoring stack uses persistent storage for data:
 
 The monitoring stack is exposed through the internal Traefik instance:
 
-- Gatus is accessible at uptime.layertwo.dev
-- Authentication is handled by Authentik
+- Gatus is accessible at status.layertwo.dev
 
 ## Alerting
 
@@ -61,7 +60,7 @@ The Gatus dashboard provides visualization of service health and status:
 
 - Service health status (up/down)
 - Response time metrics
-- Status history and uptime percentage
+- Status history and status percentage
 - Endpoint-specific details
 
 ## Maintenance

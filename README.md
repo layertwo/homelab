@@ -11,8 +11,8 @@ The homelab includes:
 - Home automation (Home Assistant, MQTT, Zigbee2MQTT, Z-Wave JS UI)
 - Photo management (Immich)
 - Cloud file sharing (Send)
-- Documentation (Outline)
-- Authentication/SSO (Authentik, Pocket ID)
+- Cloud storage (Garage S3)
+- Authentication/SSO (Pocket ID)
 - Monitoring (Gatus)
 
 > **For AI Agents**: See [AGENTS.md](AGENTS.md) for comprehensive context including project structure, technology stack, and development workflows.
@@ -86,7 +86,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Security Components
 
 - **Cert Manager**: Automatic TLS certificate management
-- **Authentik**: Identity provider and SSO solution
+- **Pocket ID**: Lightweight OIDC provider for SSO
 
 ### Monitoring Components
 
@@ -115,13 +115,13 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 
 - **Immich**: Self-hosted photo and video backup solution
 
-### Documentation
+### Cloud Services
 
-- **Outline**: Wiki and knowledge base
+- **Send**: Self-hosted file/secret sharing (Firefox Send fork)
+- **Garage**: S3-compatible distributed object storage
 
 ### Authentication
 
-- **Authentik**: Identity provider and SSO solution
 - **Pocket ID**: Lightweight OIDC provider
 
 ## Custom Containers
