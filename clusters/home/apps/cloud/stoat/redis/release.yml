@@ -16,11 +16,10 @@ spec:
         namespace: flux-system
       interval: 15m
   values:
-    defaultPodOptions:
-      annotations:
-        reloader.stakater.com/auto: "true"
     controllers:
       main:
+        annotations:
+          reloader.stakater.com/auto: "true"
         containers:
           main:
             image:
@@ -34,14 +33,12 @@ spec:
                 redis-server --requirepass $REDIS_PASSWORD
             env:
               REDIS_PORT: &port 6379
-              REDIS_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: secrets-stoat-redis
-                    key: REDIS_PASSWORD
+            envFrom:
+              - secretRef:
+                  name: secrets-stoat-redis
             resources:
               requests:
-                cpu: 50m
+                cpu: 5m
                 memory: 128M
               limits:
                 memory: 256M
