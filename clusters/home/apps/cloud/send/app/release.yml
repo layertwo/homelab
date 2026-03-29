@@ -48,11 +48,6 @@ spec:
               DEFAULT_EXPIRE_SECONDS: 86400
               REDIS_HOST: send-redis.send.svc.cluster.local
               REDIS_PORT: 6379
-              REDIS_PASSWORD:
-                valueFrom:
-                  secretKeyRef:
-                    name: secrets-send-redis
-                    key: SEND_REDIS_PASSWORD
               AWS_REGION: garage
               S3_BUCKET: send
               S3_ENDPOINT: s3.layertwo.dev
@@ -60,6 +55,8 @@ spec:
             envFrom:
               - secretRef:
                   name: secrets-send-s3
+              - secretRef:
+                  name: secrets-send-redis
 
     service:
       main:
