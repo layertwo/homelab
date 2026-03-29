@@ -62,7 +62,7 @@ spec:
           main:
             image:
               repository: ghcr.io/stoatchat/livekit-server
-              tag: v1.9.12
+              tag: v1.9.13
             args:
               - --config
               - /config/livekit.yml
