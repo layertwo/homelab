@@ -14,11 +14,16 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: Host(`radarr.layertwo.dev`)
+  - match: Host(`radarr.layertwo.dev`) && PathPrefix(`/ping`)
     kind: Rule
-    services:
+    services: &services
     - name: radarr
       port: 7878
+    middlewares:
+      - name: default-headers-mediabox
+  - match: Host(`radarr.layertwo.dev`)
+    kind: Rule
+    services: *services
     middlewares:
       - name: default-headers-mediabox
       - name: mediabox-oidc

@@ -166,10 +166,11 @@ spec:
 
         - name: Prowlarr
           group: Mediabox
-          url: https://prowlarr.layertwo.dev
+          url: https://prowlarr.layertwo.dev/ping
           interval: 1m
           conditions:
-            - "[STATUS] == 401"
+            - "[STATUS] == 200"
+            - "[BODY].status == OK"
           alerts:
             - type: pushover
               enabled: true
@@ -180,10 +181,10 @@ spec:
 
         - name: qBittorrent
           group: Mediabox
-          url: https://qt.layertwo.dev
+          url: https://qt.layertwo.dev/api/v2/app/version
           interval: 1m
           conditions:
-            - "[STATUS] == 401"
+            - "[STATUS] == 200"
           alerts:
             - type: pushover
               enabled: true
@@ -194,10 +195,11 @@ spec:
 
         - name: Radarr
           group: Mediabox
-          url: https://radarr.layertwo.dev
+          url: https://radarr.layertwo.dev/ping
           interval: 1m
           conditions:
-            - "[STATUS] == 401"
+            - "[STATUS] == 200"
+            - "[BODY].status == OK"
           alerts:
             - type: pushover
               enabled: true
@@ -208,10 +210,11 @@ spec:
 
         - name: Sonarr
           group: Mediabox
-          url: https://sonarr.layertwo.dev
+          url: https://sonarr.layertwo.dev/ping
           interval: 1m
           conditions:
-            - "[STATUS] == 401"
+            - "[STATUS] == 200"
+            - "[BODY].status == OK"
           alerts:
             - type: pushover
               enabled: true
