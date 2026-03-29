@@ -70,6 +70,8 @@ spec:
           value: "true"
         - name: FORGEJO__SERVICE__SHOW_REGISTRATION_BUTTON
           value: "false"
+        - name: FORGEJO__SERVICE__REQUIRE_SIGNIN_VIEW
+          value: "true"
         - name: FORGEJO__openid__ENABLE_OPENID_SIGNIN
           value: "false"
         - name: FORGEJO__openid__ENABLE_OPENID_SIGNUP
@@ -104,6 +106,16 @@ spec:
           value: ssh.code.layertwo.dev
         - name: FORGEJO__server__SSH_PORT
           value: "22"
+        - name: FORGEJO__other__SHOW_FOOTER_VERSION
+          value: "false"
+        - name: FORGEJO__other__SHOW_FOOTER_TEMPLATE_LOAD_TIME
+          value: "false"
+        - name: FORGEJO__other__SHOW_FOOTER_POWERED_BY
+          value: "false"
+        - name: FORGEJO__api__ENABLE_SWAGGER
+          value: "false"
+        - name: FORGEJO__EXPLORE__DISABLE_USERS_PAGE
+          value: "true"
 
     service:
       ssh:
