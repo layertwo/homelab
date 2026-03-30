@@ -130,7 +130,7 @@ spec:
           autumn:
             image:
               repository: ghcr.io/stoatchat/file-server
-              tag: v0.11.5
+              tag: v0.12.0
       january:
         initContainers: *initContainers
         containers:
