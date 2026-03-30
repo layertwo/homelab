@@ -116,56 +116,56 @@ spec:
           api:
             image:
               repository: ghcr.io/stoatchat/api
-              tag: v0.11.5
+              tag: v0.12.0
       events:
         initContainers: *initContainers
         containers:
           events:
             image:
               repository: ghcr.io/stoatchat/events
-              tag: v0.11.5
+              tag: v0.12.0
       autumn:
         initContainers: *initContainers
         containers:
           autumn:
             image:
               repository: ghcr.io/stoatchat/file-server
-              tag: v0.11.5
+              tag: v0.12.0
       january:
         initContainers: *initContainers
         containers:
           january:
             image:
               repository: ghcr.io/stoatchat/proxy
-              tag: v0.11.5
+              tag: v0.12.0
       gifbox:
         initContainers: *initContainers
         containers:
           gifbox:
             image:
               repository: ghcr.io/stoatchat/gifbox
-              tag: v0.11.5
+              tag: v0.12.0
       crond:
         initContainers: *initContainers
         containers:
           crond:
             image:
               repository: ghcr.io/stoatchat/crond
-              tag: v0.11.5
+              tag: v0.12.0
       pushd:
         initContainers: *initContainers
         containers:
           pushd:
             image:
               repository: ghcr.io/stoatchat/pushd
-              tag: v0.11.5
+              tag: v0.12.0
       voice-ingress:
         initContainers: *initContainers
         containers:
           voice-ingress:
             image:
               repository: ghcr.io/stoatchat/voice-ingress
-              tag: v0.11.5
+              tag: v0.12.0
       web:
         replicas: 2
         containers:
