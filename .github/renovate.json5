@@ -1,15 +1,7 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: [
-    'config:recommended',
-    'docker:enableMajor',
-    'mergeConfidence:all-badges',
-    'replacements:k8s-registry-move',
-    ':disableRateLimiting',
-    ':semanticCommits',
-    'github>layertwo/renovate-config//packages/aws',
-    'github>layertwo/renovate-config//packages/noisy-npm',
-    'github>layertwo/renovate-config//managers/aws',
+    'github>layertwo/renovate-config',
     'github>layertwo/homelab//.github/renovate/allowed-versions.json5',
     'github>layertwo/homelab//.github/renovate/custom-managers.json5',
     'github>layertwo/homelab//.github/renovate/package-rules.json5',
