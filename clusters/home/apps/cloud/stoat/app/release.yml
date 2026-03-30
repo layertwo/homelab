@@ -116,7 +116,7 @@ spec:
           api:
             image:
               repository: ghcr.io/stoatchat/api
-              tag: v0.11.5
+              tag: v0.12.0
       events:
         initContainers: *initContainers
         containers:
