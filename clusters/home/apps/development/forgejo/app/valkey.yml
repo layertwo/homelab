@@ -31,6 +31,13 @@ spec:
         default:
           permissions: "~* &* +@all"
           passwordKey: password
+        replication:
+          permissions: "+psync +replconf +ping"
+          passwordKey: replication-password
+    replica:
+      enabled: true
+      replicas: 1
+      replicationUser: replication
     dataStorage:
       enabled: true
       storageClass: sunbeam-iscsi-csi
