@@ -1,0 +1,56 @@
+---
+# Default deny all ingress/egress, then allow only what Forgejo needs:
+# - Ingress from Traefik (HTTP)
+# - Ingress from anywhere on SSH LoadBalancer port
+# - Egress to CNPG postgres (5432)
+# - Egress to kube-dns (53)
+# - Egress to OIDC provider and external services (HTTPS)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: forgejo
+  namespace: forgejo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: forgejo
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow Traefik internal to reach Forgejo HTTP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+      ports:
+        - port: 3000
+          protocol: TCP
+    # Allow SSH from anywhere (LoadBalancer handles external exposure)
+    - ports:
+        - port: 2222
+          protocol: TCP
+  egress:
+    # Allow DNS resolution
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow connection to CNPG postgres
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: forgejo
+          podSelector:
+            matchLabels:
+              cnpg.io/cluster: cnpg-forgejo
+      ports:
+        - port: 5432
+          protocol: TCP
+    # Allow HTTPS egress for OIDC, git operations, webhooks, etc.
+    - ports:
+        - port: 443
+          protocol: TCP
+        - port: 80
+          protocol: TCP

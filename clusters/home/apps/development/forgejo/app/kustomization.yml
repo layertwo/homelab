@@ -6,3 +6,4 @@ resources:
   - secrets-forgejo-oidc.sops.yml
   - release.yml
   - ingressroute.yml
+  - networkpolicy.yml
