@@ -24,6 +24,13 @@ spec:
       retries: 3
   values:
     architecture: standalone
+    auth:
+      enabled: true
+      usersExistingSecret: secrets-forgejo-valkey
+      aclUsers:
+        default:
+          permissions: "~* &* +@all"
+          passwordKey: password
     dataStorage:
       enabled: true
       storageClass: sunbeam-iscsi-csi
