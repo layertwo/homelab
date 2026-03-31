@@ -62,6 +62,8 @@ spec:
       config:
         database:
           DB_TYPE: postgres
+        actions:
+          ENABLED: true
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
