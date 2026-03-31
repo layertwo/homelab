@@ -1,0 +1,155 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: forgejo-runner
+  namespace: forgejo
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: app-template
+      version: 4.6.2
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    controllers:
+      main:
+        type: statefulset
+        replicas: 2
+        pod:
+          annotations:
+            reloader.stakater.com/auto: "true"
+        initContainers:
+          register:
+            image:
+              repository: code.forgejo.org/forgejo/runner
+              tag: 12.7.3
+            command:
+              - /bin/bash
+              - -c
+            args:
+              - |
+                while : ; do
+                  forgejo-runner register \
+                    --no-interactive \
+                    --token $(RUNNER_TOKEN) \
+                    --name $(RUNNER_NAME) \
+                    --instance $(RUNNER_INSTANCE) && break ;
+                  sleep 1 ;
+                done ;
+                forgejo-runner generate-config > /data/config.yml ;
+                sed -i -e "s|network: .*|network: host|" /data/config.yml ;
+                sed -i -e "s|^  envs:$|  envs:\n    DOCKER_HOST: tcp://localhost:2376\n    DOCKER_TLS_VERIFY: 1\n    DOCKER_CERT_PATH: /certs/client|" /data/config.yml ;
+                sed -i -e "s|^  options:|  options: -v /certs/client:/certs/client|" /data/config.yml ;
+                sed -i -e "s|  valid_volumes: \[\]$|  valid_volumes:\n    - /certs/client|" /data/config.yml ;
+                sed -i -e "s|  labels: \[\]$|  labels:\n    - \"ubuntu-latest:docker://ghcr.io/catthehacker/ubuntu:act-24.04\"\n    - \"ubuntu-24.04:docker://ghcr.io/catthehacker/ubuntu:act-24.04\"|" /data/config.yml
+            env:
+              RUNNER_NAME:
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.name
+            envFrom:
+              - secretRef:
+                  name: secrets-forgejo-runner
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              privileged: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
+        containers:
+          runner:
+            image:
+              repository: code.forgejo.org/forgejo/runner
+              tag: 12.7.3
+            command:
+              - /bin/bash
+              - -c
+            args:
+              - |
+                while ! nc -z localhost 2376 </dev/null ; do
+                  echo 'waiting for docker daemon...' ;
+                  sleep 5 ;
+                done ;
+                forgejo-runner --config /data/config.yml daemon
+            env:
+              DOCKER_HOST:
+                value: tcp://localhost:2376
+              DOCKER_CERT_PATH:
+                value: /certs/client
+              DOCKER_TLS_VERIFY:
+                value: "1"
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop:
+                  - ALL
+              privileged: false
+              readOnlyRootFilesystem: true
+              runAsNonRoot: true
+              seccompProfile:
+                type: RuntimeDefault
+            resources:
+              requests:
+                memory: 64Mi
+                cpu: 100m
+              limits:
+                memory: 4Gi
+                cpu: "1"
+          dind:
+            image:
+              repository: docker
+              tag: 29.3.1-dind
+            env:
+              DOCKER_TLS_CERTDIR:
+                value: /certs
+            securityContext:
+              privileged: true
+            resources:
+              requests:
+                memory: 128Mi
+                cpu: 100m
+              limits:
+                memory: 4Gi
+                cpu: "1"
+
+    persistence:
+      runner-data:
+        type: emptyDir
+        globalMounts:
+          - path: /data
+      docker-certs:
+        type: emptyDir
+        globalMounts:
+          - path: /certs
+      tmp:
+        type: emptyDir
+        advancedMounts:
+          main:
+            runner:
+              - path: /tmp
+
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app.kubernetes.io/name: forgejo-runner
