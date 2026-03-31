@@ -62,12 +62,6 @@ spec:
       config:
         database:
           DB_TYPE: postgres
-        cache:
-          ADAPTER: redis
-          HOST: redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/0
-        queue:
-          TYPE: redis
-          CONN_STR: redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/1
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
@@ -77,6 +71,14 @@ spec:
             secretKeyRef:
               name: secrets-forgejo-valkey
               key: password
+        - name: FORGEJO__cache__ADAPTER
+          value: redis
+        - name: FORGEJO__cache__HOST
+          value: "redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/0"
+        - name: FORGEJO__queue__TYPE
+          value: redis
+        - name: FORGEJO__queue__CONN_STR
+          value: "redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/1"
         - name: FORGEJO__SERVICE__DISABLE_REGISTRATION
           value: "false"
         - name: FORGEJO__SERVICE__ALLOW_ONLY_EXTERNAL_REGISTRATION
