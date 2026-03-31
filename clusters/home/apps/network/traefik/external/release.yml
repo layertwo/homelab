@@ -14,6 +14,7 @@ spec:
         namespace: flux-system
       version: 39.0.7
   interval: 60m
+  timeout: 10m
   dependsOn:
     - name: cert-manager
       namespace: cert-manager

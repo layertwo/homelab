@@ -17,6 +17,7 @@ spec:
     - name: cert-manager
       namespace: cert-manager
   interval: 60m
+  timeout: 10m
   values:
     ports:
       web:
