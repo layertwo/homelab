@@ -66,10 +66,14 @@ spec:
         type: emptyDir
         globalMounts:
           - path: /tmp
-      cache:
+      state:
         type: emptyDir
         globalMounts:
-          - path: /config/cache
+          - path: /config/state
+      resources:
+        type: emptyDir
+        globalMounts:
+          - path: /config/resources
       repos:
         type: emptyDir
         globalMounts:
