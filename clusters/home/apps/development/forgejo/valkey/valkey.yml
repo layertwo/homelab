@@ -40,6 +40,9 @@ spec:
       enabled: true
       replicas: 1
       replicationUser: replication
+      persistence:
+        size: 1Gi
+        storageClass: sunbeam-iscsi-csi
     topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
