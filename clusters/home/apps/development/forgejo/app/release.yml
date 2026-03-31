@@ -39,6 +39,8 @@ spec:
       size: 256Gi
 
     gitea:
+      podAnnotations:
+        reloader.stakater.com/auto: "true"
       readinessProbe:
         enabled: true
       livenessProbe:
