@@ -15,6 +15,9 @@ spec:
   walStorage:
     storageClass: sunbeam-iscsi-csi
     size: 10Gi
+  affinity:
+    enablePodAntiAffinity: true
+    podAntiAffinityType: required
   postgresql:
     parameters:
       # WAL management parameters to prevent disk space issues
