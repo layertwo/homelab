@@ -48,6 +48,17 @@ spec:
       ports:
         - port: 5432
           protocol: TCP
+    # Allow connection to Valkey (cache and queue)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: forgejo
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: valkey
+      ports:
+        - port: 6379
+          protocol: TCP
     # Allow HTTPS egress for OIDC, git operations, webhooks, etc.
     - ports:
         - port: 443

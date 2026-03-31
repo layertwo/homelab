@@ -7,3 +7,4 @@ resources:
   - release.yml
   - ingressroute.yml
   - networkpolicy.yml
+  - valkey.yml
