@@ -44,7 +44,9 @@ spec:
       - --annotation-filter=layertwo.dev/publish in (external, all)
     policy: sync
     sources:
+      - service
       - ingress
       - traefik-proxy
+      - crd
     domainFilters:
       - layertwo.dev
