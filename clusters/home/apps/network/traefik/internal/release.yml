@@ -41,7 +41,6 @@ spec:
           middlewares:
             - traefik-system-secure-headers-middleware
 
-
     service:
       spec:
         externalTrafficPolicy: Local
@@ -68,7 +67,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-internal.layertwo.dev"
-          external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+          layertwo.dev/publish: "internal"
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-internal.layertwo.dev`)
 

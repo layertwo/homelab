@@ -70,7 +70,9 @@ spec:
         externalTrafficPolicy: Local
       annotations:
         external-dns.alpha.kubernetes.io/enabled: "true"
-        external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+        external-dns.alpha.kubernetes.io/hostname: "proxy-external.layertwo.dev"
+        # publish proxy-external.layertwo.dev to internal dns
+        layertwo.dev/publish: "internal"
         metallb.io/address-pool: external
         metallb.io/loadBalancerIPs: "172.31.0.30"
 
@@ -90,6 +92,7 @@ spec:
         annotations:
           external-dns.alpha.kubernetes.io/enabled: "true"
           external-dns.alpha.kubernetes.io/hostname: "traefik-external.layertwo.dev"
+          layertwo.dev/publish: "internal"
         entryPoints: ["websecure"]
         matchRule: Host(`traefik-external.layertwo.dev`)
 
