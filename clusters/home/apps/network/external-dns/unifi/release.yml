@@ -65,8 +65,8 @@ spec:
           initialDelaySeconds: 10
           timeoutSeconds: 5
     extraArgs:
-      - --annotation-filter=kubernetes.io/ingress.class in (internal)
       - --ignore-ingress-tls-spec
+      - --annotation-filter=layertwo.dev/publish in (internal, all)
     policy: sync
     sources:
       - service

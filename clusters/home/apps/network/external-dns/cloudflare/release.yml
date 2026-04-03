@@ -38,15 +38,13 @@ spec:
             name: *secret
             key: token
     extraArgs:
-      - --annotation-filter=kubernetes.io/ingress.class in (external)
+      - --ignore-ingress-tls-spec
       - --cloudflare-dns-records-per-page=1000
-      - --ingress-class=external
+      - --default-targets=proxy-external.layertwo.dev
+      - --annotation-filter=layertwo.dev/publish in (external, all)
     policy: sync
     sources:
-      - service
+      - ingress
       - traefik-proxy
-      - crd
     domainFilters:
       - layertwo.dev
-    serviceMonitor:
-      enabled: false
