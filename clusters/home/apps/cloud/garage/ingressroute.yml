@@ -25,6 +25,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/enabled: "true"
     external-dns.alpha.kubernetes.io/hostname: "s3.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
     layertwo.dev/publish: "all"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
@@ -49,6 +50,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/enabled: "true"
     external-dns.alpha.kubernetes.io/hostname: "*.s3.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
     layertwo.dev/publish: "external"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
@@ -73,6 +75,7 @@ metadata:
   annotations:
     external-dns.alpha.kubernetes.io/enabled: "true"
     external-dns.alpha.kubernetes.io/hostname: "*.s3-website.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
     layertwo.dev/publish: "external"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
