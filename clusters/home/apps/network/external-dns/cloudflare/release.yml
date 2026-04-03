@@ -39,6 +39,7 @@ spec:
             key: token
     extraArgs:
       - --ignore-ingress-tls-spec
+      - --cloudflare-proxied
       - --cloudflare-dns-records-per-page=1000
       - --default-targets=proxy-external.layertwo.dev
       - --annotation-filter=layertwo.dev/publish in (external, all)
