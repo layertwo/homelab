@@ -5,3 +5,4 @@ metadata:
   name: external-dns
   labels:
     name: external-dns
+    goldilocks.fairwinds.com/enabled: "true"

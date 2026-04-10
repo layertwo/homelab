@@ -5,3 +5,4 @@ metadata:
   name: democratic-csi
   labels:
     name: democratic-csi
+    goldilocks.fairwinds.com/enabled: "true"

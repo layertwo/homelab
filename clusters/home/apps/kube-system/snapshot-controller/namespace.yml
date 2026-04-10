@@ -5,3 +5,4 @@ metadata:
   name: snapshot-controller
   labels:
     name: snapshot-controller
+    goldilocks.fairwinds.com/enabled: "true"

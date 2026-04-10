@@ -4,3 +4,4 @@ metadata:
   name: mediabox
   labels:
     name: mediabox
+    goldilocks.fairwinds.com/enabled: "true"
