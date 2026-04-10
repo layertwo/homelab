@@ -1,4 +1,4 @@
-FROM python:3.14.3-slim
+FROM python:3.14.4-slim
 ARG UI_VERSION=v1.7.2
 
 RUN apt update && apt upgrade -y && \
