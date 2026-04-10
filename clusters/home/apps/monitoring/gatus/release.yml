@@ -47,6 +47,11 @@ spec:
           secretKeyRef:
             name: gatus-oidc
             key: CLIENT_SECRET
+      TRUENAS_API_KEY:
+        valueFrom:
+          secretKeyRef:
+            name: gatus-truenas
+            key: API_KEY
 
     persistence:
       config:
@@ -343,6 +348,40 @@ spec:
               success-threshold: 2
               send-on-resolved: true
               description: "truenas is down"
+
+        - name: truenas-system
+          group: infrastructure
+          url: https://sunbeam.layertwo.dev/api/v2.0/system/state
+          interval: 5m
+          headers:
+            Authorization: "Bearer ${TRUENAS_API_KEY}"
+          conditions:
+            - "[STATUS] == 200"
+            - "[BODY] == pat(*READY*)"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 2
+              success-threshold: 2
+              send-on-resolved: true
+              description: "truenas system is not ready"
+
+        - name: truenas-pool
+          group: infrastructure
+          url: https://sunbeam.layertwo.dev/api/v2.0/pool
+          interval: 5m
+          headers:
+            Authorization: "Bearer ${TRUENAS_API_KEY}"
+          conditions:
+            - "[STATUS] == 200"
+            - "[BODY] == pat(*\"status\": \"ONLINE\"*)"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 2
+              success-threshold: 2
+              send-on-resolved: true
+              description: "truenas pool is unhealthy"
 
         - name: garage
           group: infrastructure

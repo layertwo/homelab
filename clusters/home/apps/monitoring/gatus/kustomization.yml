@@ -5,6 +5,7 @@ namespace: monitoring
 resources:
   - release.yml
   - secrets-pushover.sops.yml
+  - secrets-truenas.sops.yml
   - ingressroute.yml
   - pdb.yml
   - postgres
