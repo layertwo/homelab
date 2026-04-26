@@ -100,12 +100,10 @@ spec:
           MINIO_LOCATION: garage
           MINIO_USE_SSL: true
         attachment: *s3
-        #mailer:
-        #  ENABLED: true
-        #  PROTOCOL: smtp
-        #  SMTP_ADDR: smtp-relay.networking.svc.cluster.local
-        #  SMTP_PORT: 2525
-        #  FROM: "Forgejo <git@${SECRET_DOMAIN}>"
+        mailer:
+          ENABLED: true
+          PROTOCOL: smtps
+          FROM: "Forgejo <noreply@code.layertwo.dev>"
         cache:
           ENABLED: true
           ADAPTER: redis
@@ -170,6 +168,26 @@ spec:
             secretKeyRef:
               name: secrets-forgejo-s3
               key: secret-key
+        - name: FORGEJO__mailer__USER
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-mailer
+              key: username
+        - name: FORGEJO__mailer__PASSWD
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-mailer
+              key: password
+        - name: FORGEJO__mailer__SMTP_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-mailer
+              key: host
+        - name: FORGEJO__mailer__SMTP_PORT
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-mailer
+              key: port
         - name: FORGEJO__DATABASE__USER
           valueFrom:
             secretKeyRef:
