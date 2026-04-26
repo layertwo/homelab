@@ -27,7 +27,7 @@ spec:
     controllers:
       main:
         annotations:
-          secret.reloader.stakater.com/reload: secrets-pocket-id
+          secret.reloader.stakater.com/reload: "auto"
         containers:
           pocket-id:
             image:
@@ -42,6 +42,13 @@ spec:
               TRUST_PROXY: "true"
               KEYS_STORAGE: "database"
               DB_PROVIDER: "postgres"
+              SMTP_PORT: "465"
+              SMTP_FROM: "noreply@idp.layertwo.dev"
+              SMTP_TLS: "tls"
+              EMAIL_LOGIN_NOTIFICATION_ENABLED: "false"
+              EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED: "true"
+              EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED_ENABLED: "false"
+              EMAIL_API_KEY_EXPIRATION_ENABLED: "false"
               DB_CONNECTION_STRING:
                 secretKeyRef:
                   name: cnpg-pocket-id-app
@@ -49,6 +56,8 @@ spec:
             envFrom:
               - secretRef:
                   name: secrets-pocket-id
+              - secretRef:
+                  name: secrets-smtp
             securityContext:
               allowPrivilegeEscalation: false
             resources:
