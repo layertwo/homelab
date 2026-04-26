@@ -4,6 +4,9 @@ kind: Kustomization
 resources:
   - secrets-forgejo-admin.sops.yml
   - secrets-forgejo-oidc.sops.yml
+  - secrets-forgejo-s3.sops.yml
+  - secrets-forgejo-signing.sops.yml
+  - secrets-forgejo-mailer.sops.yml
   - release.yml
   - ingressroute.yml
   - networkpolicy.yml

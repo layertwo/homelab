@@ -65,3 +65,7 @@ spec:
           protocol: TCP
         - port: 80
           protocol: TCP
+    # Allow SMTPS egress for outbound email
+    - ports:
+        - port: 465
+          protocol: TCP
