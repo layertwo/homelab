@@ -119,10 +119,8 @@ spec:
           value: code.layertwo.dev
         - name: FORGEJO__server__ROOT_URL
           value: https://code.layertwo.dev
-        - name: FORGEJO__server__SSH_DOMAIN
-          value: ssh.code.layertwo.dev
-        - name: FORGEJO__server__SSH_PORT
-          value: "22"
+        - name: FORGEJO__server__SSH_DISABLE
+          value: "true"
         - name: FORGEJO__security__LOGIN_REMEMBER_DAYS
           value: "7"
         - name: FORGEJO__other__SHOW_FOOTER_VERSION
@@ -135,13 +133,6 @@ spec:
           value: "false"
         - name: FORGEJO__EXPLORE__DISABLE_USERS_PAGE
           value: "true"
-
-    service:
-      ssh:
-        type: LoadBalancer
-        annotations:
-          metallb.io/address-pool: external
-        externalTrafficPolicy: Cluster
 
     ingress:
       enabled: false
