@@ -128,6 +128,15 @@ spec:
           SHOW_USER_EMAIL: false
         api:
           ENABLE_SWAGGER: false
+        repository.signing:
+          FORMAT: ssh
+          SIGNING_KEY: /data/git/.ssh-signing/key.pub
+          SIGNING_NAME: Forgejo
+          SIGNING_EMAIL: git@code.layertwo.dev
+          INITIAL_COMMIT: pubkey
+          WIKI: never
+          CRUD_ACTIONS: pubkey, parentsigned
+          MERGES: pubkey
 
       additionalConfigFromEnvs:
         - name: VALKEY_PASSWORD
@@ -181,6 +190,11 @@ spec:
             secretKeyRef:
               name: cnpg-forgejo-app
               key: password
+
+    signing:
+      enabled: true
+      ssh:
+        existingSecret: secrets-forgejo-signing
 
     ingress:
       enabled: false
