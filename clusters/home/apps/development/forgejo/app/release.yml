@@ -100,6 +100,12 @@ spec:
           MINIO_LOCATION: garage
           MINIO_USE_SSL: true
         attachment: *s3
+        lfs:
+          STORAGE_TYPE: minio
+          MINIO_ENDPOINT: s3.layertwo.dev
+          MINIO_BUCKET: forgejo-lfs
+          MINIO_LOCATION: garage
+          MINIO_USE_SSL: true
         mailer:
           ENABLED: true
           PROTOCOL: smtps
@@ -164,6 +170,16 @@ spec:
               name: secrets-forgejo-s3
               key: access-key
         - name: FORGEJO__attachment__MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: secret-key
+        - name: FORGEJO__lfs__MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: access-key
+        - name: FORGEJO__lfs__MINIO_SECRET_ACCESS_KEY
           valueFrom:
             secretKeyRef:
               name: secrets-forgejo-s3
