@@ -67,34 +67,100 @@ spec:
         indexer:
           ISSUE_INDEXER_TYPE: bleve
           REPO_INDEXER_ENABLED: true
+        server:
+          DOMAIN: code.layertwo.dev
+          SSH_DISABLE: true
+          ROOT_URL: https://code.layertwo.dev
+          LANDING_PAGE: explore
+        repository:
+          DEFAULT_BRANCH: main
+          DEFAULT_PRIVATE: true
+        repository.pull-request:
+          DEFAULT_DELETE_BRANCH_AFTER_MERGE: true
+          DEFAULT_MERGE_STYLE: squash
+        admin:
+          DISABLE_REGULAR_ORG_CREATION: true
+        service:
+          ALLOW_ONLY_EXTERNAL_REGISTRATION: true
+          DEFAULT_ENABLE_TIMETRACKING: false
+          ENABLE_INTERNAL_SIGNIN: false
+          DEFAULT_KEEP_EMAIL_PRIVATE: true
+          DISABLE_REGISTRATION: false
+          ENABLE_PASSKEY_AUTHENTICATION: false
+          ENABLE_PASSWORD_SIGNIN_FORM: false
+          SHOW_REGISTRATION_BUTTON: false
+          REQUIRE_SIGNIN_VIEW: true
+        cron:
+          ENABLED: true
+
+        storage: &s3
+          STORAGE_TYPE: minio
+          MINIO_ENDPOINT: s3.layertwo.dev
+          MINIO_BUCKET: forgejo
+          MINIO_LOCATION: garage
+          MINIO_USE_SSL: true
+        attachment: *s3
+        #mailer:
+        #  ENABLED: true
+        #  PROTOCOL: smtp
+        #  SMTP_ADDR: smtp-relay.networking.svc.cluster.local
+        #  SMTP_PORT: 2525
+        #  FROM: "Forgejo <git@${SECRET_DOMAIN}>"
+        cache:
+          ENABLED: true
+          ADAPTER: redis
+        queue:
+          TYPE: redis
+        session:
+          PROVIDER: redis
+        openid:
+          ENABLE_OPENID_SIGNIN: false
+          ENABLE_OPENID_SIGNUP: true
+          UPDATE_AVATAR: true
+          WHITELISTED_URIS: idp.layertwo.dev
+        other:
+          SHOW_FOOTER_TEMPLATE_LOAD_TIME: false
+          SHOW_FOOTER_VERSION: false
+          SHOW_FOOTER_POWERED_BY: false
+        security:
+          LOGIN_REMEMBER_DAYS: 7
+        ui:
+          SHOW_USER_EMAIL: false
+        api:
+          ENABLE_SWAGGER: false
+
       additionalConfigFromEnvs:
         - name: VALKEY_PASSWORD
           valueFrom:
             secretKeyRef:
               name: secrets-forgejo-valkey
               key: password
-        - name: FORGEJO__cache__ADAPTER
-          value: redis
         - name: FORGEJO__cache__HOST
           value: "redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/0"
-        - name: FORGEJO__queue__TYPE
-          value: redis
         - name: FORGEJO__queue__CONN_STR
           value: "redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/1"
-        - name: FORGEJO__SERVICE__DISABLE_REGISTRATION
-          value: "false"
-        - name: FORGEJO__SERVICE__ALLOW_ONLY_EXTERNAL_REGISTRATION
-          value: "true"
-        - name: FORGEJO__SERVICE__SHOW_REGISTRATION_BUTTON
-          value: "false"
-        - name: FORGEJO__SERVICE__REQUIRE_SIGNIN_VIEW
-          value: "true"
-        - name: FORGEJO__openid__ENABLE_OPENID_SIGNIN
-          value: "false"
-        - name: FORGEJO__openid__ENABLE_OPENID_SIGNUP
-          value: "true"
-        - name: FORGEJO__openid__WHITELISTED_URIS
-          value: "idp.layertwo.dev"
+        - name: FORGEJO__session__PROVIDER_CONFIG
+          value: "redis://:$(VALKEY_PASSWORD)@forgejo-valkey:6379/2"
+        - name: FORGEJO__storage__MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: access-key
+        - name: FORGEJO__storage__MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: secret-key
+        - name: FORGEJO__attachment__MINIO_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: access-key
+        - name: FORGEJO__attachment__MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: secrets-forgejo-s3
+              key: secret-key
         - name: FORGEJO__DATABASE__USER
           valueFrom:
             secretKeyRef:
@@ -115,24 +181,6 @@ spec:
             secretKeyRef:
               name: cnpg-forgejo-app
               key: password
-        - name: FORGEJO__server__DOMAIN
-          value: code.layertwo.dev
-        - name: FORGEJO__server__ROOT_URL
-          value: https://code.layertwo.dev
-        - name: FORGEJO__server__SSH_DISABLE
-          value: "true"
-        - name: FORGEJO__security__LOGIN_REMEMBER_DAYS
-          value: "7"
-        - name: FORGEJO__other__SHOW_FOOTER_VERSION
-          value: "false"
-        - name: FORGEJO__other__SHOW_FOOTER_TEMPLATE_LOAD_TIME
-          value: "false"
-        - name: FORGEJO__other__SHOW_FOOTER_POWERED_BY
-          value: "false"
-        - name: FORGEJO__api__ENABLE_SWAGGER
-          value: "false"
-        - name: FORGEJO__EXPLORE__DISABLE_USERS_PAGE
-          value: "true"
 
     ingress:
       enabled: false
