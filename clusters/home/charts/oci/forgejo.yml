@@ -7,5 +7,5 @@ spec:
   interval: 15m
   provider: generic
   ref:
-    tag: 17.0.0
+    tag: 17.0.1
   url: oci://code.forgejo.org/forgejo-helm/forgejo
