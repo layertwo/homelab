@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: app-template
-      version: 3.7.3
+      version: 5.0.0
       sourceRef:
         kind: HelmRepository
         name: bjw-s
@@ -74,13 +74,13 @@ spec:
                 spec:
                   httpGet:
                     path: /api/server/ping
-                    port: &http 2283 
+                    port: &http 2283
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
                   failureThreshold: 3
               readiness: *probes
-              startup: 
+              startup:
                 enabled: true
                 custom: true
                 spec:
@@ -123,7 +123,6 @@ spec:
                 enabled: false
     service:
       server:
-        nameOverride: server
         enabled: true
         type: ClusterIP
         controller: server
@@ -142,7 +141,6 @@ spec:
             port: 8082
             protocol: HTTP
       machine-learning:
-        nameOverride: machine-learning
         enabled: true
         type: ClusterIP
         controller: machine-learning
@@ -161,6 +159,7 @@ spec:
         existingClaim: immich-data
       cache:
         enabled: true
+        forceRename: immich-cache
         storageClass: sunbeam-nfs-csi
         accessMode: ReadWriteMany
         size: 10Gi
