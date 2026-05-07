@@ -16,6 +16,8 @@ spec:
   interval: 60m
   values:
     installCRDs: true
+    dns01RecursiveNameservers: "1.1.1.1:53,8.8.8.8:53"
+    dns01RecursiveNameserversOnly: true
     global:
       crds:
         enabled: true
@@ -28,7 +30,6 @@ spec:
           memory: 128Mi
 
       enableCertificateOwnerRef: true
-      dns01RecursiveNameservers: "1.1.1.1"
 
       leaderElection:
         namespace: cert-manager
