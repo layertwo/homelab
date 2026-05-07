@@ -96,6 +96,7 @@ spec:
     persistence:
       config:
         enabled: true
+        forceRename: home-assistant-config
         type: persistentVolumeClaim
         storageClass: sunbeam-iscsi-csi
         accessMode: "ReadWriteOnce"

@@ -74,6 +74,7 @@ spec:
     persistence:
       config:
         enabled: true
+        forceRename: zwave-js-ui-config
         storageClass: sunbeam-nfs-csi
         accessMode: ReadWriteOnce
         size: 1Gi

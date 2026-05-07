@@ -93,6 +93,7 @@ spec:
     persistence:
       config:
         enabled: true
+        forceRename: zigbee2mqtt-config
         storageClass: sunbeam-nfs-csi
         accessMode: "ReadWriteOnce"
         size: 1Gi
