@@ -13,7 +13,7 @@ RUN git clone --depth=1 --branch ${HERMES_REF} \
 # renovate: datasource=docker depName=node
 FROM node:24.15.0-trixie-slim AS node
 # renovate: datasource=docker depName=ghcr.io/astral-sh/uv
-FROM ghcr.io/astral-sh/uv:0.11.11 AS uv
+FROM ghcr.io/astral-sh/uv:0.11.12 AS uv
 
 # ---------- Build stage ----------
 # renovate: datasource=docker depName=python
