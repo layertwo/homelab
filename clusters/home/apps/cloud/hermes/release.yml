@@ -52,6 +52,9 @@ spec:
               GATEWAY_ALLOW_ALL_USERS: "false"
               HERMES_DASHBOARD: "1"
               HERMES_DASHBOARD_HOST: 0.0.0.0
+              API_SERVER_ENABLED: "true"
+              API_SERVER_HOST: 0.0.0.0
+              API_SERVER_MODEL_NAME: hermes-agent
             envFrom:
               - secretRef:
                   name: secrets-hermes
@@ -93,6 +96,10 @@ spec:
             enabled: true
             primary: true
             port: *dashboardPort
+            protocol: HTTP
+          api:
+            enabled: true
+            port: 8642
             protocol: HTTP
 
     persistence:
