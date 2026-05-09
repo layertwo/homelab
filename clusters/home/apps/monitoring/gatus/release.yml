@@ -80,6 +80,20 @@ spec:
 
       endpoints:
 
+        - name: hermes-agent
+          group: ai
+          url: https://hermes.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "hermes-agent is down"
+
         - name: saml-bridge
           group: infrastructure
           url: https://aws-sso.layertwo.dev/health
