@@ -61,13 +61,13 @@ spec:
 
     extraEnvVars:
       - name: WEBUI_URL
-        value: https://ai.layertwo.dev
+        value: https://pythia.layertwo.dev
       - name: ENABLE_SIGNUP
         value: "false"
 
     sso:
       enabled: true
-      enableSignup: true
+      enableSignup: false
       oidc:
         enabled: true
         providerName: layertwo

@@ -6,16 +6,16 @@ metadata:
   namespace: openwebui
   annotations:
     external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "ai.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
-    layertwo.dev/publish: "internal"
+    external-dns.alpha.kubernetes.io/hostname: "pythia.layertwo.dev"
+    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
+    layertwo.dev/publish: "all"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
-    kubernetes.io/ingress.class: internal
+    kubernetes.io/ingress.class: external
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`ai.layertwo.dev`)
+    - match: Host(`pythia.layertwo.dev`)
       kind: Rule
       services:
         - name: open-webui
