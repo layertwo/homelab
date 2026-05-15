@@ -17,7 +17,7 @@ FROM ghcr.io/astral-sh/uv:0.11.14 AS uv
 
 # ---------- Build stage ----------
 # renovate: datasource=docker depName=python
-FROM python:3.14.4-slim-trixie AS build
+FROM python:3.14.5-slim-trixie AS build
 
 ENV PYTHONUNBUFFERED=1 \
     PLAYWRIGHT_BROWSERS_PATH=/opt/hermes/.playwright \
@@ -53,7 +53,7 @@ RUN npx playwright install --with-deps chromium --only-shell
 
 # ---------- Runtime stage ----------
 # renovate: datasource=docker depName=python
-FROM python:3.14.4-slim-trixie
+FROM python:3.14.5-slim-trixie
 
 ENV PYTHONUNBUFFERED=1 \
     PLAYWRIGHT_BROWSERS_PATH=/opt/hermes/.playwright \
