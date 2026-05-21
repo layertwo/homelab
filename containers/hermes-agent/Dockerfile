@@ -11,7 +11,7 @@ RUN git clone --depth=1 --branch ${HERMES_REF} \
 
 # ---------- Pinned tool images (copy-only) ----------
 # renovate: datasource=docker depName=node
-FROM node:24.15.0-trixie-slim AS node
+FROM node:24.16.0-trixie-slim AS node
 # renovate: datasource=docker depName=ghcr.io/astral-sh/uv
 FROM ghcr.io/astral-sh/uv:0.11.15 AS uv
 
