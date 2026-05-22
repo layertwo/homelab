@@ -23,3 +23,5 @@ spec:
         location: home
       frr:
         enabled: false
+    frrk8s:
+      enabled: false
