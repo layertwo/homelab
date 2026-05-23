@@ -49,7 +49,7 @@ spec:
                     optional: false
               - name: ENABLE_PROXY
                 value: "true"
-            image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:5d05086c0de5486b7694f3b7e92410baaa5ca447d5c6f4f1e0d6b0f2bcf591c0
+            image: ghcr.io/layertwo/cloudflare-ddns:latest@sha256:0444858dd38be347bdb0ec432b2c0c8473dba4b2fecf1aaad0bf8b954c6b39dd
           restartPolicy: OnFailure
           dnsConfig:
             nameservers:
