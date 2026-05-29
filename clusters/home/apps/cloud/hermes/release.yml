@@ -43,7 +43,7 @@ spec:
           gateway:
             image:
               repository: nousresearch/hermes-agent
-              tag: v2026.5.28
+              tag: v2026.5.29
             args: ["gateway", "run"]
             env:
               TZ: Etc/UTC
