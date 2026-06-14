@@ -21,6 +21,9 @@ spec:
         reloader.stakater.com/auto: "true"
     controllers:
       main:
+        # RWO iSCSI volumes: terminate the old pod (and detach its volumes)
+        # before starting a new one, to avoid Multi-Attach during rollouts.
+        strategy: Recreate
         initContainers:
           render-config:
             image:
