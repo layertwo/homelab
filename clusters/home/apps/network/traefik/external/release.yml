@@ -12,7 +12,7 @@ spec:
         kind: HelmRepository
         name: traefik
         namespace: flux-system
-      version: 40.3.0
+      version: 41.0.0
   interval: 60m
   timeout: 10m
   dependsOn:
@@ -138,9 +138,8 @@ spec:
         publishedService:
           enabled: false
 
-    logs:
-      access:
-        enabled: true
+    accessLog:
+      enabled: true
 
     experimental:
       plugins:
