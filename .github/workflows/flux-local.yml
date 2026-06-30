@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Setup Flux CLI
-        uses: fluxcd/flux2/action@v2.8.8
+        uses: fluxcd/flux2/action@v2.9.0
       - uses: allenporter/flux-local/action/diff@8.3.0
         id: diff
         with:
