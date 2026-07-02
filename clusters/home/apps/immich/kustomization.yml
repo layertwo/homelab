@@ -8,4 +8,3 @@ resources:
   - namespace.yml
   - pvc.yml
   - secrets-volsync.sops.yml
-  - volsync.yml
