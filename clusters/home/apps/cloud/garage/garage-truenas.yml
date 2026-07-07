@@ -1,0 +1,32 @@
+---
+# ponytail: static IP/port pointer to the TrueNAS app, update here if it moves or is re-published
+apiVersion: v1
+kind: Service
+metadata:
+  name: garage-truenas
+  namespace: garage
+spec:
+  ports:
+    - name: s3
+      port: 30188
+    - name: web
+      port: 30189
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: garage-truenas
+  namespace: garage
+  labels:
+    kubernetes.io/service-name: garage-truenas
+addressType: IPv4
+ports:
+  - name: s3
+    port: 30188
+    protocol: TCP
+  - name: web
+    port: 30189
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 172.31.0.8
