@@ -10,3 +10,4 @@ resources:
   - release.yml
   - cert.yml
   - ingressroute.yml
+  - garage-truenas.yml
