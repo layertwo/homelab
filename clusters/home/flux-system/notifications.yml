@@ -22,3 +22,28 @@ spec:
       name: flux-system
     - kind: Kustomization
       name: apps
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: pushover
+  namespace: flux-system
+spec:
+  type: generic
+  secretRef:
+    name: pushover
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: pushover
+  namespace: flux-system
+spec:
+  providerRef:
+    name: pushover
+  eventSeverity: error
+  eventSources:
+    - kind: Kustomization
+      name: '*'
+    - kind: HelmRelease
+      name: '*'

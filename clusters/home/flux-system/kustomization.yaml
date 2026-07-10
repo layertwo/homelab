@@ -4,4 +4,5 @@ resources:
 - gotk-components.yaml
 - gotk-sync.yaml
 - secrets-github-commit-status.sops.yml
+- secrets-pushover.sops.yml
 - notifications.yml
