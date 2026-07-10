@@ -1,4 +1,4 @@
-name: flux-local
+name: flux-diff
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches: [ "mainline" ]
     paths:
       - clusters/home/**
-      - .github/workflows/flux-local.yml
+      - .github/workflows/flux-diff.yml
 
 jobs:
 
@@ -18,15 +18,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
-      - name: Setup Flux CLI
-        uses: fluxcd/flux2/action@v2.9.1
-      - uses: allenporter/flux-local/action/diff@8.4.0
-        id: diff
         with:
-          live-branch: mainline
-          path: clusters/home
-          resource: helmrelease
-          skip-invalid-kustomization-paths: true
+          fetch-depth: "0"
+      - uses: fluxcd/flux2/action@v2.9.1
+      - uses: home-operations/flate/action@v0.4.10
+        with:
+          cache: true
+      - id: diff
+        env:
+          FLATE_OUTPUT: github
+          FLATE_BASE: mainline
+          FLATE_PATH: ./clusters/home
+        run: |
+          diff=$(flate diff all)
+          {
+            echo 'diff<<EOF'
+            echo "${diff}"
+            echo 'EOF'
+          } >> "${GITHUB_OUTPUT}"
 
       - name: PR Comments
         uses: mshick/add-pr-comment@v3.12
