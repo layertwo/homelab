@@ -20,3 +20,5 @@ spec:
   eventSources:
     - kind: Kustomization
       name: flux-system
+    - kind: Kustomization
+      name: apps
