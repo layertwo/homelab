@@ -1,0 +1,22 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Provider
+metadata:
+  name: github-commit-status
+  namespace: flux-system
+spec:
+  type: github
+  address: https://github.com/layertwo/homelab
+  secretRef:
+    name: github-commit-status
+---
+apiVersion: notification.toolkit.fluxcd.io/v1beta3
+kind: Alert
+metadata:
+  name: github-commit-status
+  namespace: flux-system
+spec:
+  providerRef:
+    name: github-commit-status
+  eventSources:
+    - kind: Kustomization
+      name: flux-system
