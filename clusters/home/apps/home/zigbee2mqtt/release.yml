@@ -52,7 +52,7 @@ spec:
               ZIGBEE2MQTT_CONFIG_MQTT_INCLUDE_DEVICE_INFORMATION: "true"
               ZIGBEE2MQTT_CONFIG_MQTT_KEEPALIVE: 60
               ZIGBEE2MQTT_CONFIG_MQTT_REJECT_UNAUTHORIZED: "true"
-              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://mqtt-listeners.home-assistant.svc.cluster.local:1883
+              ZIGBEE2MQTT_CONFIG_MQTT_SERVER: mqtt://homeassistant.layertwo.lan:1883
               ZIGBEE2MQTT_CONFIG_MQTT_VERSION: 5
               ZIGBEE2MQTT_CONFIG_PERMIT_JOIN: "false"
               ZIGBEE2MQTT_CONFIG_SERIAL_BAUDRATE: "57600"
@@ -71,18 +71,6 @@ spec:
               requests:
                 cpu: 15m
                 memory: 150Mi
-    defaultPodOptions:
-      dnsPolicy: None
-      dnsConfig:
-        nameservers:
-          - 10.43.0.10
-        searches:
-          - home-assistant.svc.cluster.local
-          - svc.cluster.local
-          - cluster.local
-        options:
-          - name: ndots
-            value: "5"
     service:
       main:
         enabled: true

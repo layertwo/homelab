@@ -48,18 +48,6 @@ spec:
               requests:
                 cpu: 15m
                 memory: 150Mi
-    defaultPodOptions:
-      dnsPolicy: None
-      dnsConfig:
-        nameservers:
-          - 10.43.0.10
-        searches:
-          - home-assistant.svc.cluster.local
-          - svc.cluster.local
-          - cluster.local
-        options:
-          - name: ndots
-            value: "5"
     service:
       main:
         enabled: true
