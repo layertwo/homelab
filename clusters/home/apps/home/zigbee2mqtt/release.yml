@@ -63,10 +63,6 @@ spec:
                   name: secrets-zigbee2mqtt
             securityContext:
               privileged: true
-              ulimits:
-              - name: nofile
-                softLimit: 4096
-                hardLimit: 65536
             resources:
               requests:
                 cpu: 15m
