@@ -481,6 +481,20 @@ spec:
               send-on-resolved: true
               description: "cloudtak-media is down"
 
+        - name: vaultwarden
+          group: security
+          url: https://vault.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "vaultwarden is down"
+
       alerting:
         pushover:
           application-token: "${PUSHOVER_TOKEN}"
