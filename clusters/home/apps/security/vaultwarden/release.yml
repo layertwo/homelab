@@ -86,3 +86,13 @@ spec:
       clientSecret:
         existingSecretKey: client-secret
 
+    smtp:
+      host: smtp.purelymail.com
+      from: noreply@vault.layertwo.dev
+      existingSecret: secrets-smtp
+      username:
+        existingSecretKey: SMTP_USERNAME
+      password:
+        existingSecretKey: SMTP_PASSWORD
+
+    requireDeviceEmail: true
