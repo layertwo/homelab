@@ -108,34 +108,6 @@ spec:
               send-on-resolved: true
               description: "pythia is down"
 
-        - name: saml-bridge
-          group: infrastructure
-          url: https://aws-sso.layertwo.dev/health
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "saml-bridge is down"
-
-        - name: pocket-id
-          group: infrastructure
-          url: https://idp.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "pocket-id is down"
-
         - name: send
           group: external
           url: https://send.layertwo.dev
@@ -438,6 +410,34 @@ spec:
               success-threshold: 2
               send-on-resolved: true
               description: "cloudtak-media is down"
+
+        - name: pocket-id
+          group: security
+          url: https://idp.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "pocket-id is down"
+
+        - name: saml-bridge
+          group: security
+          url: https://aws-sso.layertwo.dev/health
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "saml-bridge is down"
 
         - name: vaultwarden
           group: security
