@@ -1,0 +1,88 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  interval: 15m
+  timeout: 10m
+  chart:
+    spec:
+      chart: vaultwarden
+      version: v0.43.1
+      sourceRef:
+        kind: HelmRepository
+        name: vaultwarden
+        namespace: flux-system
+      interval: 15m
+  values:
+    image:
+      registry: ghcr.io
+      repository: dani-garcia/vaultwarden
+      tag: 1.36.0
+
+    extraVolumes:
+      - name: vaultwarden-rsa-key
+        secret:
+          secretName: vaultwarden-rsa-key
+      - name: vaultwarden-attachments
+        persistentVolumeClaim:
+          claimName: vaultwarden-attachments
+    extraVolumeMounts:
+      - name: vaultwarden-rsa-key
+        mountPath: /data/rsa_key.pem
+        subPath: rsa_key.pem
+        readOnly: true
+      - name: vaultwarden-attachments
+        mountPath: /data/attachments
+
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+
+    replicas: 2
+    podDisruptionBudget:
+      enabled: true
+      minAvailable: 1
+
+    adminToken:
+      existingSecret: secrets-vaultwarden-admin
+      existingSecretKey: ADMIN_TOKEN
+
+    resources:
+      requests:
+        cpu: 15m
+        memory: 100Mi
+      limits:
+        memory: 256Mi
+
+    database:
+      type: postgresql
+      existingSecret: cnpg-vaultwarden-app
+      existingSecretKey: uri
+
+    service:
+      sessionAffinity: ClientIP
+      sessionAffinityConfig:
+        clientIP:
+          timeoutSeconds: 10800
+
+    domain: https://vault.layertwo.dev
+
+    sso:
+      enabled: true
+      authority: "https://idp.layertwo.dev"
+      scopes: "email profile groups offline_access"
+      pkce: true
+      signupsMatchEmail: true
+      onlySSO: true
+      enforceSSO: true
+      existingSecret: secrets-vaultwarden-oidc
+      clientId:
+        existingSecretKey: client-id
+      clientSecret:
+        existingSecretKey: client-secret
+
