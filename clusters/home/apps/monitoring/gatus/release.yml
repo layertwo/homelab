@@ -279,48 +279,6 @@ spec:
               send-on-resolved: true
               description: "sonarr is down"
 
-        - name: home-assistant
-          group: home
-          url: https://hass.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "home-assistant is down"
-
-        - name: mqtt-dashboard
-          group: home
-          url: https://mqtt-dashboard.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "mqtt-dashboard is down"
-
-        - name: mqtt-listeners
-          group: home
-          url: tcp://mqtt-listeners.home-assistant.svc.cluster.local:1883
-          interval: 1m
-          conditions:
-            - "[CONNECTED] == true"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "mqtt-listeners is down"
-
         - name: zigbee2mqtt
           group: home
           url: https://zigbee.layertwo.dev
