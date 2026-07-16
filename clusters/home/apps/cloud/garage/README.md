@@ -1,16 +1,14 @@
 # Garage
 
-Self-hosted S3-compatible object storage running on Kubernetes.
+Self-hosted S3-compatible object storage. Runs as a TrueNAS app (not in Kubernetes) —
+this directory only holds the IngressRoutes/cert/Service pointer that route
+`s3.layertwo.dev` traffic to it.
 
 - S3 API: `https://*.s3.layertwo.dev` / `https://s3.layertwo.dev`
 - S3 Website: `https://*.s3-website.layertwo.dev`
-- Admin API: `https://garage-admin.layertwo.dev`
 
-All commands exec into the pod. The `garage` binary is at `/garage`.
-
-```sh
-alias gexec='kubectl exec -n garage deploy/garage -- /garage'
-```
+Admin commands (`garage bucket/key/...`) run from a shell on the TrueNAS app
+itself, not via `kubectl exec` — there's no in-cluster pod anymore.
 
 ## Cluster layout
 
