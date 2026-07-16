@@ -23,7 +23,7 @@ spec:
     - name: compress
       namespace: garage
     services:
-    - name: garage
+    - name: garage-truenas
       namespace: garage
-      port: 3902
+      port: 30189
       serversTransport: garage-transport
