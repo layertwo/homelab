@@ -25,5 +25,5 @@ spec:
     services:
     - name: garage-truenas
       namespace: garage
-      port: 30189
+      port: web
       serversTransport: garage-transport

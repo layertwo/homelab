@@ -38,7 +38,7 @@ spec:
     kind: Rule
     services:
     - name: garage-truenas
-      port: 30188
+      port: s3
       serversTransport: garage-transport
   tls:
     secretName: s3-layertwo-dev-tls
@@ -64,7 +64,7 @@ spec:
     kind: Rule
     services:
     - name: garage-truenas
-      port: 30188
+      port: s3
       serversTransport: garage-transport
   tls:
     secretName: s3-layertwo-dev-tls
@@ -92,7 +92,7 @@ spec:
     - name: compress
     services:
     - name: garage-truenas
-      port: 30189
+      port: web
       serversTransport: garage-transport
   tls:
     secretName: s3-website-layertwo-dev-tls

@@ -294,7 +294,7 @@ spec:
               description: "goldilocks is down"
 
         - name: truenas
-          group: infrastructure
+          group: storage
           url: https://sunbeam.layertwo.dev
           interval: 1m
           conditions:
@@ -308,7 +308,7 @@ spec:
               description: "truenas is down"
 
         - name: truenas-system
-          group: infrastructure
+          group: storage
           url: https://sunbeam.layertwo.dev/api/v2.0/system/state
           interval: 5m
           headers:
@@ -325,7 +325,7 @@ spec:
               description: "truenas system is not ready"
 
         - name: truenas-pool
-          group: infrastructure
+          group: storage
           url: https://sunbeam.layertwo.dev/api/v2.0/pool
           interval: 5m
           headers:
@@ -342,7 +342,7 @@ spec:
               description: "truenas pool is unhealthy"
 
         - name: garage
-          group: infrastructure
+          group: storage
           url: https://s3.layertwo.dev
           interval: 1m
           conditions:
