@@ -10,9 +10,10 @@ The media management stack is a collection of applications that work together to
 - **Radarr**: Movie management
 - **Bazarr**: Subtitle management
 - **Prowlarr**: Indexer management
-- **qBittorrent**: Download client
+- **qBittorrent**: Download client (routed through a Gluetun VPN sidecar)
 - **Jellyfin**: Media server
 - **Recyclarr**: Configuration management for *arr apps
+- **FlareSolverr**: Helps Prowlarr solve Cloudflare/anti-bot challenges on indexers
 
 ## Architecture
 
@@ -35,8 +36,10 @@ Sonarr is an application that manages TV shows. It can automatically search for 
 #### Configuration
 
 - **URL**: sonarr.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Media Path**: /media/tv
+- **Storage**: PVC for configuration; database is a dedicated CloudNativePG (CNPG) PostgreSQL cluster
+- **Media Paths**:
+  - /shows
+  - /downloads
 
 ### Radarr
 
@@ -45,8 +48,10 @@ Radarr is an application that manages movies. It can automatically search for an
 #### Configuration
 
 - **URL**: radarr.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Media Path**: /media/movies
+- **Storage**: PVC for configuration; database is a dedicated CloudNativePG (CNPG) PostgreSQL cluster
+- **Media Paths**:
+  - /movies
+  - /downloads
 
 ### Bazarr
 
@@ -55,10 +60,10 @@ Bazarr is an application that manages subtitles. It can automatically search for
 #### Configuration
 
 - **URL**: bazarr.layertwo.dev
-- **Storage**: PVC for configuration and database
+- **Storage**: PVC for configuration; database is a dedicated CloudNativePG (CNPG) PostgreSQL cluster
 - **Media Paths**:
-  - /media/tv
-  - /media/movies
+  - /movies
+  - /tv
 
 ### Prowlarr
 
@@ -67,17 +72,21 @@ Prowlarr is an application that manages indexers. It provides a unified interfac
 #### Configuration
 
 - **URL**: prowlarr.layertwo.dev
-- **Storage**: PVC for configuration and database
+- **Storage**: PVC for configuration; database is a dedicated CloudNativePG (CNPG) PostgreSQL cluster
+
+### FlareSolverr
+
+FlareSolverr is a proxy server that solves Cloudflare and other anti-bot challenges. It is deployed alongside the rest of the stack and used by Prowlarr to work around indexers protected by these challenges.
 
 ### qBittorrent
 
-qBittorrent is a download client that handles the actual downloading of content.
+qBittorrent is a download client that handles the actual downloading of content. All torrent traffic is routed through a **Gluetun** VPN sidecar container, paired with a **port-forward manager** sidecar that keeps qBittorrent's listening port in sync with the VPN provider's dynamically assigned forwarded port.
 
 #### Configuration
 
-- **URL**: qbittorrent.layertwo.dev
+- **URL**: qt.layertwo.dev
 - **Storage**: PVC for configuration and downloads
-- **Download Path**: /downloads
+- **Download Path**: /data/downloads
 
 ### Jellyfin
 
@@ -88,8 +97,8 @@ Jellyfin is a media server that provides a web interface for browsing and stream
 - **URL**: jellyfin.layertwo.dev
 - **Storage**: PVC for configuration and metadata
 - **Media Paths**:
-  - /media/tv
-  - /media/movies
+  - /movies
+  - /tv
 
 ### Recyclarr
 
@@ -104,26 +113,27 @@ Recyclarr is a tool that synchronizes recommended settings from the TRaSH guides
 
 The media stack uses persistent storage for both configuration and media content:
 
-- **Configuration**: Each application has its own PVC for storing configuration and databases
-- **Media**: Shared storage is used for media content, with separate directories for TV shows and movies
+- **Configuration**: Each application has its own PVC for storing configuration
+- **Databases**: Sonarr, Radarr, Bazarr, and Prowlarr each use a dedicated CloudNativePG (CNPG) PostgreSQL cluster instead of an embedded database on the config PVC
+- **Media**: Shared NFS storage is used for media content, with separate directories for TV shows, movies, and downloads
 
 ## Networking
 
-The media stack is exposed through the internal Traefik instance:
+The media stack is exposed through the external Traefik instance:
 
 - Each application has its own subdomain (e.g., sonarr.layertwo.dev)
-- Authentication is handled by Authentik
+- Authentication is handled by Pocket ID via an OIDC Traefik Middleware (`mediabox-oidc`)
 
 ## Maintenance
 
 ### Updating
 
-The applications are updated automatically through Flux CD when new versions are available in the Helm repositories.
+Chart versions and image tags are pinned exactly rather than tracking a floating tag. Updates are proposed by Renovate bot as pull requests; once a PR is merged, Flux CD picks up the new pinned version and applies it.
 
 ### Backup
 
-- Configuration is backed up using VolSync
-- Media content should be backed up separately if needed
+- There is no VolSync (or other automated) backup configured for any mediabox application's configuration
+- Media content backup depends on the underlying NFS storage, not any in-cluster process
 
 ## Troubleshooting
 

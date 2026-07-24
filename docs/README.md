@@ -9,13 +9,17 @@ The homelab is a GitOps-managed Kubernetes cluster built with K3S, Flux CD, and 
 ## Documentation Structure
 
 - [Networking](networking.md): Details about the networking setup, including MetalLB, Traefik, and DNS configuration
-- [Storage](storage.md): Information about the storage setup, including Democratic CSI, Longhorn, and backup strategy
+- [Storage](storage.md): Information about the storage setup, including HPE CSI iSCSI (`sunbeam-iscsi-csi`, default) and Democratic CSI NFS, plus backup strategy
 - [Media Stack](media-stack.md): Documentation for the media management applications, including Sonarr, Radarr, and Jellyfin
-- [Home Automation](home-automation.md): Details about the home automation setup, including Home Assistant, MQTT, and device integration
-- [Monitoring](monitoring.md): Information about the monitoring stack, including Gatus health checking
-  - [Gatus PostgreSQL Backend](gatus-postgres.md): Details about the PostgreSQL backend implementation for Gatus
+- [Home Automation](home-automation.md): Details about the home automation setup, now largely moved off-cluster; the cluster only provides a thin passthrough to an external Home Assistant host
+- [Monitoring](monitoring.md): Information about the monitoring stack, including Gatus health checking and its PostgreSQL backend
 - [Authentication](authentication.md): Documentation for the authentication setup using Pocket ID
 - [Backup Strategy](backup-strategy.md): Details about the backup strategy, including VolSync, CloudNative PG backups, and Cloudflare R2
+
+Other core apps without dedicated docs pages yet:
+
+- **Immich** (photo/video management) — deployed under `clusters/home/apps/immich`
+- **Garage** (S3-compatible object storage, hosted on TrueNAS) — deployed under `clusters/home/apps/cloud/garage`, which has its own [README](../clusters/home/apps/cloud/garage/README.md)
 
 ## Getting Started
 

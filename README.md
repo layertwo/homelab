@@ -8,10 +8,14 @@ This repository contains the configuration for a complete homelab infrastructure
 
 The homelab includes:
 - Media management (Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, Prowlarr, Recyclarr)
-- Home automation (Home Assistant, MQTT, Zigbee2MQTT, Z-Wave JS UI)
+- Home automation (Home Assistant — runs on an external host, cluster only provides a thin passthrough)
 - Photo management (Immich)
 - Cloud file sharing (Send)
-- Cloud storage (Garage S3)
+- Cloud storage (Garage S3, hosted as a TrueNAS app)
+- TAK server (CloudTAK)
+- Git hosting & CI/CD (Forgejo)
+- Password management (Vaultwarden)
+- AI chat & agents (OpenWebUI, Hermes)
 - Authentication/SSO (Pocket ID)
 - Monitoring (Gatus)
 
@@ -41,15 +45,15 @@ The network is managed by:
   - Internal Traefik (172.31.0.20): For internal services
   - External Traefik (172.31.0.30): For external access with TLS configuration
 
-- **External DNS**: Automatically manages DNS records in Cloudflare
+- **External DNS**: Two instances manage DNS automatically — `external-dns-cloudflare` publishes external-class records to Cloudflare, and `external-dns-unifi` publishes internal-class records (`layertwo.dev`, `layertwo.lan`) to the UniFi gateway
 
 - **Cloudflare DDNS**: Custom container that updates Cloudflare DNS records with the current external IP
 
 ### Storage Architecture
 
 Storage is provided by:
-- **Democratic CSI**: Connects to a TrueNAS server (sunbeam.layertwo.lan) for NFS storage
-- **Longhorn**: Distributed block storage for Kubernetes
+- **Democratic CSI**: Connects to a TrueNAS server (sunbeam.layertwo.lan) for NFS storage (`sunbeam-nfs-csi`, RWX capable)
+- **HPE CSI**: Connects to the same TrueNAS server over iSCSI for block storage (`sunbeam-iscsi-csi`, RWO)
 
 ### Backup Strategy
 
@@ -67,7 +71,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 - **SOPS**: Secrets management with encryption
 - **VolSync**: Persistent volume backup and restore
 - **Democratic CSI**: CSI driver for TrueNAS NFS storage
-- **Longhorn**: Distributed block storage
+- **HPE CSI**: CSI driver for TrueNAS iSCSI block storage
 - **System Upgrade Controller**: Manages K3S upgrades
 
 ### Networking Components
@@ -80,7 +84,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Storage Components
 
 - **Democratic CSI**: CSI driver for TrueNAS NFS storage
-- **Longhorn**: Distributed block storage
+- **HPE CSI**: CSI driver for TrueNAS iSCSI block storage
 - **CloudNative PG**: PostgreSQL operator
 
 ### Security Components
@@ -118,7 +122,22 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Cloud Services
 
 - **Send**: Self-hosted file/secret sharing (Firefox Send fork)
-- **Garage**: S3-compatible distributed object storage
+- **Garage**: S3-compatible object storage, hosted as a TrueNAS app (the in-cluster directory only holds the IngressRoute/cert/Service pointer)
+- **Website**: Static site serving layertwo.dev
+- **OpenWebUI**: Web UI for interacting with LLMs
+- **Hermes**: AI agent gateway
+
+### TAK Server
+
+- **CloudTAK**: Browser-based TAK (Team Awareness Kit) client and media streaming server
+
+### Development
+
+- **Forgejo**: Self-hosted git service with CI/CD via Forgejo Actions runners
+
+### Password Management
+
+- **Vaultwarden**: Self-hosted password manager (Bitwarden-compatible)
 
 ### Authentication
 
@@ -130,9 +149,9 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 
 A Python script that updates DNS records on Cloudflare dynamically. It retrieves the external IP address of the machine it's running on and updates the specified DNS record accordingly.
 
-### bird
+### oidc-saml-bridge
 
-A packaging of the BIRD routing software for use with PureLB, a load-balancer orchestrator for Kubernetes clusters.
+Bridges an OpenID Connect (OIDC) identity provider to SAML 2.0 service providers, connecting Pocket ID to AWS IAM Identity Center (which only supports SAML 2.0 for external identity providers).
 
 ## Setup and Bootstrap
 

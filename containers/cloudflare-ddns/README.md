@@ -5,7 +5,7 @@ This Python script allows you to update DNS records on CloudFlare dynamically. I
 ## Prerequisites
 
 - Python 3.x
-- Dependencies listed in `requirements.txt`
+- Dependencies declared in `pyproject.toml` (`[project]` dependencies), installed via `pip install -e .`
 - Access to a CloudFlare account with appropriate permissions
 - Environment variables set up for CloudFlare API token (`TOKEN`), zone ID (`ZONE_ID`), DNS name (`DNS_NAME`), and optionally for proxy status (`ENABLE_PROXY`)
 
@@ -19,7 +19,7 @@ This Python script allows you to update DNS records on CloudFlare dynamically. I
 ## Usage
 ### Running as Docker Container
 
-1. Pull the Docker image from Docker Hub:
+1. Pull the Docker image from GHCR:
 
 ```bash
 docker pull ghcr.io/layertwo/cloudflare-ddns:latest
@@ -28,7 +28,7 @@ docker pull ghcr.io/layertwo/cloudflare-ddns:latest
 2. Run the Docker container with the required environment variables:
 
 ```bash
-docker run -e TOKEN=your_cloudflare_token -e ZONE_ID=your_zone_id -e DNS_NAME=your_dns_name -e ENABLE_PROXY=true layertwo/cloudflare-ddns
+docker run -e TOKEN=your_cloudflare_token -e ZONE_ID=your_zone_id -e DNS_NAME=your_dns_name -e ENABLE_PROXY=true ghcr.io/layertwo/cloudflare-ddns
 ```
 
 Replace `your_cloudflare_token`, `your_zone_id`, and `your_dns_name` with your CloudFlare API token, zone ID, and DNS name respectively. Set `ENABLE_PROXY` to `true` to enable CloudFlare proxying for the DNS record.
@@ -36,9 +36,13 @@ Replace `your_cloudflare_token`, `your_zone_id`, and `your_dns_name` with your C
 ### Running locally
 Set up the required environment variables (`TOKEN`, `ZONE_ID`, `DNS_NAME`, `ENABLE_PROXY`).
 
-Run the script:
+Install the package and run the console script entry point:
 
 ```bash
-python3 cloudflare_ddns.py
+pip install -e .
+do-dns-update
 ```
 The script will retrieve the external IP address and update the CloudFlare DNS record accordingly.
+
+### Running in Kubernetes
+In the homelab, this image is deployed as a Kubernetes `CronJob` (`clusters/home/apps/network/cloudflare-ddns/cronjob.yml`) in the `traefik-system` namespace, running on schedule `*/5 * * * *`. The required environment variables are sourced from a sops-encrypted `Secret` (`secrets-cloudflare-ddns`).
