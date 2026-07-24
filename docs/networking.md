@@ -30,7 +30,6 @@ Traefik serves as the ingress controller with two separate instances:
 - Configured with the `internal` ingress class
 - Accessible at `proxy-internal.layertwo.dev`
 - Dashboard available at `traefik-internal.layertwo.dev`
-- Provides LDAP service at `ldap.internal.layertwo.dev` (172.31.0.21)
 
 #### External Traefik (172.31.0.30)
 
@@ -45,9 +44,18 @@ Traefik serves as the ingress controller with two separate instances:
 
 ### External DNS
 
-External DNS automatically manages DNS records in Cloudflare based on Kubernetes services and ingresses. It's configured to:
+External DNS runs as two separate instances that manage DNS records based on Kubernetes services and ingresses:
 
-- Create DNS records for services with the `external-dns.alpha.kubernetes.io/hostname` annotation
+- **external-dns-cloudflare**: uses the `cloudflare` provider to write records in Cloudflare for the `layertwo.dev` domain
+- **external-dns-unifi**: uses a webhook provider to write records directly to the UniFi gateway for the `layertwo.dev` and `layertwo.lan` domains
+
+Both instances watch for the `external-dns.alpha.kubernetes.io/hostname` annotation to determine the record name, but which instance actually creates the record is controlled by the `layertwo.dev/publish` annotation:
+
+- `layertwo.dev/publish: "external"` (or `"all"`) — picked up by `external-dns-cloudflare`
+- `layertwo.dev/publish: "internal"` (or `"all"`) — picked up by `external-dns-unifi`
+
+Both instances:
+
 - Update existing DNS records when IP addresses change
 - Remove DNS records when services are deleted
 
@@ -66,7 +74,8 @@ The custom Cloudflare DDNS container updates DNS records on Cloudflare with the 
 
 - External Traefik is configured with strict TLS settings to ensure secure connections
 - Internal services are only accessible through the Internal Traefik instance
-- Authentik provides authentication for services that require it
+- Pocket ID (`clusters/home/apps/security/pocket-id/`, namespace `pocket-id`) provides OIDC authentication for services that require it, available at `idp.layertwo.dev`
+- An OIDC-to-SAML bridge in front of Pocket ID provides SAML SSO for AWS at `aws-sso.layertwo.dev`
 - Network policies can be used to further restrict traffic between services
 
 ## Troubleshooting
@@ -75,9 +84,10 @@ The custom Cloudflare DDNS container updates DNS records on Cloudflare with the 
 
 If DNS resolution is not working:
 
-1. Check that External DNS is running properly
-2. Verify that the service has the correct annotations
-3. Check the Cloudflare DNS records
+1. Check the CoreDNS custom zone (`clusters/home/apps/kube-system/coredns/coredns-custom.yml`), which resolves `layertwo.dev` internally by forwarding queries to the UniFi gateway (172.31.0.1)
+2. Check that External DNS is running properly
+3. Verify that the service has the correct annotations
+4. Check the Cloudflare DNS records
 
 ### Connectivity Issues
 

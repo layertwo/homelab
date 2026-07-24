@@ -4,7 +4,7 @@ This document provides detailed information about the monitoring stack in the ho
 
 ## Overview
 
-The monitoring stack provides health checking and status monitoring for the homelab infrastructure and applications using Gatus.
+The monitoring stack provides health checking and status monitoring for the homelab infrastructure and applications using Gatus, along with resource-recommendation dashboards via Goldilocks.
 
 ## Architecture
 
@@ -25,12 +25,21 @@ Gatus is a health dashboard that checks the health of services and sends alerts 
 
 - **URL**: status.layertwo.dev
 - **Storage**: PostgreSQL database
+- **Authentication**: Dashboard login is gated behind Pocket ID OIDC (`security.oidc` in the Gatus HelmRelease, issuer `https://idp.layertwo.dev`)
 - **Endpoints**:
   - Internal services
   - External services
   - APIs
 - **Alerting**:
   - Pushover notifications
+
+### Goldilocks
+
+Goldilocks (Fairwinds) is a VPA-based dashboard that recommends CPU/memory requests and limits for workloads across the cluster.
+
+- **URL**: goldilocks.layertwo.dev
+- **Chart**: `goldilocks` v10.4.1 from the Fairwinds Helm repository
+- **VPA**: enabled, used to generate the resource recommendations
 
 ## Storage
 
@@ -40,9 +49,8 @@ The monitoring stack uses persistent storage for data:
 
 ## Networking
 
-The monitoring stack is exposed through the internal Traefik instance:
-
-- Gatus is accessible at status.layertwo.dev
+- Gatus is exposed through the **external** Traefik instance at status.layertwo.dev
+- Goldilocks is exposed through the **internal** Traefik instance at goldilocks.layertwo.dev
 
 ## Alerting
 
@@ -71,7 +79,7 @@ The applications are updated automatically through Flux CD when new versions are
 
 ### Backup
 
-- Gatus PostgreSQL database is backed up using CloudNative PG backups to Cloudflare R2
+- Gatus's PostgreSQL database (CloudNativePG cluster) has no configured backup destination at this time
 
 ## Troubleshooting
 

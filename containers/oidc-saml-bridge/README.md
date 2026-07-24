@@ -54,6 +54,7 @@ AWS IAM Identity Center only supports SAML 2.0 for external identity providers, 
 
 | Variable | Description | Required |
 |----------|-------------|----------|
+| `BRIDGE_URL` | Public base URL of the bridge (used to build the SSO URL in `/saml/metadata`) | Yes |
 | `OIDC_ISSUER` | pocket-id issuer URL | Yes |
 | `OIDC_CLIENT_ID` | OIDC client ID | Yes |
 | `OIDC_CLIENT_SECRET` | OIDC client secret | Yes |

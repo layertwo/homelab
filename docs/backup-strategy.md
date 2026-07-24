@@ -8,7 +8,6 @@ The homelab uses a comprehensive backup strategy to protect data and ensure reco
 
 - **VolSync**: For backing up persistent volumes
 - **CloudNative PG Backups**: For backing up PostgreSQL databases
-- **Terraform State Backups**: For backing up infrastructure configuration
 
 All backups are stored in Cloudflare R2, which is an S3-compatible object storage service.
 
@@ -27,11 +26,7 @@ VolSync is used to back up persistent volumes to Cloudflare R2. It provides a Ku
 
 #### Backed Up Applications
 
-- Home Assistant
-- Authentik
-- Immich
-- Media applications (Sonarr, Radarr, etc.)
-- And more
+VolSync (the operator) is installed in the cluster, but it is not currently wired up to back up any application — there are no `ReplicationSource` or `ReplicationDestination` resources defined anywhere in the repo.
 
 ### CloudNative PG Backups
 
@@ -46,19 +41,7 @@ CloudNative PG is configured to back up PostgreSQL databases to Cloudflare R2. T
 
 #### Backed Up Databases
 
-- Authentik
-- Immich
-- Outline
-- And more
-
-### Terraform State Backups
-
-Terraform state files are backed up to Cloudflare R2 to ensure that infrastructure configuration can be recovered.
-
-#### Configuration
-
-- **Bucket**: layertwo-dev-tofu
-- **Backend**: S3-compatible (Cloudflare R2)
+- Immich (the only CloudNative PG cluster currently configured with a `barmanObjectStore` backup target; other CNPG clusters in the cluster — pocket-id, vaultwarden, forgejo, bazarr, prowlarr, radarr, sonarr, cloudtak, gatus — are not currently backed up to R2)
 
 ## Backup Storage
 
@@ -106,14 +89,6 @@ To restore a PostgreSQL database using CloudNative PG:
 1. Create a new `Cluster` resource with the appropriate backup source
 2. Wait for the restoration to complete
 3. Verify that the database has been restored correctly
-
-### Terraform State Restoration
-
-To restore Terraform state:
-
-1. Configure the S3 backend to point to the correct state file
-2. Run `terraform init` to download the state file
-3. Verify that the state file has been restored correctly
 
 ## Testing Backups
 

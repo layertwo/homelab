@@ -4,139 +4,57 @@ This document provides detailed information about the home automation stack in t
 
 ## Overview
 
-The home automation stack is a collection of applications that work together to automate and control smart home devices. The stack includes:
-
-- **Home Assistant**: Home automation platform
-- **MQTT**: Message broker for IoT devices
-- **Zigbee2MQTT**: Bridge for Zigbee devices
-- **Z-Wave JS UI**: Management for Z-Wave devices
-
-## Architecture
-
-The home automation stack follows the following workflow:
-
-1. **Zigbee2MQTT** and **Z-Wave JS UI** connect to USB controllers to communicate with Zigbee and Z-Wave devices
-2. These bridges publish device states and receive commands via **MQTT**
-3. **Home Assistant** connects to MQTT to monitor and control devices
-4. **Home Assistant** provides a web interface for user interaction and automation
+As of mid-2026, the home automation stack was moved off-cluster to an external host (`192.168.255.50`). Kubernetes now only provides a thin passthrough for Home Assistant (Service + EndpointSlice + IngressRoute); it does not run Home Assistant itself. Zigbee2MQTT, Z-Wave JS UI, and the EMQX broker are no longer Flux-managed at all — only the EMQX Operator (no broker instance) remains deployed.
 
 ## Components
 
 ### Home Assistant
 
-Home Assistant is an open-source home automation platform that puts local control and privacy first. It can integrate with a wide range of smart home devices and services.
+Home Assistant runs on an external host and is reached from the cluster via a manual `Service` + `EndpointSlice` pointing at `192.168.255.50:8123`, fronted by an `IngressRoute`. There is no HelmRelease, PVC, or database for Home Assistant in the cluster.
 
-#### Configuration
-
-- **URL**: homeassistant.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Integrations**:
-  - MQTT
-  - Zigbee2MQTT
-  - Z-Wave JS
+- **Path**: `clusters/home/apps/home/` (`namespace.yml`, `service.yml`, `ingressroute.yml`)
+- **URL**: hass.layertwo.dev
+- **Storage**: none in-cluster (configuration/database live on the external host)
+- **Auth**: the IngressRoute has no auth middleware attached
 
 ### MQTT (EMQX)
 
-EMQX is an MQTT broker that provides a messaging infrastructure for IoT devices. It serves as the central communication hub for the home automation stack.
-
-#### Configuration
-
-- **URL**: mqtt.layertwo.dev
-- **Storage**: PVC for data
-- **Ports**:
-  - 1883: MQTT
-  - 8083: MQTT over WebSocket
-  - 8883: MQTT over TLS
-  - 8084: MQTT over WSS
+Only the EMQX Operator Helm chart (`clusters/home/apps/database/emqx/release.yml`) remains deployed. There is no EMQX custom resource/broker instance defined anywhere, so there is currently no running MQTT broker, no PVC, no `mqtt.layertwo.dev` hostname, and no exposed ports.
 
 ### Zigbee2MQTT
 
-Zigbee2MQTT is a bridge that connects Zigbee devices to MQTT. It allows you to control Zigbee devices without the need for proprietary hubs.
-
-#### Configuration
-
-- **URL**: zigbee2mqtt.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Hardware**: USB Zigbee controller (e.g., CC2531, CC2652R)
-- **MQTT Connection**: Connects to EMQX
+Zigbee2MQTT has no Kubernetes manifests anymore (removed). The only surviving trace is a Gatus health check against `https://zigbee.layertwo.dev` — this is monitoring only; nothing is deployed behind it via Flux.
 
 ### Z-Wave JS UI
 
-Z-Wave JS UI is a web interface for Z-Wave JS, which is a JavaScript implementation of the Z-Wave protocol. It allows you to control Z-Wave devices and integrate them with Home Assistant.
-
-#### Configuration
-
-- **URL**: zwave.layertwo.dev
-- **Storage**: PVC for configuration and database
-- **Hardware**: USB Z-Wave controller (e.g., Aeotec Z-Stick)
-- **MQTT Connection**: Connects to EMQX
-
-## Storage
-
-The home automation stack uses persistent storage for configuration and data:
-
-- **Home Assistant**: PVC for configuration, database, and media
-- **MQTT**: PVC for data and logs
-- **Zigbee2MQTT**: PVC for configuration and database
-- **Z-Wave JS UI**: PVC for configuration and database
+Z-Wave JS UI has no Kubernetes manifests anymore (removed). The only surviving trace is a Gatus health check against `https://zwave.layertwo.dev` — this is monitoring only; nothing is deployed behind it via Flux.
 
 ## Networking
 
-The home automation stack is exposed through the internal Traefik instance:
+- Home Assistant is exposed through the external Traefik instance at `hass.layertwo.dev`
+- No auth middleware is currently attached to the Home Assistant `IngressRoute`
+- MQTT, Zigbee2MQTT, and Z-Wave JS UI are not exposed from the cluster
 
-- Each application has its own subdomain (e.g., homeassistant.layertwo.dev)
-- Authentication is handled by Authentik for web interfaces
-- MQTT uses its own authentication mechanism
+## Hardware
 
-## Hardware Requirements
-
-The home automation stack requires specific hardware to communicate with smart home devices:
-
-- **Zigbee Controller**: A USB Zigbee controller is required for Zigbee2MQTT
-- **Z-Wave Controller**: A USB Z-Wave controller is required for Z-Wave JS UI
-
-These controllers need to be passed through to the Kubernetes nodes where the respective pods are running. This is typically done using the `nodeSelector` and `hostPath` volume to access the USB device.
-
-## Security Considerations
-
-- MQTT authentication should be configured to prevent unauthorized access
-- Consider using TLS for MQTT connections
-- Home Assistant should be configured with strong authentication
-- Sensitive information should be stored as Kubernetes secrets
+A single combo USB stick — Silicon Labs HubZ Smart Home Controller (`HUSBZB-1`) — provides both Zigbee and Z-Wave connectivity. It is labeled via a `NodeFeatureRule` at `clusters/home/apps/kube-system/node-feature-discovery/rules/hubz-device.yml`, which sets `feature.node.kubernetes.io/zwave: "true"` and `feature.node.kubernetes.io/zigbee: "true"` based on USB vendor/device ID (`10c4:8a2a`). This label currently has no consumer — no workload in the cluster uses it, since the pods that would have (Zigbee2MQTT, Z-Wave JS UI) were removed.
 
 ## Maintenance
 
 ### Updating
 
-The applications are updated automatically through Flux CD when new versions are available in the Helm repositories.
-
-### Backup
-
-- Configuration is backed up using VolSync
-- Home Assistant database should be backed up regularly
+The EMQX Operator is updated automatically through Flux CD when new versions are available in its Helm repository. Home Assistant, Zigbee2MQTT, Z-Wave JS UI, and the EMQX broker are managed on the external host, outside of Flux.
 
 ## Troubleshooting
-
-### Device Connection Issues
-
-If devices are not connecting:
-
-1. Check that the USB controllers are properly connected to the node
-2. Verify that the controllers are passed through to the pods
-3. Check the logs of Zigbee2MQTT or Z-Wave JS UI for connection errors
-
-### MQTT Issues
-
-If MQTT communication is not working:
-
-1. Check that EMQX is running and accessible
-2. Verify that clients can connect to MQTT
-3. Check MQTT authentication settings
 
 ### Home Assistant Issues
 
 If Home Assistant is not working:
 
-1. Check that Home Assistant is running and accessible
-2. Verify that integrations are properly configured
-3. Check the Home Assistant logs for errors
+1. Check that the external host (`192.168.255.50`) is reachable and Home Assistant is running there
+2. Verify the `EndpointSlice` in `clusters/home/apps/home/service.yml` still points at the correct address
+3. Check the Home Assistant logs on the external host for errors
+
+### Zigbee2MQTT / Z-Wave JS UI / MQTT
+
+These are no longer deployed in the cluster. The Gatus checks for `zigbee.layertwo.dev` and `zwave.layertwo.dev` are monitoring-only leftovers; if they fail, it reflects the state of the external host, not any in-cluster workload.

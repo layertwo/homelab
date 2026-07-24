@@ -8,7 +8,9 @@ this directory only holds the IngressRoutes/cert/Service pointer that route
 - S3 Website: `https://*.s3-website.layertwo.dev`
 
 Admin commands (`garage bucket/key/...`) run from a shell on the TrueNAS app
-itself, not via `kubectl exec` — there's no in-cluster pod anymore.
+itself, not via `kubectl exec` — there's no in-cluster pod anymore. Open a
+shell on the app in the TrueNAS UI and run `garage` directly (no alias
+needed, it's already on the container's `PATH`).
 
 ## Cluster layout
 
@@ -16,21 +18,21 @@ itself, not via `kubectl exec` — there's no in-cluster pod anymore.
 
 ```sh
 # Get the node ID from logs or:
-gexec node id
+garage node id
 
-# Assign the node to a zone with capacity matching the data PVC (1024G)
-gexec layout assign -z dc1 -c 1024G <node-id>
+# Assign the node to a zone with capacity matching the storage allocated to the app
+garage layout assign -z dc1 -c <capacity> <node-id>
 
 # Review and apply
-gexec layout show
-gexec layout apply --version 1
+garage layout show
+garage layout apply --version 1
 ```
 
 ### View current layout
 
 ```sh
-gexec layout show
-gexec status
+garage layout show
+garage status
 ```
 
 ## Buckets
@@ -38,25 +40,25 @@ gexec status
 ### Create a bucket
 
 ```sh
-gexec bucket create <bucket-name>
+garage bucket create <bucket-name>
 ```
 
 ### List buckets
 
 ```sh
-gexec bucket list
+garage bucket list
 ```
 
 ### Delete a bucket
 
 ```sh
-gexec bucket delete <bucket-name>
+garage bucket delete <bucket-name>
 ```
 
 ### Enable website hosting on a bucket
 
 ```sh
-gexec bucket website --allow <bucket-name>
+garage bucket website --allow <bucket-name>
 ```
 
 The bucket will be accessible at `https://<bucket-name>.s3-website.layertwo.dev`.
@@ -66,7 +68,7 @@ The bucket will be accessible at `https://<bucket-name>.s3-website.layertwo.dev`
 ### Create a key
 
 ```sh
-gexec key create <key-name>
+garage key create <key-name>
 ```
 
 Outputs an `Access Key ID` and `Secret Access Key` — save these, the secret is not shown again.
@@ -74,26 +76,26 @@ Outputs an `Access Key ID` and `Secret Access Key` — save these, the secret is
 ### Grant a key access to a bucket
 
 ```sh
-gexec bucket allow --read --write <bucket-name> --key <key-name>
+garage bucket allow --read --write <bucket-name> --key <key-name>
 # Add --owner to allow the key to manage bucket settings
 ```
 
 ### Revoke access
 
 ```sh
-gexec bucket deny --read --write <bucket-name> --key <key-name>
+garage bucket deny --read --write <bucket-name> --key <key-name>
 ```
 
 ### List keys
 
 ```sh
-gexec key list
+garage key list
 ```
 
 ### Show key details (ID, permissions)
 
 ```sh
-gexec key info <key-name>
+garage key info <key-name>
 ```
 
 ## Using with AWS CLI
