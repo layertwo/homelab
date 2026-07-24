@@ -251,9 +251,9 @@ spec:
               send-on-resolved: true
               description: "sonarr is down"
 
-        - name: zigbee2mqtt
-          group: home
-          url: https://zigbee.layertwo.dev
+        - name: home-assistant
+          group: external
+          url: https://hass.layertwo.dev
           interval: 1m
           conditions:
             - "[STATUS] == 200"
@@ -263,21 +263,7 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "zigbee2mqtt is down"
-
-        - name: zwave
-          group: home
-          url: https://zwave.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "zwave is down"
+              description: "home-assistant is down"
 
         - name: goldilocks
           group: infrastructure
