@@ -1,0 +1,118 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: pangolin
+  namespace: unfabric
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: pangolin
+      version: 0.1.0-alpha.1
+      sourceRef:
+        kind: HelmRepository
+        name: fossorial
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    deployment:
+      type: controller
+      installTraefikController: false
+      traefikNamespace: traefik-system
+    networkPolicy:
+      pangolin:
+        externalIngress:
+          # Port 3000 (API) is open externally by default, but port 3002 (the
+          # actual Dashboard Web UI the root `/` route hits) is not — with
+          # Traefik running as a separate pod in traefik-system (controller
+          # mode, no bundled Traefik), that left nothing able to reach the
+          # dashboard UI at all, causing an instant 502 (connection refused).
+          next: true
+      controller:
+        egress:
+          kubernetesApi:
+            # First attempt used the kubernetes.default ClusterIP (10.43.0.1/32,
+            # port 443) — still got "connection refused". The ClusterIP is
+            # virtual; kube-proxy DNATs it to the real backends before the CNI's
+            # NetworkPolicy enforcement sees it, so an ipBlock rule targeting
+            # the ClusterIP never matches the actual packet. Real backends
+            # (confirmed via `kubectl get endpoints kubernetes -n default`) are
+            # the 3 control-plane nodes on port 6443, not 10.43.0.1:443.
+            cidr: "172.31.0.0/24"
+            port: 6443
+    rbac:
+      create: true
+    serviceAccount:
+      controller:
+        create: true
+    database:
+      mode: cloudnativepg
+      cloudnativepg:
+        cluster:
+          name: cnpg-pangolin
+      connection:
+        existingSecretName: cnpg-pangolin-app
+        existingSecretKey: uri
+    pangolin:
+      secret:
+        existingSecretName: secrets-pangolin
+      config:
+        app:
+          dashboard_url: "https://pangolin.layertwo.dev"
+        domains:
+          domain1: null
+          layertwo:
+            base_domain: "layertwo.dev"
+            # NOTE: cert_resolver here is Pangolin's own app-level config.yml
+            # value (used if/when Pangolin dynamically creates Traefik routes
+            # for user-added Resources). This cluster has no Traefik-native
+            # certResolver configured at all, so there is no "real" value to
+            # put here — "letsencrypt" mirrors the chart's own placeholder
+            # default rather than a fabricated cert-manager-looking name.
+            cert_resolver: letsencrypt
+        traefik:
+          # Left unset (chart default: "letsencrypt") for the same reason as
+          # domains.layertwo.cert_resolver above. The chart-rendered dashboard
+          # IngressRoute has its own per-router TLS disabled entirely (see
+          # ingressRoute.dashboard.tls.enabled below), so this app-config
+          # value never reaches Traefik either way.
+          prefer_wildcard_cert: true
+        gerbil:
+          base_endpoint: "pangolin.layertwo.dev"
+      ingressRoute:
+        dashboard:
+          # Matches the annotation convention used by every other IngressRoute
+          # in this repo (e.g. mediabox/sonarr) — must be a direct child of
+          # `dashboard`, NOT nested under `tls`, or the chart's template never
+          # reads it (see templates/ingressroute-dashboard.yaml: it only reads
+          # `get $dashboardIngress "annotations"`, one level up from `tls`).
+          annotations:
+            external-dns.alpha.kubernetes.io/enabled: "true"
+            external-dns.alpha.kubernetes.io/hostname: "pangolin.layertwo.dev"
+            external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+            external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+            layertwo.dev/publish: "internal"
+            cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+            kubernetes.io/ingress.class: internal
+          tls:
+            # Traefik's IngressRoute tls.secretName only resolves within the
+            # IngressRoute's own namespace. This chart renders the dashboard
+            # IngressRoute into `unfabric`, but wildcard-layertwo-dev-tls only
+            # exists in `traefik-system` (created by the Certificate in
+            # clusters/home/apps/network/traefik/cert.yml) — there is no
+            # secret-replication mechanism in this repo, so referencing it
+            # here by name would fail to resolve at runtime. Disable the
+            # chart's per-router TLS entirely so it renders with no `tls:`
+            # block at all, matching every other IngressRoute in this repo
+            # (e.g. vaultwarden, pocket-id), which fall back to Traefik's
+            # namespace-agnostic tlsStore.default.defaultCertificate.
+            enabled: false
