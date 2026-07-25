@@ -24,7 +24,7 @@ spec:
           main:
             image:
               repository: public.ecr.aws/docker/library/redis
-              tag: 8.8.0-alpine
+              tag: 8.8.1-alpine
             command:
               - sh
             args:
