@@ -98,7 +98,7 @@ spec:
           media:
             image:
               repository: ghcr.io/dfpc-coe/media-infra
-              tag: v9.7.0
+              tag: v9.10.0
               pullPolicy: IfNotPresent
             env:
               API_URL: "https://cloudtak.layertwo.dev"
