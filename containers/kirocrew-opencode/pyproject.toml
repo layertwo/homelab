@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kirocrew-shim"
+version = "0.1.0"
+# Deliberately dependency-free: the shim is installed into the KiroCrew base
+# image's system Python alongside kiro_crew itself, so anything added here could
+# perturb the gateway's own dependency set. Stdlib only.
+dependencies = []
+requires-python = ">=3.12"
+
+[project.scripts]
+# Lands at /usr/local/bin/kirocrew-shim, which is what KIROCREW_KIRO_BIN points
+# at in the Dockerfile and in clusters/home/apps/cloud/kirocrew/release.yml.
+kirocrew-shim = "kirocrew_shim.main:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "black==26.5.1",
+    "isort==8.0.1",
+    "flake8==7.3.0",
+    "Flake8-pyproject==1.2.4",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = [
+    "--verbose",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--strict-markers",
+    "--cov-fail-under=100",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+]
+branch = true
+relative_files = true
+
+[tool.black]
+line-length = 100
+# py312: the KiroCrew base image ships Python 3.12.13.
+target-version = ["py312"]
+src = ["src/", "tests/"]
+
+[tool.isort]
+profile = "black"
+src_paths = ["src"]
+line_length = 100
+
+[tool.flake8]
+max-line-length = 100
+max-complexity = 10
+extend-ignore = ["E203"]
