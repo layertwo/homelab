@@ -1,0 +1,123 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kirocrew
+  namespace: kirocrew
+spec:
+  interval: 30m
+  timeout: 15m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.0.1
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      annotations:
+        reloader.stakater.com/auto: "true"
+
+    controllers:
+      main:
+        type: deployment
+        strategy: Recreate
+        pod:
+          securityContext:
+            # TODO(security): revisit -- runs as root only to keep the
+            # SYS_ADMIN grant below effective. k8s's capabilities.add has no
+            # way to populate the ambient capability set, which is the only
+            # thing that survives a uid drop, so a plain runAsUser: 1000
+            # silently strips the capability right after granting it. A
+            # non-root fix is possible (a custom entrypoint that drops
+            # privilege itself via setpriv --ambient-caps), but that needs an
+            # image change, not just this manifest.
+            # gid/fsGroup stay 1000 so PVC access under /home/kirocrew is
+            # unaffected.
+            runAsUser: 0
+            runAsGroup: 1000
+            fsGroup: 1000
+            fsGroupChangePolicy: OnRootMismatch
+        containers:
+          gateway:
+            image:
+              repository: ghcr.io/layertwo/kirocrew-opencode
+              tag: latest@sha256:939759b35c373abd559c81eee4dad72ecbefca3a3a7d3c5b8b54cfa88f771fd4
+            env:
+              TZ: Etc/UTC
+              KIROCREW_KIRO_BIN: /usr/local/bin/kirocrew-shim
+              KIROCREW_CORS_ORIGINS: https://kiro.layertwo.dev
+              KIROCREW_ALLOW_UNSANDBOXED: 1
+              KIROCREW_TELEMETRY_DISABLED: 1
+              OPENCODE_MODEL: ollama-cloud/gpt-oss:120b
+              OPENCODE_PERMISSION: >-
+                {"bash":"ask","edit":"ask","webfetch":"ask","task":"ask","external_directory":"ask"}
+            envFrom:
+              - secretRef:
+                  name: secrets-kirocrew
+                  optional: true
+            probes:
+              liveness: &probe
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: &dashboardPort 5476
+                  initialDelaySeconds: 30
+                  periodSeconds: 30
+                  timeoutSeconds: 5
+                  failureThreshold: 3
+              readiness: *probe
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /api/health
+                    port: *dashboardPort
+                  initialDelaySeconds: 10
+                  periodSeconds: 10
+                  failureThreshold: 30
+            resources:
+              requests:
+                cpu: 500m
+                memory: 1Gi
+              limits:
+                memory: 4Gi
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+                add: ["SYS_ADMIN"]
+              appArmorProfile:
+                type: Unconfined
+
+    service:
+      main:
+        enabled: true
+        controller: main
+        ports:
+          dashboard:
+            enabled: true
+            primary: true
+            port: *dashboardPort
+            protocol: HTTP
+
+    persistence:
+      data:
+        enabled: true
+        existingClaim: kirocrew-data
+        globalMounts:
+          - path: /home/kirocrew
