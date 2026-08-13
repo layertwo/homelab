@@ -6,7 +6,7 @@ metadata:
   namespace: kirocrew
 spec:
   interval: 30m
-  timeout: 15m
+  timeout: 5m
   chart:
     spec:
       chart: app-template
@@ -53,7 +53,7 @@ spec:
           gateway:
             image:
               repository: ghcr.io/layertwo/kirocrew-opencode
-              tag: latest@sha256:939759b35c373abd559c81eee4dad72ecbefca3a3a7d3c5b8b54cfa88f771fd4
+              tag: latest@sha256:29e6bd4a25550a97dcd44ec934bdac84c6f968f9dcc42a37033e7e64ed98e1d3
             env:
               TZ: Etc/UTC
               KIROCREW_KIRO_BIN: /usr/local/bin/kirocrew-shim
