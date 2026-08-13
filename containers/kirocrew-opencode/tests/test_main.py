@@ -1,3 +1,6 @@
+import json
+import subprocess
+
 import pytest
 
 from kirocrew_shim import main as main_module
@@ -60,6 +63,70 @@ def test_unknown_probe_exits_zero_silently(monkeypatch, capsys, fake_popen):
     monkeypatch.setattr("sys.argv", ["kirocrew-shim", "mystery"])
     assert main() == 0
     assert capsys.readouterr().out == ""
+    assert fake_popen.instances == []
+
+
+@pytest.fixture
+def fake_run(monkeypatch):
+    """Replace subprocess.run so the `opencode models` spawn is a stand-in."""
+    calls = []
+
+    def install(behaviour):
+        def run(argv, **kwargs):
+            calls.append(argv)
+            return behaviour(argv, **kwargs)
+
+        monkeypatch.setattr(main_module.subprocess, "run", run)
+        return calls
+
+    return install
+
+
+def test_list_models_probe_queries_opencode_for_the_configured_provider(
+    monkeypatch, capsys, fake_popen, fake_run
+):
+    monkeypatch.setenv("OPENCODE_MODEL", "ollama-cloud/qwen3-coder:480b")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["kirocrew-shim", "chat", "--list-models", "--format", "json", "--no-interactive"],
+    )
+    calls = fake_run(
+        lambda argv, **kwargs: subprocess.CompletedProcess(
+            argv, 0, stdout="ollama-cloud/gpt-oss:120b\nollama-cloud/qwen3-coder:480b\n"
+        )
+    )
+
+    assert main() == 0
+
+    assert calls == [["opencode", "models", "ollama-cloud"]]
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["models"] == [
+        {"model_name": "ollama-cloud/gpt-oss:120b"},
+        {"model_name": "ollama-cloud/qwen3-coder:480b"},
+    ]
+    assert fake_popen.instances == []
+
+
+def test_list_models_probe_falls_back_when_opencode_spawn_fails(
+    monkeypatch, capsys, fake_popen, fake_run
+):
+    # A hung/errored `opencode models` must degrade to the one model we know
+    # is configured, not resurface as api_models' empty-output 503.
+    monkeypatch.setenv("OPENCODE_MODEL", "ollama-cloud/gpt-oss:120b")
+    monkeypatch.setattr(
+        "sys.argv",
+        ["kirocrew-shim", "chat", "--list-models", "--format", "json", "--no-interactive"],
+    )
+
+    def timeout(argv, **kwargs):
+        raise subprocess.TimeoutExpired(argv, 8)
+
+    fake_run(timeout)
+
+    assert main() == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload == {"models": [{"model_name": "ollama-cloud/gpt-oss:120b"}]}
     assert fake_popen.instances == []
 
 

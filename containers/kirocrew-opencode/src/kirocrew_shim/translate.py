@@ -6,10 +6,11 @@ values, so the whole dialect gap is unit-testable without spawning an agent.
 The four verified incompatibilities, all absorbed here rather than by patching
 KiroCrew (see docs/superpowers/specs/2026-08-10-kirocrew-ollama-design.md):
 
-  argv               `--version` / `whoami` probes; the unsupported `--agent`
+  argv               `--version` / `whoami` / `chat --list-models` probes; the
+                     unsupported `--agent`
   initialize         protocolVersion string -> int
   session/set_mode   answered locally (OpenCode has no kiro modes)
-  session/set_model  Kiro model id -> the configured OpenCode model
+  session/set_model  passed through (falls back to OPENCODE_MODEL if blank)
   _kiro.dev/*        answered locally so an awaited call cannot hang
 """
 
@@ -35,13 +36,16 @@ DROP = "drop"  # swallow entirely
 class ArgvPlan(NamedTuple):
     """What to do with the argv KiroCrew invoked us with.
 
-    An `exit_code` of None means "proceed to proxying"; anything else means
-    print `message` (when non-empty) and exit with that code.
+    `list_models_provider` set means "spawn `opencode models <provider>` and
+    print the translated catalog" (main.py does the spawn; this stays pure).
+    Otherwise, an `exit_code` of None means "proceed to proxying"; anything
+    else means print `message` (when non-empty) and exit with that code.
     """
 
     exit_code: Optional[int] = None
     message: str = ""
     agent_args: tuple = ()
+    list_models_provider: Optional[str] = None
 
 
 class Decision(NamedTuple):
@@ -56,7 +60,7 @@ class Decision(NamedTuple):
     watch_model_id: Any = None
 
 
-def plan_argv(argv) -> ArgvPlan:
+def plan_argv(argv, model: str = "") -> ArgvPlan:
     """Decide what KiroCrew's invocation means.
 
     KiroCrew spawns `[bin, "acp", "--agent", <name>]` (client.py:2339), but
@@ -68,12 +72,32 @@ def plan_argv(argv) -> ArgvPlan:
         return ArgvPlan(exit_code=0, message=f"kirocrew-shim {VERSION}")
     if head == ["whoami"]:
         return ArgvPlan(exit_code=0, message=WHOAMI_OUTPUT)
+    # api_models spawns `<bin> chat --list-models --format json --no-interactive`
+    # (kiro_crew/dashboard/handlers/agents.py:956) and treats empty stdout as a
+    # 503-worthy failure. Left unhandled, that fell into the catch-all below and
+    # printed nothing, so the dashboard's model picker was permanently degraded.
+    if head == ["chat"] and "--list-models" in argv:
+        return ArgvPlan(list_models_provider=model.split("/", 1)[0])
     if head != ["acp"]:
         # Tolerate probes we don't model: exiting 0 silently is friendlier than
         # failing a prerequisite check over an unknown subcommand.
         return ArgvPlan(exit_code=0)
 
     return ArgvPlan(agent_args=tuple(_strip_agent_flag(argv[1:])))
+
+
+def parse_model_list(stdout: str, fallback_model: str) -> str:
+    """Turn `opencode models <provider>` stdout into the api_models catalog.
+
+    Each line is a bare `provider/model` id (opencode's CLI format, not JSON;
+    see cli.mdx). Falls back to one row for `fallback_model` when the spawn
+    produced nothing usable: degraded is better than the empty-picker 503
+    api_models (agents.py:1029) already gives an unhandled probe.
+    """
+    ids = [line.strip() for line in stdout.splitlines() if line.strip()]
+    if not ids:
+        ids = [fallback_model]
+    return json.dumps({"models": [{"model_name": model_id} for model_id in ids]})
 
 
 def _strip_agent_flag(args):
@@ -112,12 +136,12 @@ def translate_client_message(msg: dict, model: str) -> Decision:
     if method == "session/set_mode":
         return _ok(request_id)
 
-    # Kiro's canonical model ids don't exist in OpenCode. Proven to be a real
-    # substitution rather than a no-op by negative control: a bogus id yields
-    # -32602 "model not found: ollama-cloud/does-not-exist", naming a string
-    # KiroCrew never sent.
+    # The picker only ever offers ids WE advertised via the --list-models probe
+    # (parse_model_list), which are real OpenCode `provider/model` ids -- so the
+    # incoming modelId is trusted and passed through. `model` (OPENCODE_MODEL)
+    # is only the fallback for a missing/blank id, not a forced override.
     if method == "session/set_model":
-        params["modelId"] = model
+        params["modelId"] = params.get("modelId") or model
         return Decision(FORWARD, {**msg, "params": params}, watch_model_id=request_id)
 
     # Proprietary Kiro extensions: answer locally rather than let an awaited

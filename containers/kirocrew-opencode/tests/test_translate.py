@@ -4,6 +4,8 @@ If a KiroCrew or OpenCode bump reintroduces a blocker, these fail in CI rather
 than failing silently in the cluster.
 """
 
+import json
+
 import pytest
 
 from kirocrew_shim.translate import (
@@ -13,6 +15,7 @@ from kirocrew_shim.translate import (
     REPLY,
     VERSION,
     WHOAMI_OUTPUT,
+    parse_model_list,
     plan_argv,
     rejected_request_id,
     translate_client_message,
@@ -41,6 +44,51 @@ def test_unknown_subcommand_exits_zero_without_output():
 
 def test_no_args_is_not_treated_as_acp():
     assert plan_argv([]).exit_code == 0
+
+
+def test_list_models_probe_carries_the_configured_provider(model):
+    # api_models spawns `chat --list-models --format json --no-interactive`
+    # (agents.py:956) and returns 503 on empty stdout -- unhandled, this fell
+    # into the unknown-probe catch-all and printed nothing. main.py does the
+    # actual `opencode models <provider>` spawn; this stays pure.
+    plan = plan_argv(["chat", "--list-models", "--format", "json", "--no-interactive"], model)
+    assert plan.list_models_provider == "ollama-cloud"
+    assert plan.exit_code is None
+
+
+def test_list_models_probe_ignores_flag_order(model):
+    plan = plan_argv(["chat", "--no-interactive", "--list-models"], model)
+    assert plan.list_models_provider == "ollama-cloud"
+
+
+def test_chat_without_list_models_is_an_unknown_probe():
+    plan = plan_argv(["chat", "--no-interactive"])
+    assert plan.exit_code == 0
+    assert plan.message == ""
+    assert plan.list_models_provider is None
+
+
+def test_parse_model_list_from_opencode_output(model):
+    stdout = "ollama-cloud/gpt-oss:120b\nollama-cloud/qwen3-coder:480b\n"
+    payload = json.loads(parse_model_list(stdout, model))
+    assert payload == {
+        "models": [
+            {"model_name": "ollama-cloud/gpt-oss:120b"},
+            {"model_name": "ollama-cloud/qwen3-coder:480b"},
+        ]
+    }
+
+
+def test_parse_model_list_skips_blank_lines(model):
+    payload = json.loads(parse_model_list("\n\nollama-cloud/gpt-oss:120b\n\n", model))
+    assert payload == {"models": [{"model_name": "ollama-cloud/gpt-oss:120b"}]}
+
+
+def test_parse_model_list_falls_back_when_opencode_reports_nothing(model):
+    # A spawn failure/timeout/empty catalog must not surface as a 503 the way
+    # an unhandled probe used to -- fall back to the one model we know works.
+    payload = json.loads(parse_model_list("", model))
+    assert payload == {"models": [{"model_name": model}]}
 
 
 def test_acp_proceeds_to_proxying():
@@ -116,17 +164,30 @@ def test_set_mode_notification_is_dropped(model):
     assert decision.payload is None
 
 
-def test_set_model_id_is_substituted(model):
+def test_set_model_id_passes_through_when_present(model):
+    # The picker only offers ids WE advertised via parse_model_list -- real
+    # OpenCode provider/model ids -- so the client's pick is trusted verbatim.
     msg = {
         "jsonrpc": "2.0",
         "id": 9,
         "method": "session/set_model",
-        "params": {"sessionId": "s1", "modelId": "some-kiro-canonical-id"},
+        "params": {"sessionId": "s1", "modelId": "ollama-cloud/qwen3-coder:480b"},
     }
     decision = translate_client_message(msg, model)
     assert decision.action == FORWARD
-    assert decision.payload["params"]["modelId"] == model
+    assert decision.payload["params"]["modelId"] == "ollama-cloud/qwen3-coder:480b"
     assert decision.payload["params"]["sessionId"] == "s1"
+
+
+def test_set_model_id_defaults_to_configured_model_when_blank(model):
+    msg = {
+        "jsonrpc": "2.0",
+        "id": 9,
+        "method": "session/set_model",
+        "params": {"sessionId": "s1", "modelId": ""},
+    }
+    decision = translate_client_message(msg, model)
+    assert decision.payload["params"]["modelId"] == model
 
 
 def test_set_model_is_watched_for_rejection(model):
