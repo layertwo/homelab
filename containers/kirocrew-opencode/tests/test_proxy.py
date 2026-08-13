@@ -149,6 +149,28 @@ def test_rejected_model_raises_and_logs(stream):
     assert client_out.written() == []
 
 
+def test_rejected_model_names_the_client_picked_id_not_the_default(stream):
+    # translate_client_message now passes the client's pick through instead of
+    # forcing `model`, so a rejection must name what was actually requested.
+    proxy, client_out, agent_in, logged = build(
+        stream,
+        client_lines=[
+            '{"jsonrpc":"2.0","id":9,"method":"session/set_model",'
+            '"params":{"modelId":"ollama-cloud/qwen3-coder:480b"}}'
+        ],
+        agent_lines=[
+            '{"jsonrpc":"2.0","id":9,"error":{"code":-32602,"message":"model not found"}}'
+        ],
+        model="ollama-cloud/gpt-oss:120b",
+    )
+    proxy.pump_client_to_agent()
+
+    with pytest.raises(ModelRejected) as excinfo:
+        proxy.pump_agent_to_client()
+
+    assert excinfo.value.model == "ollama-cloud/qwen3-coder:480b"
+
+
 def test_error_for_a_different_id_is_not_a_model_rejection(stream):
     proxy, client_out, _, _ = build(
         stream,

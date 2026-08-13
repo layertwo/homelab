@@ -85,7 +85,10 @@ class Proxy:
                 continue
 
             if decision.watch_model_id is not None:
-                self._pending_model[decision.watch_model_id] = self.model
+                # The id actually forwarded, not self.model: translate_client_message
+                # now passes the client's pick through, so a rejection must name
+                # what was really requested, not the (mere fallback) default.
+                self._pending_model[decision.watch_model_id] = decision.payload["params"]["modelId"]
             self._write(self.agent_in, decision.payload)
 
         self._close_agent_stdin()

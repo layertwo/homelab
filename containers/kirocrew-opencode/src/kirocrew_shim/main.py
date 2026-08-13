@@ -3,12 +3,35 @@ import sys
 
 from kirocrew_shim.environment import Settings
 from kirocrew_shim.proxy import ModelRejected, Proxy
-from kirocrew_shim.translate import plan_argv
+from kirocrew_shim.translate import parse_model_list, plan_argv
+
+# api_models (agents.py:1006) times the whole `--list-models` spawn out at
+# 10s; leave margin so a slow `opencode models` still yields the fallback row
+# below instead of racing KiroCrew's own timeout to a 503.
+LIST_MODELS_TIMEOUT_SECONDS = 8
+
+
+def _list_models(settings: Settings, provider: str) -> str:
+    try:
+        result = subprocess.run(
+            [settings.opencode_bin, "models", provider],
+            capture_output=True,
+            text=True,
+            timeout=LIST_MODELS_TIMEOUT_SECONDS,
+        )
+        stdout = result.stdout if result.returncode == 0 else ""
+    except (subprocess.SubprocessError, OSError):
+        stdout = ""
+    return parse_model_list(stdout, settings.model)
 
 
 def main() -> int:
     settings = Settings()
-    plan = plan_argv(sys.argv[1:])
+    plan = plan_argv(sys.argv[1:], settings.model)
+
+    if plan.list_models_provider is not None:
+        print(_list_models(settings, plan.list_models_provider))
+        return 0
 
     if plan.exit_code is not None:
         if plan.message:

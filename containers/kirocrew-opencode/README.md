@@ -32,9 +32,10 @@ patch would not.
 |---|---|---|
 | argv | `acp --agent <name>` | strips `--agent` (opencode has no such flag) |
 | argv | `--version`, `whoami` probes | answers both; `whoami` must exit 0 or the dashboard reports signed-out and `/api/models` 503s |
+| argv | `chat --list-models --format json --no-interactive` | spawns `opencode models <provider>` (provider from `$OPENCODE_MODEL`) and translates its plain `provider/model` lines into the JSON catalog `/api/models` expects; falls back to one row for `$OPENCODE_MODEL` if that spawn fails or returns nothing |
 | `initialize` | `protocolVersion: "2025-08-22"` | rewrites to integer `1`; standard ACP rejects the string with `-32602` |
 | `session/set_mode` | `modeId: <kiro agent>` | answers locally — it's an *awaited* request, so an error would kill the session |
-| `session/set_model` | a Kiro canonical model id | substitutes `$OPENCODE_MODEL` |
+| `session/set_model` | a real OpenCode `provider/model` id (from the catalog above) | passed through as-is; falls back to `$OPENCODE_MODEL` only when blank |
 | `_kiro.dev/*` | proprietary extensions | answers locally so an awaited call can't hang |
 
 ## Two behaviours worth knowing
@@ -50,12 +51,15 @@ nothing errors. The shim sets an ask-by-default policy; override
 disappears, `session/set_model` is rejected, and OpenCode then silently answers
 the turn from its default free model. The shim kills the agent and exits 1
 instead, because a silent downgrade to the wrong model is worse than a crash.
+Since `session/set_model` now passes the picked id through, this also fires on
+a single bad/stale pick (e.g. a model the catalog dropped since the picker's
+last refresh) — same fail-fast, now a broader trigger.
 
 ## Configuration
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `OPENCODE_MODEL` | `ollama-cloud/gpt-oss:120b` | model substituted into `session/set_model` |
+| `OPENCODE_MODEL` | `ollama-cloud/gpt-oss:120b` | default model; also picks the provider queried for `chat --list-models` |
 | `OPENCODE_AUTH_CONTENT` | — | **required**; `{"ollama-cloud":{"type":"api","key":"..."}}` |
 | `OPENCODE_PERMISSION` | ask for bash/edit/webfetch/task | per-tool `ask`\|`allow`\|`deny` |
 | `OPENCODE_BIN` | `opencode` | agent binary to spawn |
