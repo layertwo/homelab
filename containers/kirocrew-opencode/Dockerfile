@@ -29,5 +29,6 @@ USER kirocrew
 # gateway cwd, but ACP spawns the agent with cwd=<session work_dir>
 # (kiro_prerequisite.py:504). It is checked before any PATH search
 # (kiro_cli.py:73) so the bundled kiro-cli 2.16.2 is never reached.
-ENV KIROCREW_KIRO_BIN=/usr/local/bin/kirocrew-shim \
+ENV HOME=/home/kirocrew \
+    KIROCREW_KIRO_BIN=/usr/local/bin/kirocrew-shim \
     OPENCODE_MODEL=ollama-cloud/gpt-oss:120b

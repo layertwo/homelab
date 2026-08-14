@@ -35,17 +35,18 @@ spec:
         strategy: Recreate
         pod:
           securityContext:
-            # TODO(security): revisit -- runs as root only to keep the
-            # SYS_ADMIN grant below effective. k8s's capabilities.add has no
-            # way to populate the ambient capability set, which is the only
-            # thing that survives a uid drop, so a plain runAsUser: 1000
-            # silently strips the capability right after granting it. A
-            # non-root fix is possible (a custom entrypoint that drops
-            # privilege itself via setpriv --ambient-caps), but that needs an
-            # image change, not just this manifest.
-            # gid/fsGroup stay 1000 so PVC access under /home/kirocrew is
-            # unaffected.
-            runAsUser: 0
+            # Non-root, no extra capabilities. This used to run as root with
+            # SYS_ADMIN + an unconfined AppArmor profile to try to get the
+            # inner user-namespace sandbox (unshare(CLONE_NEWUSER) + uid_map)
+            # working -- confirmed via pod logs that it can't work on this
+            # node regardless: kernel.apparmor_restrict_unprivileged_userns=1
+            # blocks unprivileged userns creation at the kernel/AppArmor
+            # level, which no container-level capability or appArmorProfile
+            # setting can override. We run unsandboxed instead
+            # (KIROCREW_ALLOW_UNSANDBOXED=1 below, upstream's documented
+            # posture for locked-down/managed Kubernetes), so nothing here
+            # needs root or SYS_ADMIN anymore.
+            runAsUser: 1000
             runAsGroup: 1000
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
@@ -56,6 +57,12 @@ spec:
               tag: latest@sha256:29e6bd4a25550a97dcd44ec934bdac84c6f968f9dcc42a37033e7e64ed98e1d3
             env:
               TZ: Etc/UTC
+              # entrypoint.sh resolves its data home from $HOME (via the
+              # product's ensure_data_home()); pinning it here keeps that
+              # resolution (credential .env scrubbing, legacy-home migration
+              # marker) on the kirocrew-data PVC instead of the container's
+              # ephemeral root filesystem.
+              HOME: /home/kirocrew
               KIROCREW_KIRO_BIN: /usr/local/bin/kirocrew-shim
               KIROCREW_CORS_ORIGINS: https://kiro.layertwo.dev
               KIROCREW_ALLOW_UNSANDBOXED: 1
@@ -100,9 +107,6 @@ spec:
               allowPrivilegeEscalation: false
               capabilities:
                 drop: ["ALL"]
-                add: ["SYS_ADMIN"]
-              appArmorProfile:
-                type: Unconfined
 
     service:
       main:
