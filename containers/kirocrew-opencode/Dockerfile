@@ -28,6 +28,21 @@ RUN pip install --no-cache-dir . faiss-cpu \
     && python3 -c "import faiss; print('faiss', faiss.__version__)" \
     && ln -sf /usr/local/bin/kirocrew-shim /usr/local/bin/kiro-cli
 
+# Unpinned on purpose: apt resolves whatever gh is current at build time.
+# Last so the layer cache misses whenever anything above changes -- otherwise
+# `cache-from: type=gha` would serve a stale gh forever.
+RUN set -eux; \
+    mkdir -p /etc/apt/keyrings; \
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+      -o /etc/apt/keyrings/githubcli-archive-keyring.gpg; \
+    chmod 0644 /etc/apt/keyrings/githubcli-archive-keyring.gpg; \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+      > /etc/apt/sources.list.d/github-cli.list; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends gh; \
+    rm -rf /var/lib/apt/lists/*; \
+    gh --version
+
 WORKDIR /home/kirocrew
 USER kirocrew
 
