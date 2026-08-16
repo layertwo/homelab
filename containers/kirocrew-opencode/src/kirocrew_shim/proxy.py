@@ -13,6 +13,7 @@ from kirocrew_shim.translate import (
     DROP,
     REPLY,
     rejected_request_id,
+    rewrite_agent_message,
     translate_client_message,
 )
 
@@ -21,6 +22,23 @@ MODEL_REJECTED_MESSAGE = (
     "OpenCode would silently serve this turn from its default model. "
     "Check OPENCODE_AUTH_CONTENT / auth.json."
 )
+
+
+def _rewritten(line: str) -> str:
+    """Apply the agent->client rewrites, or return *line* untouched.
+
+    Anything that is not a JSON object is relayed as-is: a malformed frame is
+    the agent's bug, and forwarding it lets KiroCrew report the real error
+    instead of the session silently losing a message.
+    """
+    try:
+        msg = json.loads(line)
+    except json.JSONDecodeError:
+        return line
+    if not isinstance(msg, dict):
+        return line
+    rewritten = rewrite_agent_message(msg)
+    return line if rewritten is None else json.dumps(rewritten)
 
 
 class ModelRejected(Exception):
@@ -100,11 +118,22 @@ class Proxy:
             pass
 
     def pump_agent_to_client(self) -> None:
-        """Forward agent output, raising ModelRejected on a set_model error."""
+        """Forward agent output, raising ModelRejected on a set_model error.
+
+        Frames carrying tool params are rewritten on the way past so KiroCrew's
+        deny-by-default shell gate can see the command (see translate's module
+        docstring); everything else is relayed byte-for-byte.
+        """
         for line in self.agent_out:
             line = line.rstrip("\n")
             if not line.strip():
                 continue
+
+            # Substring gate before the JSON parse: only rawInput-bearing frames
+            # are ever rewritten, and a single turn streams thousands of chunk
+            # notifications that would otherwise be decoded for nothing.
+            if '"rawInput"' in line:
+                line = _rewritten(line)
 
             if self._pending_model:
                 request_id = rejected_request_id(line)

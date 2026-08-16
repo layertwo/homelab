@@ -12,6 +12,30 @@ KiroCrew (see docs/superpowers/specs/2026-08-10-kirocrew-ollama-design.md):
   session/set_mode   answered locally (OpenCode has no kiro modes)
   session/set_model  passed through (falls back to OPENCODE_MODEL if blank)
   _kiro.dev/*        answered locally so an awaited call cannot hang
+  rawInput           agent->client rewrites so the shell gate sees the command
+                     (see rewrite_agent_message)
+
+The last one is the deny-by-default workaround, and it is the only rewrite in
+the agent->client direction. KiroCrew denies any shell tool whose command it
+cannot recover (hooks.py:495, "could not be verified") -- and with OpenCode it
+could not recover any, because the two sides disagree on where a tool's params
+live:
+
+  * OpenCode puts them on the permission frame at params.toolCall.rawInput
+    (its ACP bridge builds the frame from the permission's own metadata), but
+    KiroCrew's inline fallback reads only toolCall.input / toolCall.params
+    (_dispatch.py:583), so it never sees them.
+  * The pending tool_call OpenCode sends first carries a params STUB -- for a
+    bash call its bridge adds the session cwd even when the input is still
+    empty, so rawInput is {"cwd": ...}. KiroCrew caches that stub in both
+    raw_params_cache and tool_input_cache, and since a cache hit short-circuits
+    the inline fallback (both use .pop(), _dispatch.py:535/581), the stub wins
+    over the real params and resolve_shell_command returns None.
+
+So the shim renames the permission frame's rawInput to input, and drops the
+stub from the pending shell tool_call so nothing poisons the caches. Verified
+against KiroCrew's own dispatch code by replaying frame sequences through it:
+without both halves the gate still denies.
 """
 
 import json
@@ -167,3 +191,50 @@ def rejected_request_id(line: str):
     if isinstance(msg, dict) and "error" in msg:
         return msg.get("id")
     return None
+
+
+def rewrite_agent_message(msg: dict) -> Optional[dict]:
+    """Rewrite one agent->client frame, or return None to relay it verbatim.
+
+    Both rewrites feed KiroCrew's deny-by-default shell gate; see the module
+    docstring for why each is needed and what happens without it.
+    """
+    method = msg.get("method")
+    if method == "session/request_permission":
+        return _permission_raw_input_as_input(msg)
+    if method == "session/update":
+        return _drop_pending_shell_stub(msg)
+    return None
+
+
+def _permission_raw_input_as_input(msg: dict) -> Optional[dict]:
+    """Copy toolCall.rawInput to toolCall.input (KiroCrew reads only input/params)."""
+    params = msg.get("params") or {}
+    tool_call = params.get("toolCall")
+    if not isinstance(tool_call, dict):
+        return None
+    raw_input = tool_call.get("rawInput")
+    if not isinstance(raw_input, dict) or not raw_input:
+        return None
+    # Never clobber params the agent sent; same truthiness test KiroCrew applies.
+    if tool_call.get("input") or tool_call.get("params"):
+        return None
+    return {**msg, "params": {**params, "toolCall": {**tool_call, "input": raw_input}}}
+
+
+def _drop_pending_shell_stub(msg: dict) -> Optional[dict]:
+    """Drop the cwd-only rawInput stub from the initial (pending) shell tool_call.
+
+    Only `execute`: read/edit params drive the path-derived governance scopes.
+    Costs nothing -- the running tool_call_update refills the caches right after.
+    """
+    params = msg.get("params") or {}
+    update = params.get("update")
+    if not isinstance(update, dict):
+        return None
+    if update.get("sessionUpdate") != "tool_call" or update.get("kind") != "execute":
+        return None
+    if "rawInput" not in update:
+        return None
+    stripped = {key: value for key, value in update.items() if key != "rawInput"}
+    return {**msg, "params": {**params, "update": stripped}}
