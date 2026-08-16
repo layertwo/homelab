@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - namespace.yml
   - pvc.yml
+  - configmap.yml
   - secrets-kirocrew.sops.yml
   - release.yml
   - ingressroute.yml

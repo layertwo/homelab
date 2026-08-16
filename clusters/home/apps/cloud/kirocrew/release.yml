@@ -68,8 +68,7 @@ spec:
               KIROCREW_ALLOW_UNSANDBOXED: 1
               KIROCREW_TELEMETRY_DISABLED: 1
               OPENCODE_MODEL: ollama-cloud/gpt-oss:120b
-              OPENCODE_PERMISSION: >-
-                {"bash":"ask","edit":"ask","webfetch":"ask","task":"ask","external_directory":"ask"}
+              OPENCODE_CONFIG: /config/opencode.json
             envFrom:
               - secretRef:
                   name: secrets-kirocrew
@@ -125,3 +124,9 @@ spec:
         existingClaim: kirocrew-data
         globalMounts:
           - path: /home/kirocrew
+      opencode-config:
+        enabled: true
+        type: configMap
+        name: kirocrew-opencode-config
+        globalMounts:
+          - path: /config
