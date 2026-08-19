@@ -54,7 +54,7 @@ spec:
           gateway:
             image:
               repository: ghcr.io/layertwo/kirocrew-opencode
-              tag: latest@sha256:3c942ff09819e819ccf341e3041aade20bb7afc76242089ea4a8e7db480e05ea
+              tag: latest@sha256:ac7e0f4a947181fa11f7e5e05d106fc12064cefe1bb57922797e956adb81159c
             env:
               TZ: Etc/UTC
               # entrypoint.sh resolves its data home from $HOME (via the
