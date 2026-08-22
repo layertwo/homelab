@@ -11,6 +11,7 @@ data:
             172.31.0.10 node1.layertwo.dev
             172.31.0.11 node2.layertwo.dev
             172.31.0.12 node3.layertwo.dev
+            172.31.0.18 node-nv1.layertwo.dev
             fallthrough
         }
         forward . 172.31.0.1
