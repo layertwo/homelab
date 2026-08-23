@@ -71,6 +71,11 @@ spec:
                   cpu: 60
                   memory: 70
                   pods: 60
+                # The first run evicted 34 pods at once and took Forgejo down; RWO volumes
+                # cannot all detach and reattach simultaneously. Rebalance over several
+                # cycles instead — same end state, no storm.
+                evictionLimits:
+                  node: 3
           plugins:
             balance:
               enabled:

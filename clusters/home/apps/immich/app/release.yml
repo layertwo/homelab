@@ -93,8 +93,10 @@ spec:
                   failureThreshold: 30
             resources:
               requests:
-                cpu: 1000m
-                memory: 2048M
+                cpu: 200m
+                memory: 1Gi
+              limits:
+                memory: 3Gi
       machine-learning:
         annotations:
           reloader.stakater.com/auto: "true"

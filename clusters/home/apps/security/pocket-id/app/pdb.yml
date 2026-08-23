@@ -1,0 +1,22 @@
+---
+# Pocket ID runs one replica: horizontal scaling is not supported yet, tracked upstream in
+# pocket-id/pocket-id#1549. The old single-instance database lock is already gone (#1624,
+# in v2.12+; we run v2.14.0), and the other structural blocker does not apply to us since
+# KEYS_STORAGE=database and the pod mounts no volumes. What remains unresolved is
+# coordinating JWT signing key creation across replicas — two instances racing at first
+# start could sign tokens the other rejects. Revisit scaling when that issue closes.
+#
+# Until then a PDB is the only availability protection available. With minAvailable: 1 an
+# eviction that would remove the sole replica is refused, which keeps the descheduler and an
+# un-forced drain from taking down the OIDC provider that gates every other app.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: pocket-id
+  namespace: pocket-id
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pocket-id
+      app.kubernetes.io/instance: pocket-id
