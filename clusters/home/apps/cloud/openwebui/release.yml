@@ -71,10 +71,14 @@ spec:
           value: q8_0
         - name: OLLAMA_CONTEXT_LENGTH
           value: "16384"
+      # local-path (NVMe) over NFS: 2.4 GB/s vs 47 MB/s, so a cold model load is
+      # seconds instead of 2m14s. Weights are re-downloadable, and the GPU
+      # nodeSelector already pins this pod to node-nv1, so node-local costs nothing.
+      # Not backed up by design. local-path does not enforce the size request.
       persistentVolume:
         enabled: true
         size: 60Gi
-        storageClass: sunbeam-nfs-csi
+        storageClass: local-path
         accessModes:
           - ReadWriteOnce
       resources:
