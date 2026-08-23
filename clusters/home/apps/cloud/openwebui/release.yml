@@ -35,8 +35,42 @@ spec:
       limits:
         memory: 2Gi
 
+    # gpu.enabled is deliberately off: it would add a nvidia.com/gpu resource limit,
+    # and this cluster runs no device plugin. The card is reached via runtimeClassName
+    # plus NVIDIA_VISIBLE_DEVICES, the same way jellyfin does it.
     ollama:
-      enabled: false
+      enabled: true
+      runtimeClassName: nvidia
+      ollama:
+        gpu:
+          enabled: false
+      nodeSelector:
+        feature.node.kubernetes.io/pci-0300_10de.present: "true"
+      extraEnv:
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: all
+        - name: OLLAMA_MAX_LOADED_MODELS
+          value: "1"
+        - name: OLLAMA_NUM_PARALLEL
+          value: "1"
+        - name: OLLAMA_KEEP_ALIVE
+          value: 5m
+        - name: OLLAMA_FLASH_ATTENTION
+          value: "1"
+      persistentVolume:
+        enabled: true
+        size: 60Gi
+        storageClass: sunbeam-nfs-csi
+        accessModes:
+          - ReadWriteOnce
+      resources:
+        requests:
+          cpu: 200m
+          memory: 2Gi
+        limits:
+          memory: 8Gi
 
     pipelines:
       enabled: false
