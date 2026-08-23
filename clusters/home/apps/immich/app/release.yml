@@ -94,9 +94,9 @@ spec:
             resources:
               requests:
                 cpu: 200m
-                memory: 1Gi
+                memory: 2Gi
               limits:
-                memory: 3Gi
+                memory: 8Gi
       machine-learning:
         annotations:
           reloader.stakater.com/auto: "true"
