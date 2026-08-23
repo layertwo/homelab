@@ -10,3 +10,5 @@ resources:
   - release.yml
   - ingressroute.yml
   - networkpolicy.yml
+  - secrets-volsync.sops.yml
+  - volsync.yml
