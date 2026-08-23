@@ -105,6 +105,13 @@ spec:
         metallb.io/address-pool: external
         metallb.io/loadBalancerIPs: "172.31.0.30"
 
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 512Mi
+
     autoscaling:
       enabled: true
       minReplicas: 2

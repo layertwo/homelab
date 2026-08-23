@@ -1,0 +1,18 @@
+---
+# CoreDNS is the cluster's only DNS. k3s ships it as a plain manifest AddOn with no
+# `replicas` field and no PodDisruptionBudget, so nothing stops a voluntary eviction
+# from taking cluster DNS down until it reschedules.
+#
+# With minAvailable: 1, an eviction that would drop the last healthy pod is refused
+# outright. That protects it from the descheduler and from an un-forced `kubectl drain`
+# even while replicas is 1 — which is the state k3s leaves it in by default.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: coredns
+  namespace: kube-system
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      k8s-app: kube-dns
