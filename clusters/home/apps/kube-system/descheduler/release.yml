@@ -34,7 +34,11 @@ spec:
               args:
                 evictFailedBarePods: true
                 evictLocalStoragePods: true
-                evictSystemCriticalPods: true
+                # false since LowNodeUtilization was added: that plugin evicts on
+                # utilization alone, which would make system-critical pods fair game
+                # for a purely cosmetic rebalance. The constraint-violation plugins
+                # never matched them anyway, so nothing is lost.
+                evictSystemCriticalPods: false
                 nodeFit: true
             - name: RemovePodsViolatingInterPodAntiAffinity
             - name: RemovePodsViolatingNodeAffinity
@@ -47,10 +51,31 @@ spec:
                 constraints:
                   - DoNotSchedule
                   - ScheduleAnyway
+            # Spreads load onto under-used nodes. Without this the descheduler only
+            # evicts constraint *violations*, so an empty new node stays empty — it
+            # violates nothing. Percentages are of each node's own allocatable, which
+            # matters here: node-nv1 has 12 CPU vs 4 on node1-3.
+            #
+            # A node must be under EVERY `thresholds` value to receive pods, and over
+            # ANY `targetThresholds` value to shed them. Nodes in between are left alone.
+            #
+            # Utilization is measured from pod *requests*, not live usage — so a node
+            # can read as full while idle if its pods over-request.
+            - name: LowNodeUtilization
+              args:
+                thresholds:
+                  cpu: 30
+                  memory: 30
+                  pods: 30
+                targetThresholds:
+                  cpu: 60
+                  memory: 70
+                  pods: 60
           plugins:
             balance:
               enabled:
                 - RemovePodsViolatingTopologySpreadConstraint
+                - LowNodeUtilization
             deschedule:
               enabled:
                 - RemovePodsViolatingInterPodAntiAffinity
