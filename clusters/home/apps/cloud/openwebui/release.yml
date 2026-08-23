@@ -64,6 +64,13 @@ spec:
           value: 5m
         - name: OLLAMA_FLASH_ATTENTION
           value: "1"
+        # Qwen3.5 head_dim is 256, so KV costs 128 KiB/token at f16 and ollama
+        # auto-sizes to 4096. q8_0 halves it; 16384 then fits in ~1 GiB.
+        # q8_0 requires flash attention above.
+        - name: OLLAMA_KV_CACHE_TYPE
+          value: q8_0
+        - name: OLLAMA_CONTEXT_LENGTH
+          value: "16384"
       persistentVolume:
         enabled: true
         size: 60Gi
