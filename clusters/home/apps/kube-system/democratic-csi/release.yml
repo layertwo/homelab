@@ -24,7 +24,7 @@ spec:
       fsGroupPolicy: File
     storageClasses:
       - name: sunbeam-nfs-csi
-        defaultClass: false
+        defaultClass: true
         reclaimPolicy: Delete
         volumeBindingMode: Immediate
         allowVolumeExpansion: true
