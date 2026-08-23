@@ -9,7 +9,7 @@ The homelab is a GitOps-managed Kubernetes cluster built with K3S, Flux CD, and 
 ## Documentation Structure
 
 - [Networking](networking.md): Details about the networking setup, including MetalLB, Traefik, and DNS configuration
-- [Storage](storage.md): Information about the storage setup, including HPE CSI iSCSI (`sunbeam-iscsi-csi`, default) and Democratic CSI NFS, plus backup strategy
+- [Storage](storage.md): Information about the storage setup, including HPE CSI iSCSI (`sunbeam-iscsi-csi`, default) and Democratic CSI NFS, plus backup strategy — read the [zero-LUN iSCSI troubleshooting entry](storage.md#iscsi-sessions-logged-in-but-exposing-zero-luns) first if volumes will not mount
 - [Media Stack](media-stack.md): Documentation for the media management applications, including Sonarr, Radarr, and Jellyfin
 - [Home Automation](home-automation.md): Details about the home automation setup, now largely moved off-cluster; the cluster only provides a thin passthrough to an external Home Assistant host
 - [Monitoring](monitoring.md): Information about the monitoring stack, including Gatus health checking and its PostgreSQL backend

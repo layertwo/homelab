@@ -81,12 +81,45 @@ restart the join. Removing a learner cannot affect quorum — learners do not vo
 A joining node needs these or storage/networking silently misbehaves:
 
 - `nfs-common` installed, or `sunbeam-nfs-csi` (RWX) mounts fail
+- **its IP added to every TrueNAS NFS share** via `fix-nfs-share-hosts.py`, or *all* NFS
+  mounts fail with `access denied by server` — both democratic-csi volumes and hand-made
+  shares like `/mnt/storage0/media`. Adding the node to `shareAllowedHosts` in the
+  democratic-csi chart is **not** sufficient: that list is stamped onto each export at
+  volume-creation time and never revisited, so it only affects volumes created afterwards.
+  This is the single most likely thing to bite when adding a node.
 - `open-iscsi` + `multipath-tools` installed, with a **unique** `/etc/iscsi/initiatorname.iscsi`
 - its IQN added to the TrueNAS Initiator Groups via `fix-iscsi-initiator-groups.py`, or
   `sunbeam-iscsi-csi` volumes cannot attach
 - `location=home` label, or `metallb-speaker` skips it
 - an entry in `clusters/home/apps/kube-system/coredns/coredns-custom.yml`
 - nothing in the cluster may hardcode a NIC name — node NICs differ (`eno1` vs `enp5s0`)
+
+Verify storage actually works before declaring the node done — schedule a throwaway pod
+pinned to it with one `sunbeam-nfs-csi` and one `sunbeam-iscsi-csi` PVC. A CSI DaemonSet pod
+going `Ready` proves only that the driver registered, not that any volume can mount.
+
+#### Gotcha: `kubectl apply` on a Flux-managed object silently merges
+
+Flux creates objects server-side, so they carry no `kubectl.kubernetes.io/last-applied-configuration`
+annotation. Client-side `kubectl apply` has no baseline to diff against and therefore **adds
+map keys without removing ones you deleted** — editing a `nodeSelector` in a HelmRelease and
+applying it leaves *both* the old and new keys, and the pod becomes unschedulable. kubectl
+prints a warning about the missing annotation; it is easy to read past and it matters.
+
+`kubectl apply --server-side --force-conflicts` does not fix this either, because the stale
+key is owned by another field manager (kustomize-controller) and SSA will not delete fields
+it does not manage. Remove the key explicitly:
+
+```
+kubectl patch helmrelease <name> -n <ns> --type=merge \
+  -p '{"spec":{"values":{...{"nodeSelector":{"old.label/key":null}}}}}'
+```
+
+Better: commit to git and let Flux apply it. Only reach for `kubectl` when Flux is paused,
+and prefer `helm rollback` over hand-patching a Deployment — patching creates drift
+helm-controller will not reconcile away (drift detection is off by default), and deleting a
+Deployment mid-upgrade wedges the release in `pending-upgrade`, which blocks all further
+reconciles until rolled back.
 
 ### Other utilities
 

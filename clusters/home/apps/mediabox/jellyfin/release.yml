@@ -29,7 +29,10 @@ spec:
               TZ: Etc/UTC
               UMASK: "0022"
               UMASK_SET: "0022"
-              NVIDIA_VISIBLE_DEVICES: void
+              # NVENC/NVDEC needs `video`, the CUDA HDR tone-mapper needs `compute`.
+              # Defaulting to `utility` gives a working nvidia-smi and broken transcoding.
+              NVIDIA_VISIBLE_DEVICES: all
+              NVIDIA_DRIVER_CAPABILITIES: all
               S6_READ_ONLY_ROOT: "1"
               JELLYFIN_PublishedServerUrl: http://127.0.0.1:8096
               MALLOC_TRIM_THRESHOLD_: 100000
@@ -54,8 +57,11 @@ spec:
             supplementalGroups:
               - 109
               - 568
+          # NFD's built-in PCI source: class 0300 (VGA) + vendor 10de (NVIDIA).
+          # Self-maintaining — picks up any future GPU node with no manifest change.
           nodeSelector:
-            intel.feature.node.kubernetes.io/gpu: "true"
+            feature.node.kubernetes.io/pci-0300_10de.present: "true"
+          runtimeClassName: nvidia
     defaultPodOptions:
       dnsConfig:
         nameservers:
