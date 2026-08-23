@@ -34,21 +34,23 @@ Democratic CSI is used to connect to a TrueNAS server for NFS storage. This prov
 
 ## Storage Classes
 
-### sunbeam-nfs-csi
+### sunbeam-nfs-csi (default)
 
 - Provided by Democratic CSI
 - Uses NFS protocol
-- Not set as the default storage class
+- **Set as the default storage class** (since 2026-08-23; previously `sunbeam-iscsi-csi`).
+  It backs ~77% of volumes, and unlike iSCSI it can serve RWX as well as RWO — an RWX
+  claim against an iSCSI default fails to provision.
 - Supports volume expansion
 - Uses the following mount options:
   - noatime
   - nfsvers=4
 
-### sunbeam-iscsi-csi (default)
+### sunbeam-iscsi-csi
 
 - Provided by HPE CSI Driver / TrueNAS CSP (`csi.hpe.com`)
 - Uses iSCSI block storage
-- Set as the default storage class
+- Not the default class — must be requested explicitly
 - Backed by a centralized TrueNAS iSCSI target (not replicated across k8s nodes)
 - Supports volume expansion
 - RWO only
