@@ -21,8 +21,10 @@ spec:
       daily: 7
       weekly: 4
       monthly: 6
+    # OnRootMismatch: without it fsGroup recursively chowns all 74k files each run.
     moverSecurityContext:
       runAsUser: 3001
       runAsGroup: 1000
       fsGroup: 1000
+      fsGroupChangePolicy: OnRootMismatch
   # No `unlock:` — set it to a new timestamp only to clear a stale restic lock.
