@@ -60,12 +60,15 @@ spec:
         nfs:
           shareHost: 172.31.0.9
           shareAlldirs: false
+          # Stamped onto each NFS export at volume-creation time ONLY — editing this
+          # does not touch existing shares. After adding a node here, backfill with
+          # bootstrap/fix-nfs-share-hosts.py or the new node cannot mount old volumes.
+          # .40/.41 removed 2026-08-23: those hosts no longer exist.
           shareAllowedHosts:
             - 172.31.0.10
             - 172.31.0.11
             - 172.31.0.12
-            - 172.31.0.40
-            - 172.31.0.41
+            - 172.31.0.18
           shareAllowedNetworks: []
           shareMaprootUser: root
           shareMaprootGroup: wheel
