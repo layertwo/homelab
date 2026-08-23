@@ -1,0 +1,11 @@
+---
+# Required by VolSync copyMethod: Snapshot for iSCSI PVCs, which are RWO only.
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: sunbeam-iscsi-csi
+driver: csi.hpe.com
+deletionPolicy: Delete
+parameters:
+  csi.storage.k8s.io/snapshotter-secret-name: truenas-secret
+  csi.storage.k8s.io/snapshotter-secret-namespace: hpe-storage

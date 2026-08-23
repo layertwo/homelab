@@ -22,6 +22,14 @@ spec:
     csiDriver:
       name: org.democratic-csi.nfs
       fsGroupPolicy: File
+    # Required by VolSync copyMethod: Snapshot. detachedSnapshots false = ZFS snapshot,
+    # true would full-copy the dataset.
+    volumeSnapshotClasses:
+      - name: sunbeam-nfs-csi
+        deletionPolicy: Delete
+        parameters:
+          detachedSnapshots: "false"
+
     storageClasses:
       - name: sunbeam-nfs-csi
         defaultClass: true

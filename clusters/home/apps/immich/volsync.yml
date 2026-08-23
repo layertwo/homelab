@@ -1,0 +1,28 @@
+---
+# Reference pattern for VolSync here. Direct deadlocks on RWO volumes; use Snapshot.
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: immich-data
+  namespace: immich
+spec:
+  sourcePVC: immich-data
+  trigger:
+    schedule: "0 3 * * *"
+  restic:
+    repository: secrets-immich-volsync
+    copyMethod: Snapshot
+    volumeSnapshotClassName: sunbeam-nfs-csi
+    storageClassName: sunbeam-nfs-csi
+    cacheCapacity: 8Gi
+    cacheStorageClassName: sunbeam-nfs-csi
+    pruneIntervalDays: 14
+    retain:
+      daily: 7
+      weekly: 4
+      monthly: 6
+    moverSecurityContext:
+      runAsUser: 3001
+      runAsGroup: 1000
+      fsGroup: 1000
+  # No `unlock:` — set it to a new timestamp only to clear a stale restic lock.
