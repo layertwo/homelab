@@ -40,6 +40,11 @@ spec:
     # plus NVIDIA_VISIBLE_DEVICES, the same way jellyfin does it.
     ollama:
       enabled: true
+      # Pinned so renovate can see it; the subchart default left us on 0.32.4.
+      # repository is required here or helm-values can't resolve the image.
+      image:
+        repository: ollama/ollama
+        tag: 0.32.15
       runtimeClassName: nvidia
       ollama:
         gpu:
