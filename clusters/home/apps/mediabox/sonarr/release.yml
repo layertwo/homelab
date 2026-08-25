@@ -27,7 +27,7 @@ spec:
           sonarr:
             image:
               repository: ghcr.io/home-operations/sonarr
-              tag: 4.0.19.3001
+              tag: 4.0.19.3006
             env:
               TZ: Etc/UTC
               SONARR__APP__INSTANCENAME: sonarr
