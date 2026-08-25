@@ -18,6 +18,12 @@ spec:
       max_wal_size: "2GB"
       checkpoint_completion_target: "0.9"
       archive_timeout: "300s"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 4Gi
   enableSuperuserAccess: true
   bootstrap:
     initdb:
