@@ -25,7 +25,7 @@ dev = [
     "isort==8.0.1",
     "flake8==7.3.0",
     "Flake8-pyproject==1.2.4",
-    "responses==0.26.2",
+    "responses==0.26.3",
 ]
 
 [tool.setuptools]
