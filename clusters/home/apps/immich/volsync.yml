@@ -27,4 +27,5 @@ spec:
       runAsGroup: 1000
       fsGroup: 1000
       fsGroupChangePolicy: OnRootMismatch
-  # No `unlock:` — set it to a new timestamp only to clear a stale restic lock.
+    # Set to a new timestamp only to clear a stale restic lock.
+    unlock: "2026-08-29"
