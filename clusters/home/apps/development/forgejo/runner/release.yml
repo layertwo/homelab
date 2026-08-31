@@ -34,7 +34,7 @@ spec:
           register:
             image:
               repository: code.forgejo.org/forgejo/runner
-              tag: 13.0.0
+              tag: 13.1.0
             command:
               - /bin/bash
               - -c
@@ -76,7 +76,7 @@ spec:
           runner:
             image:
               repository: code.forgejo.org/forgejo/runner
-              tag: 13.0.0
+              tag: 13.1.0
             command:
               - /bin/bash
               - -c
