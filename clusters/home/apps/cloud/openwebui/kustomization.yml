@@ -6,3 +6,5 @@ resources:
   - secrets-openwebui.sops.yml
   - release.yml
   - ingressroute.yml
+  - secrets-volsync.sops.yml
+  - volsync.yml

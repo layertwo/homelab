@@ -1,0 +1,27 @@
+---
+apiVersion: volsync.backube/v1alpha1
+kind: ReplicationSource
+metadata:
+  name: jellyfin-config
+  namespace: mediabox
+spec:
+  sourcePVC: jellyfin-config
+  trigger:
+    schedule: "30 3 * * *"
+  restic:
+    repository: secrets-jellyfin-volsync
+    copyMethod: Snapshot
+    volumeSnapshotClassName: sunbeam-nfs-csi
+    storageClassName: sunbeam-nfs-csi
+    cacheCapacity: 2Gi
+    cacheStorageClassName: sunbeam-nfs-csi
+    pruneIntervalDays: 14
+    retain:
+      daily: 7
+      weekly: 4
+      monthly: 6
+    moverSecurityContext:
+      runAsUser: 3001
+      runAsGroup: 568
+      fsGroup: 568
+      fsGroupChangePolicy: OnRootMismatch
