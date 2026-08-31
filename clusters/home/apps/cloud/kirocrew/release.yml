@@ -50,6 +50,41 @@ spec:
             runAsGroup: 1000
             fsGroup: 1000
             fsGroupChangePolicy: OnRootMismatch
+        initContainers:
+          # KiroCrew apps install skills into ~/.kiro/crew/skills at runtime
+          # (nested one level under per-app wrapper dirs, often as symlinks
+          # into site-packages). opencode only discovers skills one level
+          # deep at ~/.config/opencode/skills/<name>/SKILL.md, so re-link
+          # them into place before the gateway starts, on every pod boot.
+          # find -L follows symlinks so app-installed skills are picked up;
+          # ln -sfn makes it idempotent.
+          link-opencode-skills:
+            image:
+              repository: busybox
+              tag: latest
+            command:
+              - /bin/sh
+              - -c
+            args:
+              - |
+                set -eu
+                mkdir -p "$HOME/.config/opencode/skills"
+                [ -d "$HOME/.kiro/crew/skills" ] || exit 0
+                find -L "$HOME/.kiro/crew/skills" -name SKILL.md \
+                  -exec sh -c 'd="${1%/SKILL.md}"; ln -sfn "$d" "$HOME/.config/opencode/skills/${d##*/}"' _ {} \;
+            env:
+              HOME:
+                value: /home/kirocrew
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 64Mi
         containers:
           gateway:
             image:
