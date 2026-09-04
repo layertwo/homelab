@@ -33,7 +33,7 @@ spec:
           api:
             image:
               repository: ghcr.io/dfpc-coe/cloudtak-api
-              tag: v13.47.1
+              tag: v13.78.2
               pullPolicy: IfNotPresent
             env:
               API_URL: "https://cloudtak.layertwo.dev"
@@ -69,7 +69,7 @@ spec:
           tiles:
             image:
               repository: ghcr.io/dfpc-coe/cloudtak-pmtiles
-              tag: v13.47.1
+              tag: v13.78.2
               pullPolicy: IfNotPresent
             env:
               ASSET_BUCKET: "cloudtak"
