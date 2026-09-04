@@ -44,7 +44,7 @@ spec:
       # repository is required here or helm-values can't resolve the image.
       image:
         repository: ollama/ollama
-        tag: 0.33.2
+        tag: 0.33.3
       runtimeClassName: nvidia
       ollama:
         gpu:
