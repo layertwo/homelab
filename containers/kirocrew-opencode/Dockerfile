@@ -1,5 +1,5 @@
 FROM docker.io/library/node:24-slim AS nodejs
-FROM ghcr.io/kirodotdev/kirocrew:0.2.0
+FROM ghcr.io/kirodotdev/kirocrew:0.5.0
 
 # renovate: datasource=npm depName=opencode-ai
 ARG OPENCODE_VERSION=1.18.19
