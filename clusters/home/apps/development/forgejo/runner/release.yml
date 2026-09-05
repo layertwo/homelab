@@ -113,7 +113,7 @@ spec:
           dind:
             image:
               repository: docker
-              tag: 29.7.2-dind
+              tag: 29.8.0-dind
             env:
               DOCKER_TLS_CERTDIR:
                 value: /certs
