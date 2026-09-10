@@ -1,0 +1,131 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: reticulum
+  namespace: reticulum
+spec:
+  interval: 30m
+  timeout: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      annotations:
+        reloader.stakater.com/auto: "true"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    controllers:
+      main:
+        type: deployment
+        strategy: Recreate
+        containers:
+          rnsd:
+            image:
+              repository: ghcr.io/layertwo/reticulum
+              tag: latest@sha256:1a472070c6524528759f654c77aba214252077dc5a32f7b32940987e416a163f
+            env:
+              TZ: Etc/UTC
+            # No probes on purpose. A TCP probe is a connect-and-close, and the Backbone
+            # listener bans an IP for 12 h after six connections shorter than 20 s. rnsd
+            # exits on interface errors (panic_on_interface_error = yes in the config), so
+            # kubelet restarts cover liveness. Same reason there is no Gatus TCP check.
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+
+    service:
+      # ClusterIP for in-cluster clients (lxmd). With two Services the chart would name
+      # this one "reticulum-main"; force the bare name so lxmd's
+      # remote = reticulum.reticulum.svc.cluster.local resolves.
+      main:
+        controller: main
+        forceRename: reticulum
+        ports:
+          rns:
+            port: 4242
+            protocol: TCP
+      # Internet/LAN entry point. Local policy keeps real client IPs, which the
+      # fast-flapping guard keys on; with Cluster policy one flapping client could
+      # ban a node IP that every other client is SNATed to.
+      lb:
+        controller: main
+        type: LoadBalancer
+        externalTrafficPolicy: Local
+        annotations:
+          metallb.io/address-pool: external
+          # ponytail: pin with metallb.io/loadBalancerIPs once MetalLB has assigned one,
+          # so a Service re-create cannot move the IP the router forwards to.
+          external-dns.alpha.kubernetes.io/hostname: "rns.layertwo.dev"
+          # Cloudflare's proxy only carries HTTP; this is raw TCP.
+          external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+          # all: UniFi serves the LAN IP, Cloudflare serves a CNAME to proxy-external.
+          layertwo.dev/publish: "all"
+        ports:
+          rns:
+            port: 4242
+            protocol: TCP
+
+    persistence:
+      # rnsd's config dir. Everything it writes here is a regenerable cache.
+      config:
+        type: emptyDir
+        sizeLimit: 512Mi
+        globalMounts:
+          - path: /config
+      # Separate volume so the directory is owned by fsGroup and writable. If the
+      # identity file below were the first thing to create /config/storage, kubelet
+      # would create that directory as root and rnsd could not write into it.
+      config-storage:
+        type: emptyDir
+        sizeLimit: 512Mi
+        globalMounts:
+          - path: /config/storage
+      secrets:
+        type: secret
+        name: secrets-rnsd
+        defaultMode: 288   # 0440: root:1000, group-readable only
+        globalMounts:
+          - path: /config/config
+            subPath: config
+            readOnly: true
+          - path: /config/storage/transport_identity
+            subPath: transport_identity
+            readOnly: true
