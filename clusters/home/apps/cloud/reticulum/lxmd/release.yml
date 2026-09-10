@@ -1,0 +1,107 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: lxmd
+  namespace: reticulum
+spec:
+  interval: 30m
+  timeout: 5m
+  chart:
+    spec:
+      chart: app-template
+      version: 5.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bjw-s
+        namespace: flux-system
+      interval: 15m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    defaultPodOptions:
+      annotations:
+        reloader.stakater.com/auto: "true"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+
+    controllers:
+      main:
+        type: deployment
+        strategy: Recreate
+        containers:
+          lxmd:
+            image:
+              repository: ghcr.io/layertwo/reticulum
+              tag: latest@sha256:1a472070c6524528759f654c77aba214252077dc5a32f7b32940987e416a163f
+            # Same image as rnsd; only the command differs. Propagation is enabled in the
+            # ConfigMap (enable_node = yes) rather than with -p so the config is the truth.
+            command: ["lxmd", "--config", "/lxmd", "--rnsconfig", "/rns"]
+            env:
+              TZ: Etc/UTC
+            # Nothing cheap to probe (see rnsd release for the TCP-probe hazard). The
+            # Backbone client reconnects to the hub on its own, forever, every 5 s.
+            probes:
+              liveness:
+                enabled: false
+              readiness:
+                enabled: false
+              startup:
+                enabled: false
+            resources:
+              requests:
+                cpu: 50m
+                memory: 128Mi
+              limits:
+                memory: 512Mi
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+
+    persistence:
+      # lxmd config dir. storage/ (the message store) is created here by lxmd.
+      # emptyDir on purpose: queued messages for offline devices are lost on a pod
+      # restart. Swap for a PVC if that ever matters. Identity is in the Secret.
+      lxmd:
+        type: emptyDir
+        sizeLimit: 2Gi
+        globalMounts:
+          - path: /lxmd
+      lxmd-config:
+        type: configMap
+        name: lxmd-config
+        globalMounts:
+          - path: /lxmd/config
+            subPath: config
+            readOnly: true
+      # lxmd's own client-only Reticulum instance. Caches only.
+      rns:
+        type: emptyDir
+        sizeLimit: 256Mi
+        globalMounts:
+          - path: /rns
+      secrets:
+        type: secret
+        name: secrets-lxmd
+        defaultMode: 288   # 0440
+        globalMounts:
+          - path: /lxmd/identity
+            subPath: identity
+            readOnly: true
+          - path: /rns/config
+            subPath: rns-config
+            readOnly: true
