@@ -23,10 +23,9 @@ metadata:
   name: garage-s3
   namespace: garage
   annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "s3.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    external-dns.kubernetes.io/hostname: "s3.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
     layertwo.dev/publish: "all"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
@@ -49,10 +48,9 @@ metadata:
   name: garage-s3-wildcard
   namespace: garage
   annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "*.s3.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    external-dns.kubernetes.io/hostname: "*.s3.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
     layertwo.dev/publish: "external"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
@@ -75,10 +73,9 @@ metadata:
   name: garage-s3-website
   namespace: garage
   annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "*.s3-website.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    external-dns.kubernetes.io/hostname: "*.s3-website.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
     layertwo.dev/publish: "external"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external

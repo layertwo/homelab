@@ -38,7 +38,6 @@ spec:
             name: *secret
             key: token
     extraArgs:
-      - --annotation-prefix=external-dns.alpha.kubernetes.io/
       - --ignore-ingress-tls-spec
       - --cloudflare-proxied
       - --cloudflare-dns-records-per-page=1000

@@ -5,9 +5,8 @@ metadata:
   name: goldilocks
   namespace: monitoring
   annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "goldilocks.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    external-dns.kubernetes.io/hostname: "goldilocks.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-internal.layertwo.dev"
     layertwo.dev/publish: "internal"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: internal

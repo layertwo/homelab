@@ -138,8 +138,7 @@ spec:
         annotations:
           metallb.universe.tf/address-pool: external
           metallb.universe.tf/allow-shared-ip: cloudtak-media
-          external-dns.alpha.kubernetes.io/enabled: "true"
-          external-dns.alpha.kubernetes.io/hostname: "media.cloudtak.layertwo.dev"
+          external-dns.kubernetes.io/hostname: "media.cloudtak.layertwo.dev"
           layertwo.dev/publish: "internal"
         ports:
           rtsp:

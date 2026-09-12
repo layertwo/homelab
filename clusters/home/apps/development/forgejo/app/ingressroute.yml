@@ -5,9 +5,8 @@ metadata:
   name: forgejo-http
   namespace: forgejo
   annotations:
-    external-dns.alpha.kubernetes.io/enabled: "true"
-    external-dns.alpha.kubernetes.io/hostname: "code.layertwo.dev"
-    external-dns.alpha.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/hostname: "code.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
     layertwo.dev/publish: "all"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
     kubernetes.io/ingress.class: external
