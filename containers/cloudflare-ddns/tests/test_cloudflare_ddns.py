@@ -23,7 +23,7 @@ def dns_name() -> str:
 
 @pytest.fixture
 def a_record(ip: str, dns_name: str) -> ARecord:
-    return ARecord(id="foobar", content=ip, name=dns_name, type="A", proxied=False)
+    return ARecord(id="foobar", content=ip, name=dns_name, type="A", ttl=1, proxied=False)
 
 
 @pytest.fixture
@@ -33,17 +33,18 @@ def aaaa_record(ip: str, dns_name: str) -> AAAARecord:
         content="2001:db8:3333:4444:5555:6666:7777:8888",
         name=dns_name,
         type="AAAA",
+        ttl=1,
     )
 
 
 @pytest.fixture
 def a_record_different(different_ip: str, dns_name) -> ARecord:
-    return ARecord(id="foobar", content=different_ip, name=dns_name, type="A")
+    return ARecord(id="foobar", content=different_ip, name=dns_name, type="A", ttl=1)
 
 
 @pytest.fixture
 def ptr_record(different_ip: str, dns_name) -> PTRRecord:
-    return PTRRecord(id="foobar", content=different_ip, name=dns_name, type="PTR")
+    return PTRRecord(id="foobar", content=different_ip, name=dns_name, type="PTR", ttl=1)
 
 
 @pytest.fixture
@@ -88,7 +89,7 @@ def test_happy_path_no_ip(
     a_record,
 ):
     mock_requests_get.return_value = mock_requests_response
-    mock_cloudflare_records_list.return_value = None
+    mock_cloudflare_records_list.return_value = []
     main()
 
 
