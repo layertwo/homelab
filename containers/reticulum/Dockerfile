@@ -1,6 +1,6 @@
 FROM python:3.14.7-slim
 
-COPY --from=ghcr.io/astral-sh/uv:0.12.12 /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.12.13 /uv /uvx /bin/
 
 # UV_PYTHON_DOWNLOADS=0: use this image's interpreter, never a managed download.
 # UV_COMPILE_BYTECODE=1: the runtime root filesystem is read-only, so compile now.
