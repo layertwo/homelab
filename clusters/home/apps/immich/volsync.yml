@@ -28,4 +28,4 @@ spec:
       fsGroup: 1000
       fsGroupChangePolicy: OnRootMismatch
     # Set to a new timestamp only to clear a stale restic lock.
-    unlock: "2026-08-29"
+    unlock: "2026-09-13"
