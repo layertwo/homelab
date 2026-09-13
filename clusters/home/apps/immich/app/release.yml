@@ -6,6 +6,7 @@ metadata:
   namespace: immich
 spec:
   interval: 15m
+  timeout: 20m
   chart:
     spec:
       chart: app-template
@@ -19,10 +20,8 @@ spec:
     remediation:
       retries: 3
   upgrade:
-    cleanupOnFail: true
-    remediation:
-      strategy: rollback
-      retries: 3
+    strategy:
+      name: RetryOnFailure
   dependsOn:
     - name: immich-redis
       namespace: immich
@@ -90,7 +89,7 @@ spec:
                   initialDelaySeconds: 0
                   periodSeconds: 10
                   timeoutSeconds: 1
-                  failureThreshold: 30
+                  failureThreshold: 60
             resources:
               requests:
                 cpu: 200m
