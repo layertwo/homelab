@@ -30,4 +30,4 @@ spec:
         alletraStorageMP: true
         b10000FileService: true
       logLevel: info
-      disableNodeMonitor: false
+      disableNodeMonitor: true
