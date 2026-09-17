@@ -37,7 +37,6 @@ spec:
               APP_URL: "https://idp.layertwo.dev"
               APP_NAME: "layertwo"
               ANALYTICS_DISABLED: "true"
-              UI_CONFIG_DISABLED: "true"
               ALLOW_USER_SIGNUPS: "withToken"
               TRUST_PROXY: "true"
               KEYS_STORAGE: "database"
