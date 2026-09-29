@@ -28,7 +28,7 @@ spec:
             dependsOn: port-forward
             image:
               repository: ghcr.io/home-operations/qbittorrent
-              tag: 5.2.3
+              tag: 5.2.4
             env:
               TZ: Etc/UTC
               # Only QBT_<CLI_OPTION_NAME> vars work (see `qbittorrent-nox --help`).
