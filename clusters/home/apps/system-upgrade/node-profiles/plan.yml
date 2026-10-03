@@ -26,3 +26,5 @@ spec:
         install -D -m 0644 /profiles/kirocrew-userns /host/etc/apparmor.d/kirocrew-userns
         install -D -m 0644 /profiles/kirocrew-seccomp.json /host/var/lib/kubelet/seccomp/profiles/kirocrew-seccomp.json
         chroot /host apparmor_parser -r /etc/apparmor.d/kirocrew-userns
+        install -D -m 0644 /profiles/99-zz-kirocrew-userns.conf /host/etc/sysctl.d/99-zz-kirocrew-userns.conf
+        chroot /host sysctl -p /etc/sysctl.d/99-zz-kirocrew-userns.conf
