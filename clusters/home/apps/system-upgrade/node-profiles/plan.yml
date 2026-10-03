@@ -1,0 +1,28 @@
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: node-profiles
+  namespace: system-upgrade
+spec:
+  version: "1"
+  serviceAccountName: system-upgrade
+  concurrency: 4
+  nodeSelector:
+    matchExpressions:
+      - {key: kubernetes.io/os, operator: In, values: [linux]}
+  tolerations:
+    - {effect: NoSchedule, operator: Exists}
+    - {effect: NoExecute, operator: Exists}
+    - {key: CriticalAddonsOnly, operator: Exists}
+  secrets:
+    - name: node-profiles
+      path: /profiles
+  upgrade:
+    image: docker.io/library/busybox:1.38.0-glibc
+    command: ["sh", "-ec"]
+    args:
+      - |
+        install -D -m 0644 /profiles/kirocrew-userns /host/etc/apparmor.d/kirocrew-userns
+        install -D -m 0644 /profiles/kirocrew-seccomp.json /host/var/lib/kubelet/seccomp/profiles/kirocrew-seccomp.json
+        chroot /host apparmor_parser -r /etc/apparmor.d/kirocrew-userns
