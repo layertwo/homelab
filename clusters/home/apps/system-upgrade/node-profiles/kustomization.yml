@@ -11,3 +11,4 @@ secretGenerator:
     files:
       - kirocrew-userns
       - kirocrew-seccomp.json
+      - 99-zz-kirocrew-userns.conf
