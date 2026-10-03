@@ -8,26 +8,6 @@ data:
   opencode.json: |
     {
       "$schema": "https://opencode.ai/config.json",
-      "permission": {
-        "bash": { "*": "allow" },
-        "edit": "allow",
-        "webfetch": "allow",
-        "websearch": "allow",
-        "task": "allow",
-        "external_directory": "allow",
-        "read": {
-          "*": "allow",
-          "*.env": "deny",
-          "*.env.*": "deny",
-          "*.env.example": "allow"
-        },
-        "glob": "allow",
-        "grep": "allow",
-        "question": "allow",
-        "skill": "allow",
-        "lsp": "allow",
-        "doom_loop": "deny"
-      },
       "plugin": [
         "superpowers@git+https://github.com/obra/superpowers.git",
         "@dietrichgebert/ponytail"
