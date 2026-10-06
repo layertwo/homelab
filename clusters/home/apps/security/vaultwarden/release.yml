@@ -20,7 +20,7 @@ spec:
     image:
       registry: ghcr.io
       repository: dani-garcia/vaultwarden
-      tag: 1.37.3
+      tag: 1.37.4
 
     extraVolumes:
       - name: vaultwarden-rsa-key
