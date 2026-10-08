@@ -181,8 +181,8 @@ and cannot see the host.
 - Accepted caveat: sites share the registrable domain `layertwo.dev` with your apps. The
   entrypoint CORS rule `^(.+)\.layertwo\.dev$` matches `x.w.tunnels.layertwo.dev`, so every site
   origin is on every app's cross-origin allow-list (credentials are not allowed by that
-  middleware). Pocket ID's session cookies are `__Host-` prefixed (v2.18.0 source) and our
-  cookies will be too. Other apps' cookies were not audited. The sites domain is one setting
+  middleware). Pocket ID's session cookies are `__Host-` prefixed (v2.18.0 source); ours are
+  `__Secure-` prefixed for now (Verification 5). Other apps' cookies were not audited. The sites domain is one setting
   (`SITES_DOMAIN`); moving to a separate registrable domain, where sites sit one level down and
   can be proxied, is a config, DNS and certificate change.
 
@@ -394,7 +394,7 @@ tunnels.layertwo.dev                      proxied; covered by the existing *.lay
 - Both IngressRoutes use class `external`; the OIDC plugin is registered only there.
 - **Middlewares** (namespace `tunnels`): `tunnels-strip-identity` blanks `X-Tunnels-Sub`,
   `X-Tunnels-User`, `X-Tunnels-Groups` and `X-Tunnel-User` so a client cannot supply them.
-  `tunnels-oidc` is the plugin: `UsePkce`, a `__Host-` cookie prefix, claims asserted to include
+  `tunnels-oidc` is the plugin: `UsePkce`, a `__Secure-` cookie prefix, claims asserted to include
   `tunnel-viewers` or `tunnel-creators`, and `Headers` that set the three `X-Tunnels-*` values.
   `tunnels-authz` is `forwardAuth` to `http://broker.tunnels.svc:8080/authz` with
   `authResponseHeaders: [X-Tunnel-User]`. `tunnels-strip-internal` removes `X-Tunnels-*` again,
@@ -460,7 +460,7 @@ tunnels.layertwo.dev                      proxied; covered by the existing *.lay
 | Plugin endpoint abused | not routed; NetworkPolicy plus a secret path |
 | Broker compromise | no Kubernetes RBAC; a compromise affects tunnels, not other hostnames |
 | Abuse, load | per-host rate and in-flight limits; per-proxy bandwidth limit; per-user cap |
-| Cross-tunnel same-site requests | accepted (trusted creators); `__Host-` cookies; optional later hardening refuses cross-owner state-changing requests using `Origin` and `Sec-Fetch-Site` |
+| Cross-tunnel same-site requests | accepted (trusted creators); `__Secure-` cookies (`__Host-` once the plugin keeps the PKCE verifier out of a cookie); optional later hardening refuses cross-owner state-changing requests using `Origin` and `Sec-Fetch-Site` |
 | Supply chain | digest-pinned images, cosign-signed broker and frps images, checksummed CLI releases, frp pinned |
 | Code execution inside a pod | distroless images (no shell), non-root, read-only root filesystem, capabilities dropped, seccomp, user namespace, no service-account token, NetworkPolicy; see Container Hardening |
 
@@ -512,6 +512,14 @@ Each item is a build-time check with a stated fallback.
 5. The plugin accepts a `__Host-` cookie prefix, does not forward its cookie upstream, passes
    its headers to the next middleware, and the claim templating (`sub`, `preferred_username`,
    `groups`) works. Fallback for the prefix: document prefix-less cookies.
+   *Answered locally (2026-10-08, real Traefik v3.7.13 + plugin v0.21.0, mock IdP):* everything
+   works except the prefix. With PKCE the plugin sets its `CodeVerifier` cookie on
+   `Path=/oidc/callback`, so browsers reject it under `__Host-` and login cannot complete.
+   Chosen fallback: `__Secure-tunnels` (keeps PKCE, which is the plugin's only binding of a login
+   to a browser). Upstream moved the verifier into the OIDC state in
+   sevensolutions/traefik-oidc-auth#283 (merged 2026-08-01, unreleased); switch back to
+   `__Host-` after that release. Gate cookies are stripped before the app, and two groups arrive
+   as two values of one `X-Tunnels-Groups` header.
 6. Pocket ID userinfo accepts the device-flow access token. Fallback: the CLI sends the ID
    token and frps's audience becomes the CLI client id.
 7. A public-client device flow completes without a secret, and refresh keeps the audience and

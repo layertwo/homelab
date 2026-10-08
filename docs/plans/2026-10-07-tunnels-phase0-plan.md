@@ -61,6 +61,8 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
 
 ### Task 1: Namespace, Pocket ID objects, OIDC secret
 
+> **Moved:** the Secret file and `routes/kustomization.yml` are created in Task 3 (PR 2), because the Secret needs the `tunnels-gate` client that only exists after the manual Pocket ID step. PR 1 carries the namespace only. See Execution Notes.
+
 **Files:**
 - Create: `clusters/home/apps/network/tunnels/namespace.yml`, `kustomization.yml`, `routes/kustomization.yml`, `routes/secrets-oidc.sops.yml`
 
@@ -100,13 +102,13 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
   auth.oidc.audience = "https://tunnels.layertwo.dev"
   auth.additionalScopes = ["HeartBeats"]
   transport.heartbeatTimeout = 90
-  allowPorts = [{ single = 1 }]   # port 1 can never be bound by a non-root process: no TCP/UDP proxies
+  allowPorts = [{ single = 7000 }]   # 7000 is frps' own listener: no TCP proxy can ever bind it (was single = 1, see Execution Notes)
   log.to = "console"
   log.level = "info"
   ```
 - [ ] **Step 3: Write `frps/release.yml`.** HelmRelease `frps` in `tunnels`, structure copied from `cloud/kirocrew/release.yml` (chart block, install/upgrade remediation), `interval: 5m`. Values: `defaultPodOptions` with `annotations: {reloader.stakater.com/auto: "true"}`, `automountServiceAccountToken: false` and `securityContext: {runAsNonRoot: true, runAsUser: 65532, runAsGroup: 65532, seccompProfile: {type: RuntimeDefault}}`; controller `main` (deployment, 1 replica) with container `frps` using the pinned image from Global Constraints (`repository`, `tag: v0.71.0@sha256:...`), `args: ["-c", "/etc/frp/frps.toml"]`, `tcpSocket` liveness and readiness probes on 7000, requests `20m`/`32Mi` and memory limit `256Mi`, container `securityContext` `{allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: ["ALL"]}}`; `service.main` with ports `control` 7000 (TCP) and `vhost` 8080 (HTTP); `persistence` `config` (type `configMap`, name `frps-config`, mounted read-only at `/etc/frp`) and `tmp` (emptyDir at `/tmp`). `frps/kustomization.yml` lists `configmap.yml` and `release.yml`.
 - [ ] **Step 4: Write `networkpolicy.yml`.** Modeled on `development/forgejo/app/networkpolicy.yml`: name `frps`, selects `app.kubernetes.io/instance: frps`, policy types Ingress and Egress. Ingress: from namespace `traefik-system` (`kubernetes.io/metadata.name`) on TCP 7000 and 8080. Egress: DNS (53 UDP/TCP) and TCP 443 (Pocket ID discovery and keys).
-- [ ] **Step 5: Render locally.** Extract `spec.values` with PyYAML into `/tmp/frps-values.yaml`, then `helm template frps app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.2.1 --namespace tunnels -f /tmp/frps-values.yaml > /tmp/frps-rendered.yaml`. Expected in the output: `runAsNonRoot: true`, `runAsUser: 65532`, `readOnlyRootFilesystem: true`, `automountServiceAccountToken: false`, the image digest, `mountPath: /etc/frp`, `containerPort: 7000` and `8080`, and the label `app.kubernetes.io/instance: frps`. If `automountServiceAccountToken` is missing, move it to `controllers.main.pod`. Also `kubectl kustomize clusters/home/apps/network/tunnels | grep -E '^kind:'` lists `ConfigMap`, `HelmRelease`, `NetworkPolicy`.
+- [ ] **Step 5: Render locally.** Extract `spec.values` with PyYAML into `/tmp/frps-values.yaml`, then `helm template frps app-template --repo https://bjw-s-labs.github.io/helm-charts --version 5.2.1 --namespace tunnels -f /tmp/frps-values.yaml > /tmp/frps-rendered.yaml`. Expected in the output: `runAsNonRoot: true`, `runAsUser: 65532`, `readOnlyRootFilesystem: true`, `automountServiceAccountToken: false`, the image digest, `mountPath: /etc/frp`, Service `targetPort: 7000` and `8080` (app-template 5.2.1 renders no `containerPort`), and the label `app.kubernetes.io/instance: frps`. If `automountServiceAccountToken` is missing, move it to `controllers.main.pod`. Also `kubectl kustomize clusters/home/apps/network/tunnels | grep -E '^kind:'` lists `ConfigMap`, `HelmRelease`, `NetworkPolicy`.
 - [ ] **Step 6: Commit, open PR 1, merge.** `git add clusters/home/apps/network/tunnels && git commit -m "feat(tunnels): add frps and network policy"`; push and open a PR; read the `flux-diff` comment; merge.
 - [ ] **Step 7: Verify. (cluster)** `kubectl -n tunnels get helmrelease frps` shows `Ready True`; `kubectl -n tunnels rollout status deploy/frps` succeeds; `kubectl -n tunnels logs deploy/frps` shows frps listening on 7000 and the http service on 8080 with no errors; `kubectl -n tunnels exec deploy/frps -- id -u` prints `65532`; `kubectl -n tunnels get secret secrets-tunnels-oidc -o json | jq -r '.data | keys[]'` lists the three keys (proves Flux decrypted it). Isolation: `kubectl -n default run np-test --rm -it --restart=Never --image=busybox -- nc -zv -w 3 frps.tunnels.svc.cluster.local 7000` times out.
 
@@ -131,7 +133,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
     ClientSecret: "urn:k8s:secret:secrets-tunnels-oidc:clientSecret"
     UsePkce: true
   Scopes: ["openid", "profile", "groups"]
-  CookieNamePrefix: "__Host-tunnels"
+  CookieNamePrefix: "__Secure-tunnels"   # not __Host-: with PKCE it breaks login on plugin v0.21.0 (see Execution Notes)
   Authorization:
     AssertClaims:
       - Name: groups
@@ -189,7 +191,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
   | C1 | wss through Cloudflare and Traefik: leave the client up for 70+ minutes | still connected after the first token expiry; `podman logs frpc \| grep -c 'login to server success'` is `1` |
   | C2 | DNS and certificate (Task 3 Step 7 commands) | as listed there |
   | C3 | Private browser window, `https://alice.w.tunnels.layertwo.dev` | Pocket ID login, then the echo page; then `https://bob.w.tunnels.layertwo.dev` completes login with no passkey prompt and shows frps's 404 page. This proves the wildcard callback |
-  | C4 | In the echo page's JSON and a browser console `new WebSocket('wss://alice.w.tunnels.layertwo.dev/.ws')` | no `__Host-tunnels` cookie in the `cookie` header (and the browser shows the plugin's cookies named `__Host-tunnels.*`); `x-tunnels-sub` and `x-tunnels-user` carry the claims; record how `x-tunnels-groups` arrives (one header per group, or joined); WebSocket receives messages |
+  | C4 | In the echo page's JSON and a browser console `new WebSocket('wss://alice.w.tunnels.layertwo.dev/.ws')` | no `__Secure-tunnels` cookie in the `cookie` header (and the browser shows the plugin's cookies named `__Secure-tunnels.*`); `x-tunnels-sub` and `x-tunnels-user` carry the claims; record how `x-tunnels-groups` arrives (one header per group, or joined); WebSocket receives messages |
   | C5 | Log in as the second user (neither group) | Pocket ID shows "You are not allowed to access this service"; no echo page |
   | C6 | `curl -sI -H 'Accept: text/html' https://nobody.w.tunnels.layertwo.dev/`, then the same without the header | 302 to `idp.layertwo.dev`, then 401; never 404 |
   | C7 | Rerun the client with `trustedCaFile` pointing at an unrelated PEM (`openssl req -x509 -newkey rsa:2048 -nodes -keyout /dev/null -subj /CN=other -days 1 -out other.pem`); then with the line removed | first run fails with `x509: certificate signed by unknown authority`; second connects (record that the default is unverified) |
@@ -214,3 +216,24 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
 - [ ] **Step 3: Add the index line** to `docs/README.md`: ``- [Tunnels](tunnels.md): Self-hosted ngrok-style tunnels behind Pocket ID, reached at `*.w.tunnels.layertwo.dev` ``.
 - [ ] **Step 4: Check.** `grep -c tunnels docs/README.md` prints `1` or more, and the `frpc.toml` block in the doc matches the one tested in Task 4 line for line.
 - [ ] **Step 5: Commit** on `feat/tunnels-phase0`: `git add docs/tunnels.md docs/README.md && git commit -m "docs: add tunnels onboarding"`; open PR 3 with the results; merge.
+
+## Execution Notes (2026-10-08)
+
+Phase 0 was executed from the design machine, which has no cluster access. Done: Tasks 1-2 and the manifests of Task 3 (PR 1 = #2449, PR 2 = #2451; both drafts, #2451 stacked on #2449). Every step marked **(cluster)** is still open, as are Task 3's Secret, Task 4 and Task 5.
+
+**Deviations**
+
+1. The Secret moved from Task 1 to Task 3 (PR 2): it needs the `tunnels-gate` client id and secret, which exist only after the manual Pocket ID step. `routes/kustomization.yml` moved with it. PR 1 is "nothing public".
+2. `allowPorts = [{ single = 7000 }]`. Port 1 may be bindable by a non-root process where `net.ipv4.ip_unprivileged_port_start=0`. Verified with the pinned images: TCP proxies on remote port 7000, 0 and 2222 are rejected (`port unavailable`, `no available port`, `port not allowed`); `https` and `tcpmux` are rejected (not enabled); `udp` on 7000, `stcp` and `http` with `customDomains` are accepted but unreachable (the Service and NetworkPolicy are TCP-only and Traefik routes only `*.w.tunnels.layertwo.dev`). Phase 1's plugin closes proxy types for good.
+3. app-template 5.2.1 renders no `containerPort`; the Task 2 render check asserts the Service `targetPort`s instead.
+4. `CookieNamePrefix` is `__Secure-tunnels`, not `__Host-tunnels` (design Verification 5). Reproduced with the real plugin: with PKCE it sets `CodeVerifier` on `Path=/oidc/callback`, browsers reject that under `__Host-`, and login never completes.
+5. PR 2 stays a draft stacked on PR 1. After #2449 merges (squash), rebase it onto `origin/mainline` and retarget it to `mainline` so `flux-diff` runs.
+
+**Checked without a cluster**
+
+- Render gate (`kubectl kustomize` + `helm template`) for every task; `frps verify`; the pinned frps image runs under the production securityContext; the proxy-type behaviour above.
+- Gate harness: real Traefik v3.7.13 and traefik-oidc-auth v0.21.0 built from the PR 2 manifests, against a mock OIDC provider and a browser-like client that enforces cookie-prefix rules. 18 checks: C4 (claims arrive as headers, gate cookies stripped, spoofed identity headers overwritten, WebSocket upgrade passes), the plugin's own second line for C5 (groups empty, other or absent give 403 and the backend is never hit), C6 (302 for HTML, 401 otherwise, 404 outside the wildcard pattern). The harness is not part of this plan's deliverables and lives outside the repo.
+
+**Still needs a cluster or you**
+
+The Pocket ID objects (Task 1 Steps 2-3) and the gate Secret; Task 2 Step 7 and Task 3 Step 7; the Task 4 checks that involve Cloudflare, real DNS and certificates, or the live Pocket ID (C1, C2, C3, Pocket ID's own refusal page in C5, C7-C10); Task 5.
