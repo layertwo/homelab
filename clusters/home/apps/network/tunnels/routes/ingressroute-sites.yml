@@ -1,0 +1,29 @@
+---
+# Tunneled sites: DNS-only wildcard straight to Traefik (Cloudflare's free
+# certificate does not cover two levels below layertwo.dev), behind the login gate.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tunnels-sites
+  namespace: tunnels
+  annotations:
+    external-dns.kubernetes.io/hostname: "*.w.tunnels.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
+    layertwo.dev/publish: "external"
+    kubernetes.io/ingress.class: external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostRegexp(`^[a-z0-9-]+\.w\.tunnels\.layertwo\.dev$`)
+    kind: Rule
+    middlewares:
+    - name: tunnels-oidc
+    - name: tunnels-ratelimit
+    - name: tunnels-inflight
+    services:
+    - name: frps
+      port: vhost
+  tls:
+    secretName: tunnels-sites-tls
