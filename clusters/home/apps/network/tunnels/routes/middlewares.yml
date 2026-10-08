@@ -1,0 +1,60 @@
+---
+# Login gate for every site: Pocket ID via the traefik-oidc-auth plugin.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-oidc
+  namespace: tunnels
+spec:
+  plugin:
+    oidc:
+      Secret: "urn:k8s:secret:secrets-tunnels-oidc:pluginSecret"
+      Provider:
+        Url: "https://idp.layertwo.dev/"
+        ClientId: "urn:k8s:secret:secrets-tunnels-oidc:clientId"
+        ClientSecret: "urn:k8s:secret:secrets-tunnels-oidc:clientSecret"
+        UsePkce: true
+      Scopes: ["openid", "profile", "groups"]
+      # Not __Host-: with PKCE, plugin v0.21.0 sets its CodeVerifier cookie on Path=/oidc/callback,
+      # which browsers reject for __Host- names (login then fails). Switch back once the plugin
+      # keeps the verifier in the OIDC state (merged upstream in #283, unreleased).
+      CookieNamePrefix: "__Secure-tunnels"
+      Authorization:
+        # Without this the groups are checked once at login and cached while tokens renew silently
+        CheckOnEveryRequest: true
+        AssertClaims:
+          - Name: groups
+            AnyOf: ["tunnel-viewers", "tunnel-creators"]
+      # Phase 0 only: lets the verification see the claim templating.
+      # Phase 1 strips these before the request reaches the creator's app.
+      Headers:
+        - Name: X-Tunnels-Sub
+          Value: "{{ .claims.sub }}"
+        - Name: X-Tunnels-User
+          Value: "{{ .claims.preferred_username }}"
+        - Name: X-Tunnels-Groups
+          Values: "{{ .claims.groups | mapToJsonArray }}"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-ratelimit
+  namespace: tunnels
+spec:
+  rateLimit:
+    average: 50
+    burst: 100
+    period: 1s
+    sourceCriterion:
+      requestHost: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-inflight
+  namespace: tunnels
+spec:
+  inFlightReq:
+    amount: 100
+    sourceCriterion:
+      requestHost: true

@@ -1,0 +1,22 @@
+---
+# Control channel: frpc dials wss://tunnels.layertwo.dev/~!frp (proxied by Cloudflare).
+# The *.layertwo.dev default certificate covers this host, so there is no tls block.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tunnels-apex
+  namespace: tunnels
+  annotations:
+    external-dns.kubernetes.io/hostname: "tunnels.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    layertwo.dev/publish: "all"
+    kubernetes.io/ingress.class: external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`tunnels.layertwo.dev`) && PathPrefix(`/~!frp`)
+    kind: Rule
+    services:
+    - name: frps
+      port: control
