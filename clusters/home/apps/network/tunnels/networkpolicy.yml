@@ -1,0 +1,35 @@
+---
+# Default deny, then allow only what frps needs:
+# - Ingress from Traefik: control (7000) and site (8080) traffic
+# - Egress to kube-dns (53) and HTTPS (443) for Pocket ID discovery and keys
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: frps
+  namespace: tunnels
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: frps
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+      ports:
+        - port: 7000
+          protocol: TCP
+        - port: 8080
+          protocol: TCP
+  egress:
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+        - port: 443
+          protocol: TCP
