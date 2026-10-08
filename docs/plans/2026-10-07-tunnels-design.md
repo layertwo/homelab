@@ -236,7 +236,8 @@ so a rename or a reused username cannot hand a tunnel to someone else.
 
 ## frps
 
-Official image `docker.io/fatedier/frps:v0.71.0` pinned by digest in phase 0. From phase 1 the
+Official image `ghcr.io/fatedier/frps:v0.71.0` (upstream pushes the same digest to Docker Hub and
+ghcr; we pull from ghcr) pinned by digest in phase 0. From phase 1 the
 same binary is repackaged as `ghcr.io/layertwo/tunnels-frps` on distroless (see Container
 Hardening). Deployed with app-template.
 `frps.toml` lives in a SOPS Secret (it holds the dashboard password and plugin path secret):
