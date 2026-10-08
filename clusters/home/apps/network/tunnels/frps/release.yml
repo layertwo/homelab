@@ -42,7 +42,7 @@ spec:
         containers:
           frps:
             image:
-              repository: docker.io/fatedier/frps
+              repository: ghcr.io/fatedier/frps
               tag: v0.71.0@sha256:cd8b947ba61678b200baa4f71ccc33f3c52e4e2cc0059700ba3b8354e36af7c3
             args: ["-c", "/etc/frp/frps.toml"]
             probes:
