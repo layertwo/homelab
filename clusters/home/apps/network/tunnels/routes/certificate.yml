@@ -1,0 +1,13 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tunnels-sites
+  namespace: tunnels
+spec:
+  secretName: tunnels-sites-tls
+  dnsNames:
+    - "*.w.tunnels.layertwo.dev"
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer
