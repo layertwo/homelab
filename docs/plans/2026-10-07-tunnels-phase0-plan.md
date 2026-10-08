@@ -135,6 +135,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
   Scopes: ["openid", "profile", "groups"]
   CookieNamePrefix: "__Secure-tunnels"   # not __Host-: with PKCE it breaks login on plugin v0.21.0 (see Execution Notes)
   Authorization:
+    CheckOnEveryRequest: true    # else groups are checked once at login and cached while tokens renew silently
     AssertClaims:
       - Name: groups
         AnyOf: ["tunnel-viewers", "tunnel-creators"]
@@ -192,7 +193,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
   | C2 | DNS and certificate (Task 3 Step 7 commands) | as listed there |
   | C3 | Private browser window, `https://alice.w.tunnels.layertwo.dev` | Pocket ID login, then the echo page; then `https://bob.w.tunnels.layertwo.dev` completes login with no passkey prompt and shows frps's 404 page. This proves the wildcard callback |
   | C4 | In the echo page's JSON and a browser console `new WebSocket('wss://alice.w.tunnels.layertwo.dev/.ws')` | no `__Secure-tunnels` cookie in the `cookie` header (and the browser shows the plugin's cookies named `__Secure-tunnels.*`); `x-tunnels-sub` and `x-tunnels-user` carry the claims; record how `x-tunnels-groups` arrives (one header per group, or joined); WebSocket receives messages |
-  | C5 | Log in as the second user (neither group) | Pocket ID shows "You are not allowed to access this service"; no echo page |
+  | C5 | Log in as the second user (neither group), and as one in an unrelated group | Pocket ID shows "You are not allowed to access this service"; no echo page |
   | C6 | `curl -sI -H 'Accept: text/html' https://nobody.w.tunnels.layertwo.dev/`, then the same without the header | 302 to `idp.layertwo.dev`, then 401; never 404 |
   | C7 | Rerun the client with `trustedCaFile` pointing at an unrelated PEM (`openssl req -x509 -newkey rsa:2048 -nodes -keyout /dev/null -subj /CN=other -days 1 -out other.pem`); then with the line removed | first run fails with `x509: certificate signed by unknown authority`; second connects (record that the default is unverified) |
   | C8 | Client using the spike's old API (`https://tunnel.layertwo.dev`) if it still exists | frps refuses with an audience error; skip if the spike API was deleted |
@@ -228,11 +229,12 @@ Phase 0 was executed from the design machine, which has no cluster access. Done:
 3. app-template 5.2.1 renders no `containerPort`; the Task 2 render check asserts the Service `targetPort`s instead.
 4. `CookieNamePrefix` is `__Secure-tunnels`, not `__Host-tunnels` (design Verification 5). Reproduced with the real plugin: with PKCE it sets `CodeVerifier` on `Path=/oidc/callback`, browsers reject that under `__Host-`, and login never completes.
 5. PR 2 stays a draft stacked on PR 1. After #2449 merges (squash), rebase it onto `origin/mainline` and retarget it to `mainline` so `flux-diff` runs.
+6. `Authorization.CheckOnEveryRequest: true` was added (found in review, reproduced with the harness): by default the plugin checks the groups once at login and caches the result for the session while tokens renew silently, so a viewer removed from the groups kept access. Keep `tunnels-gate` restricted to the two groups in Pocket ID as well; group names must match exactly.
 
 **Checked without a cluster**
 
 - Render gate (`kubectl kustomize` + `helm template`) for every task; `frps verify`; the pinned frps image runs under the production securityContext; the proxy-type behaviour above.
-- Gate harness: real Traefik v3.7.13 and traefik-oidc-auth v0.21.0 built from the PR 2 manifests, against a mock OIDC provider and a browser-like client that enforces cookie-prefix rules. 18 checks: C4 (claims arrive as headers, gate cookies stripped, spoofed identity headers overwritten, WebSocket upgrade passes), the plugin's own second line for C5 (groups empty, other or absent give 403 and the backend is never hit), C6 (302 for HTML, 401 otherwise, 404 outside the wildcard pattern). The harness is not part of this plan's deliverables and lives outside the repo.
+- Gate harness: real Traefik v3.7.13 and traefik-oidc-auth v0.21.0 built from the PR 2 manifests, against a mock OIDC provider and a browser-like client that enforces cookie-prefix rules. 23 checks: C4 (claims arrive as headers, gate cookies stripped, spoofed identity headers overwritten, WebSocket upgrade passes), the plugin's own second line for C5 (groups empty, other or absent give 403 and the backend is never hit), C6 (302 for HTML, 401 otherwise, 404 outside the wildcard pattern), and token renewal (the session survives a silent renewal, a viewer removed from the groups gets 403 at the next renewal, a refused refresh sends the visitor back to login). The harness is not part of this plan's deliverables and lives outside the repo.
 
 **Still needs a cluster or you**
 
