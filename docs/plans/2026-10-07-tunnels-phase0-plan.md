@@ -220,7 +220,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
 
 ## Execution Notes (2026-10-08)
 
-Phase 0 was executed from the design machine, which has no cluster access. Done: Tasks 1-2 and the manifests of Task 3 (PR 1 = #2449, PR 2 = #2451; both drafts, #2451 stacked on #2449). Every step marked **(cluster)** is still open, as are Task 3's Secret, Task 4 and Task 5.
+Phase 0 was executed from the design machine, which has no cluster access. Done: Tasks 1-2 and the manifests of Task 3 (PR 1 = #2449, merged on 2026-10-08 as `dacd8689`; PR 2 = #2453, draft). Every step marked **(cluster)** is still open, as are Task 3's Secret, Task 4 and Task 5.
 
 **Deviations**
 
@@ -228,7 +228,7 @@ Phase 0 was executed from the design machine, which has no cluster access. Done:
 2. `allowPorts = [{ single = 7000 }]`. Port 1 may be bindable by a non-root process where `net.ipv4.ip_unprivileged_port_start=0`. Verified with the pinned images: TCP proxies on remote port 7000, 0 and 2222 are rejected (`port unavailable`, `no available port`, `port not allowed`); `https` and `tcpmux` are rejected (not enabled); `udp` on 7000, `stcp` and `http` with `customDomains` are accepted but unreachable (the Service and NetworkPolicy are TCP-only and Traefik routes only `*.w.tunnels.layertwo.dev`). Phase 1's plugin closes proxy types for good.
 3. app-template 5.2.1 renders no `containerPort`; the Task 2 render check asserts the Service `targetPort`s instead.
 4. `CookieNamePrefix` is `__Secure-tunnels`, not `__Host-tunnels` (design Verification 5). Reproduced with the real plugin: with PKCE it sets `CodeVerifier` on `Path=/oidc/callback`, browsers reject that under `__Host-`, and login never completes.
-5. PR 2 stays a draft stacked on PR 1. After #2449 merges (squash), rebase it onto `origin/mainline` and retarget it to `mainline` so `flux-diff` runs.
+5. PR 2 was first opened stacked on PR 1 (#2451). After #2449 merged (squash), its two commits were cherry-picked onto `mainline` as #2453 and #2451 was closed: same tree, no force-push, and `flux-diff` now runs on it.
 6. `Authorization.CheckOnEveryRequest: true` was added (found in review, reproduced with the harness): by default the plugin checks the groups once at login and caches the result for the session while tokens renew silently, so a viewer removed from the groups kept access. Keep `tunnels-gate` restricted to the two groups in Pocket ID as well; group names must match exactly.
 7. Images come from ghcr.io, not Docker Hub. Upstream publishes `ghcr.io/fatedier/frps` and `frpc` from the same build as Docker Hub, with identical digests, so only the registry in the reference changed. The test-side echo server (`ealen/echo-server` exists only on Docker Hub) became `ghcr.io/traefik/whoami:v1.12.0` (JSON of request headers at `/api`, WebSocket echo at `/echo`) and the isolation-test pod `ghcr.io/home-operations/busybox:1.37.0`; both checked locally.
 
