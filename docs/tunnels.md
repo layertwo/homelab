@@ -66,12 +66,12 @@ podman run --rm -v "$PWD:/cfg:ro" -e TUNNELS_CLIENT_ID -e TUNNELS_CLIENT_SECRET 
 
 ## Adding a viewer
 
-Add the Pocket ID user to `tunnels-viewers` (or `tunnels-creators`). Anyone else is refused by Pocket ID. The gate matches the group **Name**, which is what Pocket ID puts in the `groups` claim, not the Friendly name. The group form fills Name from the Friendly name and replaces every character outside `a-z0-9_` with `_`, so typing `tunnels-viewers` as the Friendly name gives the Name `tunnel_viewers`. Edit the Name to `tunnels-viewers` and `tunnels-creators`. The gate checks the groups again whenever the session token renews, which is about once an hour.
+Add the Pocket ID user to `tunnels-viewers` (or `tunnels-creators`). Anyone else is refused: by Pocket ID when the `tunnels-gate` client is restricted to those groups, and in any case by the gate with a 403. The gate matches the group **Name**, which is what Pocket ID puts in the `groups` claim, not the Friendly name. The group form fills Name from the Friendly name and replaces every character outside `a-z0-9_` with `_`, so typing `tunnels-viewers` as the Friendly name gives the Name `tunnel_viewers`. Edit the Name to `tunnels-viewers` and `tunnels-creators`. The gate checks the groups again whenever the session token renews, which is about once an hour.
 
 ## What a site receives
 
 - `Host: <handle>.w.tunnels.layertwo.dev`; `X-Forwarded-For` starts with the visitor's address.
-- Phase 0 adds `X-Tunnels-Sub`, `X-Tunnels-User` and `X-Tunnels-Groups`. A client cannot set them; the gate overwrites them. `X-Tunnels-Groups` carries **every** Pocket ID group the visitor has (one value per group), not just the tunnel groups, so only run apps you trust with that. Later phases replace these with a single `X-Tunnel-User`.
+- Phase 0 adds `X-Tunnels-Sub` and `X-Tunnels-User`. A client cannot set them, or `X-Tunnels-Groups`: the gate overwrites or removes them. The visitor's groups are not forwarded. Later phases replace these with a single `X-Tunnel-User`.
 - The gate's cookies (`__Secure-tunnels.*`) are removed: the request has no `Cookie` header unless your app set cookies of its own. WebSockets work.
 - `X-Forwarded-Proto` arrives as `http`, because `frps` rewrites it for the last hop. An app that redirects on that header would loop. To make it `https`, add this line to the proxy block in `frpc.toml`:
 
@@ -84,7 +84,7 @@ Add the Pocket ID user to `tunnels-viewers` (or `tunnels-creators`). Anyone else
 - Names are first come, first served and trust-based: anyone holding a machine client can claim any free `subdomain` (one DNS label: lowercase letters, digits, hyphens). `user` only prefixes the proxy name.
 - One global gate: every viewer can open every tunnel. There is no per-tunnel access or sharing yet.
 - Only `http` proxies on a `subdomain` are usable. TCP proxies cannot bind (`allowPorts` allows only port 7000, which `frps` itself holds) and `https` / `tcpmux` are disabled; `udp` and `stcp` register but nothing outside can reach them.
-- Revocation takes effect when tokens expire or renew, up to about an hour: remove the machine client, or remove the user from the groups.
+- Revocation takes effect when tokens expire. A machine client's token lasts one hour and is not refreshed, so deleting the client ends its tunnel at the first ping after the token expires (up to about an hour and 30 seconds). A viewer removed from the groups loses access when the session token renews, up to about an hour.
 - The gate owns `/oidc/callback` and any path starting with `/logout` on every site, so an app's own `/logout` never reaches it.
 
 ## Troubleshooting
