@@ -66,7 +66,7 @@ podman run --rm -v "$PWD:/cfg:ro" -e TUNNELS_CLIENT_ID -e TUNNELS_CLIENT_SECRET 
 
 ## Adding a viewer
 
-Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else is refused by Pocket ID. The gate checks the groups again whenever the session token renews, which is about once an hour.
+Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else is refused by Pocket ID. The gate matches the group **Name**, which is what Pocket ID puts in the `groups` claim, not the Friendly name. The group form fills Name from the Friendly name and replaces every character outside `a-z0-9_` with `_`, so typing `tunnel-viewers` as the Friendly name gives the Name `tunnel_viewers`. Edit the Name to `tunnel-viewers` and `tunnel-creators`. The gate checks the groups again whenever the session token renews, which is about once an hour.
 
 ## What a site receives
 
@@ -90,4 +90,5 @@ Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else i
 | `invalid_client` from the token endpoint | wrong client id or secret |
 | `x509: certificate signed by unknown authority` | `trustedCaFile` points at a bundle without the server's CA |
 | after login, frps shows "The page you requested was not found." | no tunnel is connected under that `subdomain` |
+| after a successful login the gate shows "403 Forbidden: it seems like your account is not allowed to access this resource" | the ID token's `groups` claim contains neither `tunnel-viewers` nor `tunnel-creators`: check each group's **Name** in Pocket ID (see above), or the user was added after logging in, so log in again in a fresh private window |
 | a script gets 401, a browser gets a login redirect | by design: only requests that accept `text/html` are redirected |
