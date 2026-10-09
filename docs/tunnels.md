@@ -90,5 +90,5 @@ Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else i
 | `invalid_client` from the token endpoint | wrong client id or secret |
 | `x509: certificate signed by unknown authority` | `trustedCaFile` points at a bundle without the server's CA |
 | after login, frps shows "The page you requested was not found." | no tunnel is connected under that `subdomain` |
-| after a successful login the gate shows "403 Forbidden: it seems like your account is not allowed to access this resource" | the ID token's `groups` claim contains neither `tunnel-viewers` nor `tunnel-creators`: check each group's **Name** in Pocket ID (see above), or the user was added after logging in, so log in again in a fresh private window |
+| after a successful login the gate shows "403 Forbidden: it seems like your account is not allowed to access this resource" | the ID token's `groups` claim contains neither `tunnel-viewers` nor `tunnel-creators`: compare the group names in Pocket ID (the **Name** field, see above) with the ones in the Traefik log line `Unauthorized. Expected claim groups to contain any value of [tunnel-viewers, tunnel-creators]`; if you rename a group, or add the user after logging in, log in again in a fresh private window |
 | a script gets 401, a browser gets a login redirect | by design: only requests that accept `text/html` are redirected |
