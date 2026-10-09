@@ -4,7 +4,7 @@
 
 **Goal:** Put stock-only tunnels on the cluster: frps, the existing Traefik OIDC plugin as a login gate, and the wildcard DNS and certificate. A person with a Pocket ID machine client can then publish an HTTP service at `<handle>.w.tunnels.layertwo.dev` behind a Pocket ID login, and the cluster-side unknowns are settled before any Go is written.
 
-**Architecture:** frps (official image, no plugin) takes wss control connections on `tunnels.layertwo.dev/~!frp` through the external Traefik and serves site traffic on 8080. Sites sit behind the `traefik-oidc-auth` middleware, which admits the groups `tunnel-viewers` and `tunnel-creators`. Creators authenticate to frps with Pocket ID machine clients (client credentials), so names are trust-based in this phase.
+**Architecture:** frps (official image, no plugin) takes wss control connections on `tunnels.layertwo.dev/~!frp` through the external Traefik and serves site traffic on 8080. Sites sit behind the `traefik-oidc-auth` middleware, which admits the groups `tunnels-viewers` and `tunnels-creators`. Creators authenticate to frps with Pocket ID machine clients (client credentials), so names are trust-based in this phase.
 
 **Tech Stack:** Flux CD, bjw-s `app-template` 5.2.1, SOPS/age, Traefik (external) with traefik-oidc-auth, cert-manager, external-dns, Pocket ID v2.18.0, frp v0.71.0.
 
@@ -22,7 +22,7 @@
 - Every frp client config: `transport.protocol = "wss"`, `transport.heartbeatInterval = 30`, `auth.additionalScopes = ["HeartBeats"]`, and `transport.tls.trustedCaFile` set. frpc skips certificate verification when it is unset.
 - Pods: uid/gid `65532`, `runAsNonRoot`, `readOnlyRootFilesystem`, all capabilities dropped, no privilege escalation, seccomp `RuntimeDefault`, no service-account token, emptyDir on `/tmp`.
 - IngressRoutes use class `external` (the OIDC plugin is registered only there). DNS annotations and the per-route TLS secret follow `cloud/garage/ingressroute.yml`. Issuer is ClusterIssuer `letsencrypt-prod-dns`.
-- Pocket ID names: API resource `https://tunnels.layertwo.dev`; groups `tunnel-creators`, `tunnel-viewers`; clients `tunnels-gate` (confidential, authorization code with PKCE) and `tunnels-m2m-<name>` (confidential, client access to the API).
+- Pocket ID names: API resource `https://tunnels.layertwo.dev`; groups `tunnels-creators`, `tunnels-viewers`; clients `tunnels-gate` (confidential, authorization code with PKCE) and `tunnels-m2m-<name>` (confidential, client access to the API).
 - Secrets exist only as SOPS files `secrets-*.sops.yml`, encrypted with `sops -e -i`. Never commit plaintext. Client secrets and the frpc config stay outside git.
 - Branch `feat/tunnels-phase0` from `origin/mainline`; Flux tracks `mainline` only. Commit style `feat(tunnels): ...`, `docs: ...`. The design and plan documents are committed on branch `docs/tunnels-design` (a draft PR) and stay there: read them from a second worktree (`git worktree add ../homelab-docs docs/tunnels-design`), and make Task 4's results edit and commit in that worktree, never on the work branch.
 - The cluster is not reachable from the design machine. Steps marked **(cluster)** need a machine on the LAN with `kubectl` access. This machine has the `sops` public recipient but not the age private key, so `sops -e` works and `sops -d` does not; verify decryption on the cluster.
@@ -70,7 +70,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
 - Produces: Namespace `tunnels` (label `goldilocks.fairwinds.com/enabled: "true"`); Secret `secrets-tunnels-oidc` with keys `pluginSecret`, `clientId`, `clientSecret`, which Task 3 references as `urn:k8s:secret:secrets-tunnels-oidc:<key>`; machine client credentials exported as `TUNNELS_CLIENT_ID` and `TUNNELS_CLIENT_SECRET` in a 0600 env file outside the repo, used by Tasks 4 and 5.
 
 - [ ] **Step 1: Branch and failing check.** `git fetch origin mainline && git switch --no-track -c feat/tunnels-phase0 origin/mainline`. **(cluster)** `kubectl get namespace tunnels` fails with `NotFound`.
-- [ ] **Step 2: Create the Pocket ID objects (manual, UI).** API "Tunnels" with resource `https://tunnels.layertwo.dev` (no permission keys). Groups `tunnel-creators` and `tunnel-viewers`; add your user to `tunnel-viewers`. Client `tunnels-gate`: confidential, callback `https://*.w.tunnels.layertwo.dev/oidc/callback`, PKCE on, allowed groups `tunnel-viewers` and `tunnel-creators`. Client `tunnels-m2m-test`: confidential, API access to Tunnels as **Client access (M2M)**, callback URL any placeholder. Machine clients are not subject to group checks, so in this phase an issued client is the creator credential.
+- [ ] **Step 2: Create the Pocket ID objects (manual, UI).** API "Tunnels" with resource `https://tunnels.layertwo.dev` (no permission keys). Groups `tunnels-creators` and `tunnels-viewers`; add your user to `tunnels-viewers`. Client `tunnels-gate`: confidential, callback `https://*.w.tunnels.layertwo.dev/oidc/callback`, PKCE on, allowed groups `tunnels-viewers` and `tunnels-creators`. Client `tunnels-m2m-test`: confidential, API access to Tunnels as **Client access (M2M)**, callback URL any placeholder. Machine clients are not subject to group checks, so in this phase an issued client is the creator credential.
 - [ ] **Step 3: Verify the machine client.** Run the command below with the client's id and secret in the environment. Expected output: `['https://tunnels.layertwo.dev']`. (Cloudflare answers 403 to Python's default User-Agent on idp.layertwo.dev; curl is fine.)
   ```bash
   curl -s -d grant_type=client_credentials -d client_id="$TUNNELS_CLIENT_ID" -d client_secret="$TUNNELS_CLIENT_SECRET" \
@@ -138,7 +138,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
     CheckOnEveryRequest: true    # else groups are checked once at login and cached while tokens renew silently
     AssertClaims:
       - Name: groups
-        AnyOf: ["tunnel-viewers", "tunnel-creators"]
+        AnyOf: ["tunnels-viewers", "tunnels-creators"]
   Headers:                       # phase 0 only: lets check C4 see the claim templating; phase 1 strips these before the app
     - Name: X-Tunnels-Sub
       Value: "{{ .claims.sub }}"
@@ -213,7 +213,7 @@ Three pull requests: PR 1 = Tasks 1-2 (nothing public). PR 2 = Task 3 (public ex
 - Consumes: the tested `frpc.toml` from Task 4 and its results.
 
 - [ ] **Step 1: Failing check.** `grep -c tunnels docs/README.md` prints `0`.
-- [ ] **Step 2: Write `docs/tunnels.md`.** Sections: what Phase 0 is (hosts, gate groups, trust-based names); adding a tester (create a Pocket ID machine client with M2M access to the Tunnels API; put the client in the tester's environment, never in git); the tested `frpc.toml` with the CA-bundle paths for macOS (`/etc/ssl/cert.pem`), Debian/Ubuntu (`/etc/ssl/certs/ca-certificates.crt`) and the frpc container; adding a viewer (add them to `tunnel-viewers`); limits (any client holder can claim any free name, one global gate, no sharing, revocation within about an hour); link to the design doc for phases 1-3.
+- [ ] **Step 2: Write `docs/tunnels.md`.** Sections: what Phase 0 is (hosts, gate groups, trust-based names); adding a tester (create a Pocket ID machine client with M2M access to the Tunnels API; put the client in the tester's environment, never in git); the tested `frpc.toml` with the CA-bundle paths for macOS (`/etc/ssl/cert.pem`), Debian/Ubuntu (`/etc/ssl/certs/ca-certificates.crt`) and the frpc container; adding a viewer (add them to `tunnels-viewers`); limits (any client holder can claim any free name, one global gate, no sharing, revocation within about an hour); link to the design doc for phases 1-3.
 - [ ] **Step 3: Add the index line** to `docs/README.md`: ``- [Tunnels](tunnels.md): Self-hosted ngrok-style tunnels behind Pocket ID, reached at `*.w.tunnels.layertwo.dev` ``.
 - [ ] **Step 4: Check.** `grep -c tunnels docs/README.md` prints `1` or more, and the `frpc.toml` block in the doc matches the one tested in Task 4 line for line.
 - [ ] **Step 5: Commit** on `feat/tunnels-phase0`: `git add docs/tunnels.md docs/README.md && git commit -m "docs: add tunnels onboarding"`; open PR 3 with the results; merge.
@@ -231,6 +231,7 @@ Phase 0 was executed from the design machine, which has no cluster access. Done:
 5. PR 2 was first opened stacked on PR 1 (#2451). After #2449 merged (squash), its two commits were cherry-picked onto `mainline` as #2453 and #2451 was closed: same tree, no force-push, and `flux-diff` now runs on it.
 6. `Authorization.CheckOnEveryRequest: true` was added (found in review, reproduced with the harness): by default the plugin checks the groups once at login and caches the result for the session while tokens renew silently, so a viewer removed from the groups kept access. Keep `tunnels-gate` restricted to the two groups in Pocket ID as well; group names must match exactly.
 7. Images come from ghcr.io, not Docker Hub. Upstream publishes `ghcr.io/fatedier/frps` and `frpc` from the same build as Docker Hub, with identical digests, so only the registry in the reference changed. The test-side echo server (`ealen/echo-server` exists only on Docker Hub) became `ghcr.io/traefik/whoami:v1.12.0` (JSON of request headers at `/api`, WebSocket echo at `/echo`) and the isolation-test pod `ghcr.io/home-operations/busybox:1.37.0`; both checked locally.
+8. The Pocket ID groups are `tunnels-viewers` and `tunnels-creators` (plural), not the `tunnel-*` names this plan first used. The first login returned 403 from the gate because the assertion still said `tunnel-viewers`; the fix went straight to `mainline` as `cb315a00` (`AnyOf` in `routes/middlewares.yml`). Plan, design and docs now use the plural names. The Traefik log line that identifies this failure is `Unauthorized. Expected claim groups to contain any value of [...]`.
 
 **Checked without a cluster**
 

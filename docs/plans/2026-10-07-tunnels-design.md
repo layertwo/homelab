@@ -11,7 +11,7 @@ CNPG) plus two small Go programs: a **broker** (frps plugin, access decisions, s
 
 Decisions taken during design:
 
-- **Multi-user, enforced on the server.** Membership of `tunnel-creators` only says who may
+- **Multi-user, enforced on the server.** Membership of `tunnels-creators` only says who may
   connect. The broker's frps plugin binds every name to the verified owner on each Login and
   NewProxy. The CLI is a convenience and gets no trust.
 - **Public web, OIDC as the gate, no Tailscale or VPN.** Pocket ID is the only identity provider.
@@ -83,7 +83,7 @@ github.com/layertwo/tunnels (new repo)
 
 ### Enforcement lives on the server
 
-`tunnel-creators` is coarse: it says who may try to connect, not which names they may take. In
+`tunnels-creators` is coarse: it says who may try to connect, not which names they may take. In
 plain frp a creator could claim any free name, including `alice-*` while alice is offline.
 Behaviour read from the frp v0.71.0 source that shapes the plugin:
 
@@ -132,7 +132,7 @@ whose token expired or was revoked:
 - `auth.additionalScopes = ["HeartBeats"]` on both sides.
 
 Each ping re-reads a file token source, so the CLI keeps the token file fresh. Removing someone
-from `tunnel-creators` or disabling the account stops refresh, and the tunnel ends about an hour
+from `tunnels-creators` or disabling the account stops refresh, and the tunnel ends about an hour
 plus 90 seconds later. A Ping-hook kill switch for instant removal is phase 3.
 
 ### The control channel must verify the server certificate
@@ -286,7 +286,7 @@ linux/arm64), signed with cosign.
 
 **Login hook.** Call Pocket ID userinfo with the token (`sub`, `preferred_username`, `groups`);
 invalid tokens fail here and frps then verifies signature, audience and expiry. Require
-`tunnel-creators`. Resolve the handle from `users` by `sub`, or derive and insert it; refuse if
+`tunnels-creators`. Resolve the handle from `users` by `sub`, or derive and insert it; refuse if
 disabled or unsuitable. If the Login carries a run ID, ask frps whether that run ID is online
 under a different user and reject if so. Return the content with `user` set to the handle. The hook never modifies `privilege_key`: frps
 verifies that same token right after, which is what makes any claim the broker reads from it
@@ -322,7 +322,7 @@ shares (owner_sub text references users(sub) on delete cascade,
         primary key (owner_sub, tunnel, kind, grantee))
 ```
 
-Sharing with the group `tunnel-viewers` means every viewer.
+Sharing with the group `tunnels-viewers` means every viewer.
 
 **Configuration** (environment): `SERVICE_HOST`, `SITES_DOMAIN`, `ISSUER`, `API_RESOURCE`,
 `CREATORS_GROUP`, `DATABASE_URL`, `FRPS_DASHBOARD_URL`, `FRPS_DASHBOARD_USER`,
@@ -371,12 +371,12 @@ tunnel version
 Manual in the UI, as the rest of the repo does today.
 
 - **API** "Tunnels", resource `https://tunnels.layertwo.dev`. No permission keys.
-- **Groups** `tunnel-creators`, `tunnel-viewers`. Signup links can auto-join groups.
+- **Groups** `tunnels-creators`, `tunnels-viewers`. Signup links can auto-join groups.
 - **Client `tunnels-cli`:** public, device flow, user-delegated access to the API, allowed group
-  `tunnel-creators`. Skip consent stays off, because it would hide the client and its scopes on
+  `tunnels-creators`. Skip consent stays off, because it would hide the client and its scopes on
   the device page. PKCE does not apply to the device flow.
 - **Client `tunnels-gate`:** confidential, authorization code with PKCE, allowed groups
-  `tunnel-viewers` and `tunnel-creators`, callback `https://*.w.tunnels.layertwo.dev/oidc/callback`.
+  `tunnels-viewers` and `tunnels-creators`, callback `https://*.w.tunnels.layertwo.dev/oidc/callback`.
   Used only by the Traefik plugin. Its id and secret go into `secrets-oidc.sops.yml`.
 - **Machine clients** (headless servers, phase 3): confidential, client access to the API, with
   a config mapping client id to handle.
@@ -396,7 +396,7 @@ tunnels.layertwo.dev                      proxied; covered by the existing *.lay
 - **Middlewares** (namespace `tunnels`): `tunnels-strip-identity` blanks `X-Tunnels-Sub`,
   `X-Tunnels-User`, `X-Tunnels-Groups` and `X-Tunnel-User` so a client cannot supply them.
   `tunnels-oidc` is the plugin: `UsePkce`, a `__Secure-` cookie prefix, claims asserted to include
-  `tunnel-viewers` or `tunnel-creators`, and `Headers` that set the three `X-Tunnels-*` values.
+  `tunnels-viewers` or `tunnels-creators`, and `Headers` that set the three `X-Tunnels-*` values.
   `tunnels-authz` is `forwardAuth` to `http://broker.tunnels.svc:8080/authz` with
   `authResponseHeaders: [X-Tunnel-User]`. `tunnels-strip-internal` removes `X-Tunnels-*` again,
   so the creator's app sees only `X-Tunnel-User`. `tunnels-limits` is `rateLimit` keyed on the
