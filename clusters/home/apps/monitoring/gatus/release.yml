@@ -80,9 +80,9 @@ spec:
 
       endpoints:
 
-        - name: hermes-agent
+        - name: kirocrew
           group: ai
-          url: https://hermes.layertwo.dev
+          url: https://kiro.layertwo.dev
           interval: 1m
           conditions:
             - "[STATUS] == 200"
@@ -92,7 +92,7 @@ spec:
               failure-threshold: 3
               success-threshold: 2
               send-on-resolved: true
-              description: "hermes-agent is down"
+              description: "kirocrew is down"
 
         - name: open-webui
           group: ai
