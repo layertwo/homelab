@@ -603,3 +603,41 @@ Each item is a build-time check with a stated fallback.
   `cloud/kirocrew/*`, `docs/networking.md`.
 - Spike notes: branch `spike/frp-pocket-id`, `spikes/frp-oidc/NOTES.md` (uncommitted).
 - Prior art: `fosrl/cli` (Pangolin CLI), KiroCrew `src/kiro_crew/tunnel/*`.
+
+## Phase 0 Results
+
+Run on 2026-10-08 (PDT) against the deployed stack (PRs #2449 and #2453, plus the group-name fix `cb315a00`). The test client was `frpc` v0.71.0 from ghcr on a Mac, tunnelling to a `traefik/whoami` container, reaching the apex through the Cloudflare edge. Checks that need `kubectl` were not reported and are marked as such.
+
+| ID | Check | Result | Note |
+|----|-------|--------|------|
+| C1 | wss through Cloudflare and Traefik, 70+ minutes | PASS | one login at 16:55:41, still connected at 18:06 with one login and no warning; frpc renewed the client-credentials token (1 h, no refresh token) at 17:55 and pings kept being accepted |
+| C2 | DNS and certificate | PASS | apex proxied by Cloudflare publicly and 172.31.0.30 on the LAN; wildcard DNS-only to the origin (hairpin from the LAN works); `*.w.tunnels.layertwo.dev` from Let's Encrypt with the right SAN; `/` on the apex is 404 |
+| C3 | Browser login on alice, then bob | PASS | Pocket ID accepted the wildcard callback `https://*.w.tunnels.layertwo.dev/oidc/callback`; bob answered with no prompt (the session cookie is host-only, so this was a silent redirect through the existing Pocket ID session) |
+| C4 | What the app receives | PASS | no `Cookie` header at all (gate cookies stripped); `X-Tunnels-Sub` and `X-Tunnels-User` carry the claims; `X-Tunnels-Groups` arrives as one header line per group; a WebSocket to `/echo` echoed |
+| C5 | Visitor outside the groups | PARTIAL | second line seen live: a Pocket ID-authenticated user whose groups did not match got the gate's 403 and nothing reached the app (`Unauthorized. Expected claim groups to contain any value of [...]` in the Traefik log). Pocket ID's own refusal page was not tested (skipped) |
+| C6 | Host with no tunnel | PASS | HTML request 302 to Pocket ID, other requests 401, never 404 |
+| C7 | CA verification | PASS | an unrelated bundle makes frpc refuse (`x509: certificate signed by unknown authority`); without `trustedCaFile` it connects, so the default is unverified |
+| C8 | Old spike API | SKIPPED | no spike credentials; audience enforcement was shown instead: a token without `resource` (audience = client id) is refused by the production frps config with `expected audience "https://tunnels.layertwo.dev"` |
+| C9 | Expired token ends the tunnel | PASS | the token expired at 00:55:24 UTC; the next ping, 18 s later, was rejected (`pong message contains error: invalid OIDC token in ping: oidc: token is expired`) and every reconnect is refused. A well-behaved client ends on the rejected ping; the 90 s heartbeat timeout is the backstop |
+| C10 | NetworkPolicy isolation | NOT RUN | needs `kubectl` |
+
+Not reported (need `kubectl`): the HelmRelease `Ready`, `id -u` of the frps pod, and the `heartbeat` lines in the frps log.
+
+Also checked without a cluster: the production frps ConfigMap under the production securityContext accepts a client-credentials login against the live Pocket ID; `allowPorts = [{ single = 7000 }]` rejects TCP proxies on remote ports 7000, 0 and 2222, `https` and `tcpmux` are disabled, and `udp`, `stcp` and `http` with `customDomains` register but are unreachable. A bare `curl` upgrade on `/~!frp` without an `Origin` header gets 403 from frps; with one, 101 through Cloudflare.
+
+### Changes found in Phase 0
+
+- Cookie prefix is `__Secure-tunnels`: with PKCE, plugin v0.21.0 sets its verifier cookie on `Path=/oidc/callback`, which `__Host-` forbids. Switch back after a plugin release that contains sevensolutions/traefik-oidc-auth#283 (Verification 5).
+- `Authorization.CheckOnEveryRequest: true` is required, otherwise the groups are checked once and cached while tokens renew.
+- The Pocket ID groups are `tunnels-viewers` and `tunnels-creators`. The `groups` claim carries the group Name, and Pocket ID fills Name from the Friendly name with every character outside `a-z0-9_` replaced by `_`.
+- `X-Tunnels-Groups` listed every group the visitor has (nine for the test user), so the app saw unrelated internal groups. PR #2454 stops forwarding it.
+- frps rewrites `X-Forwarded-Proto` to `http` for the last hop (Traefik sends `https`). `requestHeaders.set.x-forwarded-proto = "https"` on the proxy restores it (tested locally).
+- Images come from ghcr.io; upstream pushes identical digests there.
+
+### Changes to plans 2-4
+
+- Plan 2 (CLI): generate the `frpc` config with the embedded CA bundle as `trustedCaFile` (the default is unverified), `requestHeaders.set.x-forwarded-proto = "https"`, and a handle-derived `subdomain`. The token source is client credentials in Phase 0; the device flow replaces it.
+- Plan 2 (gate pipeline): re-add the groups header between the plugin and the broker's `/authz` only, and strip every `X-Tunnels-*` header before the app, as the design already says.
+- Plan 3 (sharing): decisions use the token's group Names, so document the Name field rule next to the group setup.
+- Plan 4 (hardening): the apex `/~!frp` route is unauthenticated and unthrottled (add a Cloudflare rate rule or an allow-list); the gate owns `/oidc/callback` and any `/logout` path on every site (move `LogoutUri`); switch the cookie prefix back to `__Host-` when the plugin allows; per-host rate limits are per replica and sit behind the gate.
+- Revocation: machine-client tokens last one hour and cannot be refreshed, so deleting a client ends its tunnel within an hour plus one ping (about 30 s); the broker's Ping hook is what makes it immediate.
