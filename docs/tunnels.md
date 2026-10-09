@@ -70,9 +70,14 @@ Add the Pocket ID user to `tunnels-viewers` (or `tunnels-creators`). Anyone else
 
 ## What a site receives
 
-- The request comes from Traefik with `Host: <handle>.w.tunnels.layertwo.dev`.
-- Phase 0 adds `X-Tunnels-Sub`, `X-Tunnels-User` and `X-Tunnels-Groups` (one value per group). A client cannot set them; the gate overwrites them. Later phases replace them with a single `X-Tunnel-User`.
-- The gate's own cookies (`__Secure-tunnels.*`) are removed; the app's cookies pass through. WebSockets work.
+- `Host: <handle>.w.tunnels.layertwo.dev`; `X-Forwarded-For` starts with the visitor's address.
+- Phase 0 adds `X-Tunnels-Sub`, `X-Tunnels-User` and `X-Tunnels-Groups`. A client cannot set them; the gate overwrites them. `X-Tunnels-Groups` carries **every** Pocket ID group the visitor has (one value per group), not just the tunnel groups, so only run apps you trust with that. Later phases replace these with a single `X-Tunnel-User`.
+- The gate's cookies (`__Secure-tunnels.*`) are removed: the request has no `Cookie` header unless your app set cookies of its own. WebSockets work.
+- `X-Forwarded-Proto` arrives as `http`, because `frps` rewrites it for the last hop. An app that redirects on that header would loop. To make it `https`, add this line to the proxy block in `frpc.toml`:
+
+  ```toml
+  requestHeaders.set.x-forwarded-proto = "https"
+  ```
 
 ## Limits in Phase 0
 
