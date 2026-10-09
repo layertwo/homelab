@@ -25,15 +25,16 @@ spec:
         AssertClaims:
           - Name: groups
             AnyOf: ["tunnels-viewers", "tunnels-creators"]
-      # Phase 0 only: lets the verification see the claim templating.
-      # Phase 1 strips these before the request reaches the creator's app.
+      # Phase 0 only: identity for the creator's app. Phase 1 strips these before the request
+      # reaches the app. The groups claim lists every Pocket ID group the visitor has, so it is not
+      # forwarded; the empty array removes the header, which also stops a client from setting it.
       Headers:
         - Name: X-Tunnels-Sub
           Value: "{{ .claims.sub }}"
         - Name: X-Tunnels-User
           Value: "{{ .claims.preferred_username }}"
         - Name: X-Tunnels-Groups
-          Values: "{{ .claims.groups | mapToJsonArray }}"
+          Values: "[]"
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
