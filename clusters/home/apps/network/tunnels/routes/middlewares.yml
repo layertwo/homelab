@@ -24,7 +24,7 @@ spec:
         CheckOnEveryRequest: true
         AssertClaims:
           - Name: groups
-            AnyOf: ["tunnel-viewers", "tunnel-creators"]
+            AnyOf: ["tunnels-viewers", "tunnels-creators"]
       # Phase 0 only: lets the verification see the claim templating.
       # Phase 1 strips these before the request reaches the creator's app.
       Headers:
