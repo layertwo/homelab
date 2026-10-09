@@ -14,6 +14,7 @@ The homelab is a GitOps-managed Kubernetes cluster built with K3S, Flux CD, and 
 - [Home Automation](home-automation.md): Details about the home automation setup, now largely moved off-cluster; the cluster only provides a thin passthrough to an external Home Assistant host
 - [Monitoring](monitoring.md): Information about the monitoring stack, including Gatus health checking and its PostgreSQL backend
 - [Authentication](authentication.md): Documentation for the authentication setup using Pocket ID
+- [Tunnels](tunnels.md): Self-hosted ngrok-style tunnels behind Pocket ID, reached at `*.w.tunnels.layertwo.dev`
 - [Backup Strategy](backup-strategy.md): Details about the backup strategy, including VolSync, CloudNative PG backups, and Cloudflare R2
 
 Other core apps without dedicated docs pages yet:
