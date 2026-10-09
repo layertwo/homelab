@@ -9,7 +9,7 @@ Self-hosted, ngrok-style tunnels. A creator runs [frp](https://github.com/fatedi
 | Control channel | `wss://tunnels.layertwo.dev/~!frp` (Cloudflare-proxied) through the external Traefik to `frps` port 7000 |
 | Sites | `https://<handle>.w.tunnels.layertwo.dev` (DNS-only wildcard, own certificate) through Traefik and the login gate to `frps` port 8080, which forwards to the creator's `frpc` |
 | Creators | `frpc` logs in to `frps` with a Pocket ID access token (client credentials); `frps` checks the issuer and the audience `https://tunnels.layertwo.dev` itself |
-| Visitors | pass the `tunnels-oidc` middleware ([traefik-oidc-auth](https://github.com/sevensolutions/traefik-oidc-auth), Pocket ID client `tunnels-gate`); only members of the Pocket ID groups `tunnel-viewers` or `tunnel-creators` get through |
+| Visitors | pass the `tunnels-oidc` middleware ([traefik-oidc-auth](https://github.com/sevensolutions/traefik-oidc-auth), Pocket ID client `tunnels-gate`); only members of the Pocket ID groups `tunnels-viewers` or `tunnels-creators` get through |
 
 Manifests: `clusters/home/apps/network/tunnels/`.
 
@@ -66,7 +66,7 @@ podman run --rm -v "$PWD:/cfg:ro" -e TUNNELS_CLIENT_ID -e TUNNELS_CLIENT_SECRET 
 
 ## Adding a viewer
 
-Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else is refused by Pocket ID. The gate matches the group **Name**, which is what Pocket ID puts in the `groups` claim, not the Friendly name. The group form fills Name from the Friendly name and replaces every character outside `a-z0-9_` with `_`, so typing `tunnel-viewers` as the Friendly name gives the Name `tunnel_viewers`. Edit the Name to `tunnel-viewers` and `tunnel-creators`. The gate checks the groups again whenever the session token renews, which is about once an hour.
+Add the Pocket ID user to `tunnels-viewers` (or `tunnels-creators`). Anyone else is refused by Pocket ID. The gate matches the group **Name**, which is what Pocket ID puts in the `groups` claim, not the Friendly name. The group form fills Name from the Friendly name and replaces every character outside `a-z0-9_` with `_`, so typing `tunnels-viewers` as the Friendly name gives the Name `tunnel_viewers`. Edit the Name to `tunnels-viewers` and `tunnels-creators`. The gate checks the groups again whenever the session token renews, which is about once an hour.
 
 ## What a site receives
 
@@ -90,5 +90,5 @@ Add the Pocket ID user to `tunnel-viewers` (or `tunnel-creators`). Anyone else i
 | `invalid_client` from the token endpoint | wrong client id or secret |
 | `x509: certificate signed by unknown authority` | `trustedCaFile` points at a bundle without the server's CA |
 | after login, frps shows "The page you requested was not found." | no tunnel is connected under that `subdomain` |
-| after a successful login the gate shows "403 Forbidden: it seems like your account is not allowed to access this resource" | the ID token's `groups` claim contains neither `tunnel-viewers` nor `tunnel-creators`: compare the group names in Pocket ID (the **Name** field, see above) with the ones in the Traefik log line `Unauthorized. Expected claim groups to contain any value of [tunnel-viewers, tunnel-creators]`; if you rename a group, or add the user after logging in, log in again in a fresh private window |
+| after a successful login the gate shows "403 Forbidden: it seems like your account is not allowed to access this resource" | the ID token's `groups` claim contains neither `tunnels-viewers` nor `tunnels-creators`: compare the group names in Pocket ID (the **Name** field, see above) with the ones in the Traefik log line `Unauthorized. Expected claim groups to contain any value of [tunnels-viewers, tunnels-creators]`; if you rename a group, or add the user after logging in, log in again in a fresh private window |
 | a script gets 401, a browser gets a login redirect | by design: only requests that accept `text/html` are redirected |
