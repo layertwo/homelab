@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Runtime image for rnsd (Reticulum transport node) and lxmd (LXMF propagation node)"
 requires-python = ">=3.14"
 dependencies = [
-    "rns==1.5.6",
+    "rns==1.5.7",
     "lxmf==1.2.0",
 ]
 
