@@ -95,6 +95,11 @@ spec:
             --unique-uid=0 \
             || echo "[oidc] ERROR: provider upsert failed - OIDC login unavailable"
 
+          # The IdP resolves to a private IP (MetalLB/Traefik); Nextcloud's HTTP
+          # client refuses local hosts unless this is enabled.
+          occ config:system:set allow_local_remote_servers --value=true --type=boolean \
+            || echo "[oidc] ERROR: could not allow local remote servers - OIDC login may fail"
+
     # Gate liveness/readiness during the (slow, NFS-backed) first-boot install;
     # the default 10s delay + 3 failures restarts the container before it can finish.
     startupProbe:
