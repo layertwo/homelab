@@ -47,7 +47,7 @@ spec:
         - Name: X-Tunnels-User
           Value: "{{ .claims.preferred_username }}"
         - Name: X-Tunnels-Groups
-          Values: "[]"
+          Values: "{{ .claims.groups | mapToJsonArray }}"
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware

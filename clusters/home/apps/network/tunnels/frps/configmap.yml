@@ -31,7 +31,7 @@ data:
     name = "broker"
     addr = "http://broker:8080"
     path = "/plugin/{{ .Envs.PLUGIN_SECRET }}"
-    ops = ["Login", "NewProxy", "CloseProxy"]
+    ops = ["Login", "NewProxy", "CloseProxy", "Ping"]
   404.html: |
     <!DOCTYPE html>
     <html lang="en">
