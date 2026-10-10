@@ -13,6 +13,7 @@ The homelab includes:
 - Cloud file sharing (Send)
 - Cloud storage (Garage S3, hosted as a TrueNAS app)
 - TAK server (CloudTAK)
+- Mesh networking (Reticulum transport node + LXMF propagation node)
 - Git hosting & CI/CD (Forgejo)
 - Password management (Vaultwarden)
 - AI chat & agents (OpenWebUI, Hermes)
