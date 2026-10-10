@@ -95,6 +95,15 @@ spec:
             --unique-uid=0 \
             || echo "[oidc] ERROR: provider upsert failed - OIDC login unavailable"
 
+    # Gate liveness/readiness during the (slow, NFS-backed) first-boot install;
+    # the default 10s delay + 3 failures restarts the container before it can finish.
+    startupProbe:
+      enabled: true
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 60
+
     internalDatabase:
       enabled: false
     externalDatabase:
