@@ -15,7 +15,7 @@ The homelab is a GitOps-managed Kubernetes cluster built with K3S, Flux CD, and 
 - [Monitoring](monitoring.md): Information about the monitoring stack, including Gatus health checking and its PostgreSQL backend
 - [Authentication](authentication.md): Documentation for the authentication setup using Pocket ID
 - [Tunnels](tunnels.md): Self-hosted ngrok-style tunnels behind Pocket ID, reached at `*.w.tunnels.layertwo.dev`
-- [Reticulum](reticulum.md): Reticulum transport node and LXMF propagation node, reached over raw TCP at `rns.layertwo.dev` through MetalLB
+- [Reticulum](reticulum.md): Reticulum transport node and LXMF propagation node, reached over raw TCP at `1.rns.layertwo.dev` through MetalLB
 - [Backup Strategy](backup-strategy.md): Details about the backup strategy, including VolSync, CloudNative PG backups, and Cloudflare R2
 
 Other core apps without dedicated docs pages yet:

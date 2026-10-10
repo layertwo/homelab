@@ -93,7 +93,7 @@ spec:
           metallb.io/address-pool: external
           # ponytail: pin with metallb.io/loadBalancerIPs once MetalLB has assigned one,
           # so a Service re-create cannot move the IP the router forwards to.
-          external-dns.alpha.kubernetes.io/hostname: "rns.layertwo.dev"
+          external-dns.alpha.kubernetes.io/hostname: "1.rns.layertwo.dev"
           # Cloudflare's proxy only carries HTTP; this is raw TCP.
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
           # all: both external-dns instances pick it up - UniFi serves the LAN name and

@@ -15,7 +15,7 @@ reappears. Both run in the `reticulum` namespace as separate single-replica Depl
 
 - **Raw TCP 4242 over a MetalLB LoadBalancer, not HTTP.** Reticulum is not HTTP; Traefik cannot
   carry it. The service uses the `external` MetalLB pool and is published as
-  `rns.layertwo.dev`.
+  `1.rns.layertwo.dev`.
 - **`externalTrafficPolicy: Local`.** The Backbone interface has a fast-flapping guard that bans
   a source IP after repeated short-lived connections. With `Cluster` policy every client would
   be SNATed to a single node IP and one flapping client could ban that IP for everyone; `Local`
@@ -73,7 +73,7 @@ containers/reticulum/          # shared rnsd/lxmd image (uv, rns, lxmf)
 - Exposes two Services: a ClusterIP (`reticulum`, used by `lxmd`) and a LoadBalancer
   (`reticulum-lb`, external traffic), both on TCP 4242.
 - `reticulum-lb` annotations: `metallb.io/address-pool: external`,
-  `external-dns.alpha.kubernetes.io/hostname: rns.layertwo.dev`,
+  `external-dns.alpha.kubernetes.io/hostname: 1.rns.layertwo.dev`,
   `external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"` (raw TCP; Cloudflare's proxy only
   carries HTTP), and `layertwo.dev/publish: all` (UniFi serves the LAN record, Cloudflare the
   public one).
@@ -94,7 +94,7 @@ containers/reticulum/          # shared rnsd/lxmd image (uv, rns, lxmf)
 - Manual: forward TCP 4242 on the UniFi router to the LoadBalancer IP once MetalLB assigns it,
   then pin that IP with `metallb.io/loadBalancerIPs` in `rnsd/release.yml` so a Service re-create
   cannot move the address the router forwards to.
-- Confirm `rns.layertwo.dev` resolves to that LoadBalancer IP and is unproxied. With
+- Confirm `1.rns.layertwo.dev` resolves to that LoadBalancer IP and is unproxied. With
   `--default-targets` scoped to the `crd` source, external-dns should publish an A record to the
   LB IP; the `cloudflare-proxied: "false"` annotation keeps it off the Cloudflare proxy.
 - Nothing here has been run on the cluster yet.
