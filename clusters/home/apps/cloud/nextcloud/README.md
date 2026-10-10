@@ -1,6 +1,6 @@
 # Nextcloud
 
-Nextcloud 34 (`nextcloud/helm` chart 9.4.0), exposed at `cloud.layertwo.dev` on the **external** Traefik.
+Nextcloud (`nextcloud/helm` chart), exposed at `cloud.layertwo.dev` on the **external** Traefik.
 
 - **Files** live in Garage (`garage-truenas.garage.svc.cluster.local:30188`, bucket `nextcloud`) as S3 *primary* storage — not on a PVC.
 - **Identity** is Pocket ID via the `user_oidc` app, so logins still create real Nextcloud users. The local
