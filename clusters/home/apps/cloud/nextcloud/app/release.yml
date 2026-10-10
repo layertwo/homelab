@@ -36,6 +36,12 @@ spec:
     nextcloud:
       host: cloud.layertwo.dev
       update: 1
+      podSecurityContext:
+        fsGroup: 33
+        # Default `Always` recursively chowns the whole (28k-file, NFS-backed)
+        # html tree on every pod start — and the cron job runs every 5 min, so it
+        # redoes it constantly. Only change ownership if the volume root differs.
+        fsGroupChangePolicy: OnRootMismatch
       trustedDomains:
         - cloud.layertwo.dev
         - nextcloud.nextcloud.svc.cluster.local
