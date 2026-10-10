@@ -151,6 +151,12 @@ spec:
     cronjob:
       enabled: true
       type: cronjob
+      cronjob:
+        # Nextcloud's console refuses to run as root when config.php is owned by
+        # www-data, so the cron job must run as the same user (uid 33).
+        securityContext:
+          runAsUser: 33
+          runAsGroup: 33
 
     resources:
       requests:
