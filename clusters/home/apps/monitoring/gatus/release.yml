@@ -499,7 +499,7 @@ spec:
               description: "vaultwarden is down"
 
         - name: nextcloud
-          group: external
+          group: nextcloud
           url: https://cloud.layertwo.dev/status.php
           interval: 1m
           conditions:
@@ -520,7 +520,7 @@ spec:
         # Nextcloud's cache and file-lock store. status.php stays healthy when
         # this dies, so it needs its own check.
         - name: nextcloud-valkey
-          group: storage
+          group: nextcloud
           url: "tcp://nextcloud-valkey.nextcloud.svc.cluster.local:6379"
           interval: 1m
           conditions:
