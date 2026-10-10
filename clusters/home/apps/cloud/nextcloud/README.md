@@ -9,7 +9,7 @@ Nextcloud 34 (`nextcloud/helm` chart 9.3.0), exposed at `cloud.layertwo.dev` on 
 
 ## Before the first sync
 
-Nothing below is automated; do all three first.
+Nothing below is automated; do these first.
 
 **1. Garage bucket and key** (on the TrueNAS Garage shell — Garage is no longer in-cluster):
 
@@ -43,6 +43,10 @@ https://cloud.layertwo.dev/apps/user_oidc/code
 sops --encrypt --in-place clusters/home/apps/cloud/nextcloud/{app,valkey}/secrets-*.sops.yml
 ```
 
+**4. Games directory.** Create `/mnt/storage0/media/games` on TrueNAS. The hook exposes
+`movies`, `tv` and `games` over NFS as External Storage and skips `games` until the
+directory exists.
+
 ## Layout
 
 ```
@@ -50,6 +54,25 @@ app/       HelmRelease, IngressRoute, secrets
 postgres/  CNPG Cluster
 valkey/    Valkey (official chart, standalone)
 ```
+
+## External storage (media sharing)
+
+The TrueNAS media export `/mnt/storage0/media` is mounted **read-only** into the pod
+(`nextcloud.extraVolumes`/`extraVolumeMounts` at `/media`) and surfaced as three system-wide
+**External Storage** mounts — `Movies`, `TV`, `Games` — so the library can be link-shared
+without copying it into Garage.
+
+- **Read-only is the whole point.** The mount is `readOnly: true`, so Nextcloud cannot
+  rename/move/delete and cannot desync the Sonarr/Radarr/Jellyfin libraries that mount the
+  same export directly.
+- The mounts are registered from the `before-starting` hook with
+  `occ files_external:create <name> local null::null -c datadir=...`, guarded by a
+  `files_external:list` check so re-runs are free. Note Nextcloud's JSON escapes `/` as
+  `\/`, which is why the guard greps the literal `\/`.
+- No TrueNAS change is needed to *mount* it: every node IP is already in the export's host
+  ACL (see [storage.md](../../../../docs/storage.md)).
+- Files must be readable by uid 33 (`www-data`). If a browse comes up empty, check
+  permissions on the NAS (`ls -ln` on a movie) before suspecting the mount.
 
 ## Design notes worth not re-litigating
 

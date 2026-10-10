@@ -67,6 +67,21 @@ spec:
             secretKeyRef:
               name: secrets-nextcloud-oidc
               key: client-secret
+
+      # TrueNAS media tree, read-only: Nextcloud shares these files by link and
+      # never writes, so it cannot desync Sonarr/Radarr/Jellyfin, which mount the
+      # same export directly. Surfaced as External Storage from the hook below.
+      extraVolumes:
+        - name: truenas-media
+          nfs:
+            server: sunbeam.layertwo.lan
+            path: /mnt/storage0/media
+            readOnly: true
+      extraVolumeMounts:
+        - name: truenas-media
+          mountPath: /media
+          readOnly: true
+
       objectStore:
         s3:
           enabled: true
@@ -105,6 +120,19 @@ spec:
           # client refuses local hosts unless this is enabled.
           occ config:system:set allow_local_remote_servers --value=true --type=boolean \
             || echo "[oidc] ERROR: could not allow local remote servers - OIDC login may fail"
+
+          # External storage: surface the TrueNAS media tree (read-only NFS mount
+          # at /media) so its files can be link-shared. Guarded so re-runs are free;
+          # Nextcloud escapes "/" in its JSON output, hence the literal \/.
+          mount_if_missing() { # <name> <datadir>
+            occ files_external:list --output=json 2>/dev/null \
+              | grep -qF "\"mount_point\":\"\\/$1\"" && return 0
+            occ files_external:create "$1" local null::null -c "datadir=$2" >/dev/null \
+              || echo "[files_external] ERROR: could not add $1 mount"
+          }
+          mount_if_missing Movies /media/movies
+          mount_if_missing TV /media/tv
+          if [ -d /media/games ]; then mount_if_missing Games /media/games; fi
 
     # Gate liveness/readiness during the (slow, NFS-backed) first-boot install;
     # the default 10s delay + 3 failures restarts the container before it can finish.
