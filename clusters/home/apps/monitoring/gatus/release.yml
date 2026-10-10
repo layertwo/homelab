@@ -399,6 +399,35 @@ spec:
               send-on-resolved: true
               description: "tunnels sites gateway is down"
 
+        - name: tunnels-broker
+          group: tunnels
+          url: https://tunnels.layertwo.dev/healthz
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "tunnels broker is down"
+
+        - name: tunnels-bootstrap
+          group: tunnels
+          url: https://tunnels.layertwo.dev/.well-known/tunnels.json
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+            - "[BODY].service_host == tunnels.layertwo.dev"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "tunnels bootstrap document is missing or wrong"
+
         - name: cloudtak
           group: tak
           url: https://cloudtak.layertwo.dev
