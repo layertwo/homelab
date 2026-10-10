@@ -1,0 +1,38 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud-valkey
+  namespace: nextcloud
+spec:
+  interval: 30m
+  chart:
+    spec:
+      chart: valkey
+      version: 0.12.0
+      sourceRef:
+        kind: HelmRepository
+        name: valkey
+        namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+  values:
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+    auth:
+      enabled: true
+      usersExistingSecret: secrets-nextcloud-valkey
+      aclUsers:
+        default:
+          permissions: "~* &* +@all"
+          passwordKey: password
+    resources:
+      requests:
+        cpu: 5m
+        memory: 128M
+      limits:
+        memory: 512M

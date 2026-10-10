@@ -469,6 +469,20 @@ spec:
               send-on-resolved: true
               description: "vaultwarden is down"
 
+        - name: nextcloud
+          group: external
+          url: https://cloud.layertwo.dev/status.php
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "nextcloud is down"
+
       alerting:
         pushover:
           application-token: "${PUSHOVER_TOKEN}"

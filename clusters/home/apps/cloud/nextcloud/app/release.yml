@@ -1,0 +1,146 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: nextcloud
+  namespace: nextcloud
+spec:
+  interval: 30m
+  timeout: 20m
+  chart:
+    spec:
+      chart: nextcloud
+      version: 9.3.0
+      sourceRef:
+        kind: HelmRepository
+        name: nextcloud
+        namespace: flux-system
+      interval: 30m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    strategy:
+      name: RetryOnFailure
+  dependsOn:
+    - name: nextcloud-valkey
+      namespace: nextcloud
+  values:
+    phpClientHttpsFix:
+      enabled: true
+      protocol: https
+
+    ingress:
+      enabled: false
+
+    nextcloud:
+      host: cloud.layertwo.dev
+      update: 1
+      trustedDomains:
+        - cloud.layertwo.dev
+        - nextcloud.nextcloud.svc.cluster.local
+      existingSecret:
+        enabled: true
+        secretName: secrets-nextcloud-admin
+        usernameKey: nextcloud-username
+        passwordKey: nextcloud-password
+      extraEnv:
+        - name: TRUSTED_PROXIES
+          value: "10.42.0.0/16 10.43.0.0/16 172.31.0.0/24"
+        - name: OVERWRITEHOST
+          value: cloud.layertwo.dev
+        - name: OVERWRITECLIURL
+          value: https://cloud.layertwo.dev
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: secrets-nextcloud-oidc
+              key: client-id
+        - name: OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: secrets-nextcloud-oidc
+              key: client-secret
+      objectStore:
+        s3:
+          enabled: true
+          host: garage-truenas.garage.svc.cluster.local
+          bucket: nextcloud
+          port: "30188"
+          ssl: false
+          region: garage
+          usePathStyle: true
+          autoCreate: false
+          storageClass: STANDARD
+          existingSecret: secrets-nextcloud-s3
+          secretKeys:
+            accessKey: S3_ACCESS_KEY
+            secretKey: S3_SECRET_KEY
+      hooks:
+        before-starting: |
+          #!/bin/sh
+          set -u
+          occ() { php /var/www/html/occ "$@"; }
+
+          occ app:enable user_oidc 2>/dev/null \
+            || occ app:install user_oidc \
+            || echo "[oidc] ERROR: could not install or enable user_oidc - OIDC login unavailable"
+
+          occ user_oidc:provider pocket-id \
+            --clientid="$OIDC_CLIENT_ID" \
+            --clientsecret-env=OIDC_CLIENT_SECRET \
+            --discoveryuri="https://idp.layertwo.dev/.well-known/openid-configuration" \
+            --scope="openid profile email" \
+            --mapping-uid=sub \
+            --unique-uid=0 \
+            || echo "[oidc] ERROR: provider upsert failed - OIDC login unavailable"
+
+    internalDatabase:
+      enabled: false
+    externalDatabase:
+      enabled: true
+      type: postgresql
+      existingSecret:
+        enabled: true
+        secretName: cnpg-nextcloud-app
+        hostKey: host
+        databaseKey: dbname
+        usernameKey: user
+        passwordKey: password
+
+    redis:
+      enabled: false
+    externalRedis:
+      enabled: true
+      host: nextcloud-valkey.nextcloud.svc.cluster.local
+      port: "6379"
+      existingSecret:
+        enabled: true
+        secretName: secrets-nextcloud-valkey
+        passwordKey: password
+
+    mariadb:
+      enabled: false
+    postgresql:
+      enabled: false
+    collabora-online:
+      enabled: false
+
+    persistence:
+      enabled: true
+      storageClass: sunbeam-nfs-csi
+      accessMode: ReadWriteMany
+      size: 8Gi
+      nextcloudData:
+        enabled: false
+
+    cronjob:
+      enabled: true
+      type: cronjob
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
