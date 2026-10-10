@@ -45,7 +45,7 @@ spec:
           rnsd:
             image:
               repository: ghcr.io/layertwo/reticulum
-              tag: latest@sha256:1a472070c6524528759f654c77aba214252077dc5a32f7b32940987e416a163f
+              tag: latest@sha256:f4533023e1f0eb6403bdf48f5b84a19e27d2316a28645704b4e5cc0ea4e833ca
             env:
               TZ: Etc/UTC
             # No probes on purpose. A TCP probe is a connect-and-close, and the Backbone
