@@ -45,6 +45,15 @@ spec:
               repository: ghcr.io/layertwo/tunnels-frps
               tag: v0.1.0@sha256:1cd411e9941d4e73ceb888cdb7061489d544867d53350069625546cf4c1d8992
             args: ["-c", "/etc/frp/frps.toml"]
+            env:
+              FRPS_DASHBOARD_PASSWORD:
+                secretKeyRef:
+                  name: secrets-tunnels-broker
+                  key: FRPS_DASHBOARD_PASSWORD
+              PLUGIN_SECRET:
+                secretKeyRef:
+                  name: secrets-tunnels-broker
+                  key: PLUGIN_SECRET
             probes:
               liveness: &probe
                 enabled: true
@@ -81,8 +90,8 @@ spec:
 
     persistence:
       config:
-        type: secret
-        name: secrets-tunnels-frps
+        type: configMap
+        name: frps-config
         globalMounts:
           - path: /etc/frp
             readOnly: true

@@ -59,7 +59,6 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--stage", type=int, choices=(1, 2, 3), default=3)
     parser.add_argument("--chart", default=os.environ.get("TUNNELS_CHART", "bjw-s/app-template"))
-    parser.add_argument("--decrypt", action="store_true", help="also verify private TOML/credential wiring using a SOPS age key")
     args = parser.parse_args()
     # Kubernetes distinguishes no rules (deny) from a rule with no peers (allow all).
     for rules, want in (([], False), ([{}], True), ([{"from": []}], True)):
@@ -120,12 +119,24 @@ def main():
         pod = deploy["spec"]["template"]["spec"]
         check(pod["containers"][0]["image"].startswith("ghcr.io/layertwo/tunnels-frps:v0.1.0@sha256:"),
               "frps release image must be pinned by digest")
-        check(any(v.get("secret", {}).get("secretName") == "secrets-tunnels-frps" for v in pod["volumes"]),
-              "frps must mount encrypted configuration from its Secret")
-        private_secret = resource(objects, "Secret", "secrets-tunnels-frps")
-        check(str(private_secret["stringData"]["frps.toml"]).startswith("ENC[AES256_GCM,"), "frps TOML must be encrypted")
-        check(not any(r["kind"] == "ConfigMap" and r["metadata"]["name"] == "frps-config" for r in objects),
-              "obsolete frps ConfigMap is still mounted")
+        check(any(v.get("configMap", {}).get("name") == "frps-config" for v in pod["volumes"]),
+              "frps must mount its readable TOML ConfigMap")
+        env = {e["name"]: e for e in pod["containers"][0]["env"]}
+        for key in ("PLUGIN_SECRET", "FRPS_DASHBOARD_PASSWORD"):
+            check(env[key].get("valueFrom", {}).get("secretKeyRef") == {"name": "secrets-tunnels-broker", "key": key},
+                  f"frps {key} must reference the shared credential Secret")
+        template = resource(objects, "ConfigMap", "frps-config")["data"]["frps.toml"]
+        # Substitute test credentials only; the native frps loader performs expansion at startup.
+        config = tomllib.loads(template.replace("{{ .Envs.PLUGIN_SECRET }}", "test-plugin-secret")
+                              .replace("{{ .Envs.FRPS_DASHBOARD_PASSWORD }}", "test-dashboard-password"))
+        check(config["webServer"]["password"] == "test-dashboard-password", "dashboard must use its Secret-backed template")
+        check(config["httpPlugins"][0]["path"] == "/plugin/test-plugin-secret", "plugin must use its Secret-backed template")
+        check(set(config["auth"]["additionalScopes"]) == {"HeartBeats", "NewWorkConns"}, "missing auth scope")
+        check(config["auth"]["oidc"]["issuer"] == "https://idp.layertwo.dev" and
+              config["auth"]["oidc"]["audience"] == "https://tunnels.layertwo.dev", "wrong frps issuer/audience")
+        check(config["transport"]["heartbeatTimeout"] == 90, "missing heartbeat revocation backstop")
+        check(config["httpPlugins"][0]["addr"] == "http://broker:8080" and
+              config["httpPlugins"][0]["ops"] == ["Login", "NewProxy", "CloseProxy"], "wrong plugin wiring")
         check(any(p["port"] == 7500 for p in resource(rendered, "Service", "frps")["spec"]["ports"]), "private dashboard port missing")
         broker_labels = resource(rendered, "Deployment", "broker")["spec"]["template"]["metadata"]["labels"]
         frps_labels = deploy["spec"]["template"]["metadata"]["labels"]
@@ -156,20 +167,7 @@ def main():
         ):
             check(allowed(objects, peers[source][1], peers[target], port, "Egress") == want,
                   f"unexpected egress: {source} -> {target}:{port}")
-        if args.decrypt:
-            private = yaml.safe_load(run("sops", "decrypt", str(APP / "frps/secrets-frps.sops.yml")))["stringData"]
-            credentials = yaml.safe_load(run("sops", "decrypt", str(APP / "broker/secrets-broker.sops.yml")))["stringData"]
-            config = tomllib.loads(private["frps.toml"])
-            check(set(config["auth"]["additionalScopes"]) == {"HeartBeats", "NewWorkConns"}, "missing auth scope")
-            check(config["auth"]["oidc"]["issuer"] == "https://idp.layertwo.dev" and
-                  config["auth"]["oidc"]["audience"] == "https://tunnels.layertwo.dev", "wrong frps issuer/audience")
-            check(config["transport"]["heartbeatTimeout"] == 90, "missing heartbeat revocation backstop")
-            check(config["webServer"]["password"] == credentials["FRPS_DASHBOARD_PASSWORD"], "dashboard password mismatch")
-            check(config["httpPlugins"][0]["path"] == "/plugin/" + credentials["PLUGIN_SECRET"], "plugin secret mismatch")
-            check(config["httpPlugins"][0]["addr"] == "http://broker:8080" and
-                  config["httpPlugins"][0]["ops"] == ["Login", "NewProxy", "CloseProxy"], "wrong plugin wiring")
-            print("PASS: decrypted TOML, auth scopes and matching private credentials")
-        print("PASS: frps secret mount and private dashboard; NetworkPolicy allow/deny matrix")
+        print("PASS: frps TOML/auth scopes, shared Secret environment and private dashboard; NetworkPolicy allow/deny matrix")
 
     if args.stage >= 3:
         apex = resource(objects, "IngressRoute", "tunnels-apex")["spec"]["routes"]

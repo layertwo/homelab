@@ -51,18 +51,18 @@
 
 ### Task 2: frps enforcement and private connectivity
 
-**Files:** Replace `frps/configmap.yml` with `frps/secrets-frps.sops.yml`; update `frps/release.yml`, `frps/kustomization.yml`, and `networkpolicy.yml`.
+**Files:** Update `frps/configmap.yml`, `frps/release.yml`, and `networkpolicy.yml`.
 
 **Interfaces:** Existing `frps` control 7000 and vhost 8080 remain; add private dashboard 7500. frps calls `http://broker:8080/plugin/<secret>` with Login, NewProxy, CloseProxy.
 
-- [ ] Extend the check for dashboard credentials, both auth scopes, plugin operations, secret mounts, and allowed network peers; run before implementation to confirm failure.
+- [ ] Extend the check for shared Secret environment references, both auth scopes, plugin operations, ConfigMap mounts, and allowed network peers; run before implementation to confirm failure.
 - [ ] Preserve OIDC issuer/audience, `allowPorts`, console logging, and heartbeat timeout 90; add `NewWorkConns`, authenticated dashboard, and broker plugin.
-- [ ] Encrypt the complete frps TOML using the same generated credentials as Task 1; mount it from a Secret and remove the unused ConfigMap.
+- [ ] Keep the readable frps TOML in `frps-config`. Template the password and plugin path with `{{ .Envs.FRPS_DASHBOARD_PASSWORD }}` and `{{ .Envs.PLUGIN_SECRET }}`; inject both with `secretKeyRef` to `secrets-tunnels-broker`, reusing Task 1's credentials without a second Secret.
 - [ ] Switch to the pinned released frps image and expose dashboard only through its ClusterIP service.
 - [ ] Restrict frps ingress to external Traefik for 7000/8080 and broker for 7500; permit its broker plugin and DNS/HTTPS egress.
 - [ ] Restrict broker ingress to external Traefik and frps; allow DNS/HTTPS, frps dashboard, and `cnpg-tunnels` PostgreSQL egress. Inspect actual rendered pod labels before selecting peers.
 - [ ] Restrict database ingress to broker 5432 and CNPG operator management 8000; include database peer connectivity if needed by CNPG, without introducing an unverified database egress policy.
-- [ ] Render HelmRelease workloads with app-template 5.2.1 and run the corresponding assertions. Check SOPS metadata/encryption without displaying decrypted data.
+- [ ] Render HelmRelease workloads with app-template 5.2.1 and run the corresponding assertions. Verify the TOML template with dummy credentials and native frps, and check shared Secret encryption without displaying decrypted data.
 
 ### Task 3: Public routes, identity handling, and onboarding
 
@@ -83,7 +83,7 @@
 
 No kubectl context is currently configured. Perform these checks with working cluster access; do not claim local rendering proves reconciliation.
 
-- [ ] Verify Flux reconciliation, broker/frps HelmReleases, CNPG readiness, SOPS decryption, and generated database credentials.
+- [ ] Verify Flux reconciliation, broker/frps HelmReleases, CNPG readiness, shared Secret SOPS decryption, environment injection, and generated database credentials.
 - [ ] Verify public discovery/API/health routes work and private plugin/authz/dashboard routes are inaccessible publicly.
 - [ ] Run the released CLI: login, publish a disposable local HTTP server, open the site as its owner, and verify HTTP and WebSocket traffic plus `X-Tunnel-User` without internal identity headers/gate cookies.
 - [ ] Confirm another creator and a viewer cannot open that owner's site, including spoofed identity/forwarded-host headers; confirm unknown sites do not reveal tunnel existence before authentication.
@@ -94,7 +94,8 @@ No kubectl context is currently configured. Perform these checks with working cl
 
 - The isolated worktree starts at `a7c86a17`. Broker/database, frps enforcement, and public routing changes each had a failing render check before implementation, followed by a passing app-template render.
 - Both released image digests resolve publicly for linux/amd64 and linux/arm64.
-- Shared credentials were generated only in memory; TOML parsing, both auth scopes, and matching broker/frps values were verified before production-recipient SOPS encryption. Production-key decryption remains a cluster check.
+- Shared credentials were generated only in memory and stored in the production-recipient SOPS-encrypted broker Secret. Following review, frps uses Secret-backed environment templates in a readable ConfigMap, removing the duplicated encrypted TOML Secret. Production-key decryption remains a cluster check.
+- Native upstream frps v0.71.0 verified the actual ConfigMap template. A disposable loopback test confirmed the environment-expanded dashboard password (correct accepted, wrong rejected) and plugin Login path, using dummy credentials and no production tokens.
 - Chart rendering confirmed external Traefik's instance label `traefik-external-traefik-system` and CNPG operator labels in namespace `default`.
 - Reloader annotations are on the Deployments, not only their Pods, so Secret changes trigger rollouts.
 - Eight security-relevant manifest mutations were rejected, including removal of authorization, dashboard exposure, broad database egress, and empty-peer allow-all rules.

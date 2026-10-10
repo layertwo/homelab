@@ -84,8 +84,10 @@ user-delegated access to the Tunnels API resource `https://tunnels.layertwo.dev`
 secret. Its device flow, signed token audience, userinfo and refresh were verified against Pocket ID.
 The browser gate keeps its separate confidential client `tunnels-gate` and encrypted credentials.
 
-Plugin/dashboard credentials are SOPS-encrypted in `broker/secrets-broker.sops.yml` and
-`frps/secrets-frps.sops.yml`. Rotate them together. frps includes the plugin URL in errors if the
+Plugin/dashboard credentials are stored once, SOPS-encrypted in `broker/secrets-broker.sops.yml`.
+Both workloads reference this Secret; frps receives the two values as environment variables and
+expands them in the readable `frps/configmap.yml` TOML template at startup. Updating the shared
+Secret triggers both Deployments to reload. frps includes the plugin URL in errors if the
 broker is unreachable; treat those logs as secret-bearing. Database credentials come from
 CNPG's generated `cnpg-tunnels-app` Secret (`uri`).
 
@@ -100,11 +102,10 @@ With `kubectl`, Helm and PyYAML available:
 helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts
 helm repo update bjw-s
 python3 scripts/check-tunnels.py
-# With the production age key available, also validate matching private credentials and frps TOML:
-python3 scripts/check-tunnels.py --decrypt
 ```
 
-The check renders app-template 5.2.1 and verifies service/credential wiring, workload hardening,
+The check renders app-template 5.2.1 and verifies service/shared-Secret environment wiring, the
+TOML template and both auth scopes using dummy credentials, workload hardening,
 NetworkPolicy allow/deny cases, private endpoint exclusion, and the site authorization chain.
 Review the draft PR's `flux-diff` output as well. Rendering does not prove cluster reconciliation.
 
