@@ -9,6 +9,8 @@ data:
     bindPort = 7000
     vhostHTTPPort = 8080
     subDomainHost = "w.tunnels.layertwo.dev"
+    # A vhost with no live proxy answers with this page instead of frp's default.
+    custom404Page = "/etc/frp/404.html"
     auth.method = "oidc"
     auth.oidc.issuer = "https://idp.layertwo.dev"
     auth.oidc.audience = "https://tunnels.layertwo.dev"
@@ -30,3 +32,34 @@ data:
     addr = "http://broker:8080"
     path = "/plugin/{{ .Envs.PLUGIN_SECRET }}"
     ops = ["Login", "NewProxy", "CloseProxy"]
+  404.html: |
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>No tunnel here</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0; min-height: 100vh; display: grid; place-items: center;
+        font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: Canvas; color: CanvasText;
+      }
+      main { max-width: 34rem; padding: 2rem; text-align: center; }
+      .mark { width: 76px; height: 76px; margin: 0 auto .55rem; opacity: .85; }
+      h1 { font-size: 1.4rem; margin: 0 0 .6rem; }
+      p { margin: .4rem 0; opacity: .82; text-wrap: pretty; }
+    </style>
+    </head>
+    <body>
+      <main>
+        <svg class="mark" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <path d="M6 22V14a8 8 0 0 1 16 0v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="14" cy="17.5" r="2" fill="currentColor"/>
+        </svg>
+        <h1>No tunnel here</h1>
+        <p>This address has no tunnel running right now.</p>
+      </main>
+    </body>
+    </html>
