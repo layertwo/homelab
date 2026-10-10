@@ -504,6 +504,11 @@ spec:
           interval: 1m
           conditions:
             - "[STATUS] == 200"
+            # status.php answers 200 even in maintenance mode / when the DB
+            # needs an upgrade, so assert the body, not just the code.
+            - "[BODY].installed == true"
+            - "[BODY].maintenance == false"
+            - "[BODY].needsDbUpgrade == false"
           alerts:
             - type: pushover
               enabled: true
@@ -511,6 +516,22 @@ spec:
               success-threshold: 2
               send-on-resolved: true
               description: "nextcloud is down"
+
+        # Nextcloud's cache and file-lock store. status.php stays healthy when
+        # this dies, so it needs its own check.
+        - name: nextcloud-valkey
+          group: storage
+          url: "tcp://nextcloud-valkey.nextcloud.svc.cluster.local:6379"
+          interval: 1m
+          conditions:
+            - "[CONNECTED] == true"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "nextcloud valkey is down"
 
       alerting:
         pushover:
