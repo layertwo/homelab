@@ -1,7 +1,15 @@
 ---
-# Default deny, then allow only what frps needs:
-# - Ingress from Traefik: control (7000) and site (8080) traffic
-# - Egress to kube-dns (53) and HTTPS (443) for Pocket ID discovery and keys
+# Namespace-wide ingress isolation; the policies below add only the required paths.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: tunnels
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+# Only external Traefik reaches native frp/site traffic; only broker reaches the dashboard.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -19,12 +27,29 @@ spec:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: traefik-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: traefik-external-traefik-system
       ports:
         - port: 7000
           protocol: TCP
         - port: 8080
           protocol: TCP
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: broker
+      ports:
+        - port: 7500
+          protocol: TCP
   egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: broker
+      ports:
+        - port: 8080
+          protocol: TCP
     - ports:
         - port: 53
           protocol: UDP
@@ -32,4 +57,87 @@ spec:
           protocol: TCP
     - ports:
         - port: 443
+          protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: broker
+  namespace: tunnels
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: broker
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: traefik-external-traefik-system
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: frps
+      ports:
+        - port: 8080
+          protocol: TCP
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: frps
+      ports:
+        - port: 7500
+          protocol: TCP
+    - to:
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: cnpg-tunnels
+      ports:
+        - port: 5432
+          protocol: TCP
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    - ports:
+        - port: 443
+          protocol: TCP
+---
+# CNPG needs operator -> instance-manager access in addition to application SQL traffic.
+# Database egress remains unrestricted for Kubernetes API access and bootstrap.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cnpg-tunnels
+  namespace: tunnels
+spec:
+  podSelector:
+    matchLabels:
+      cnpg.io/cluster: cnpg-tunnels
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/instance: broker
+        - podSelector:
+            matchLabels:
+              cnpg.io/cluster: cnpg-tunnels
+      ports:
+        - port: 5432
+          protocol: TCP
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: default
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: cloudnative-pg
+              app.kubernetes.io/instance: cloudnative-pg
+      ports:
+        - port: 8000
           protocol: TCP

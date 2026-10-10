@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-tunnels
+  namespace: tunnels
+spec:
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  primaryUpdateMethod: switchover
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.15
+  enableSuperuserAccess: false
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 1Gi
