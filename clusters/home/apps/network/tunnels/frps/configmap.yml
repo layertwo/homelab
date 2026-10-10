@@ -12,9 +12,21 @@ data:
     auth.method = "oidc"
     auth.oidc.issuer = "https://idp.layertwo.dev"
     auth.oidc.audience = "https://tunnels.layertwo.dev"
-    auth.additionalScopes = ["HeartBeats"]
+    auth.additionalScopes = ["HeartBeats", "NewWorkConns"]
     transport.heartbeatTimeout = 90
-    # 7000 is frps' own listener, so no TCP proxy can ever bind it
+    # frps holds port 7000 itself, so no TCP proxy can bind an allowed port.
     allowPorts = [{ single = 7000 }]
     log.to = "console"
     log.level = "info"
+
+    webServer.addr = "0.0.0.0"
+    webServer.port = 7500
+    webServer.user = "broker"
+    webServer.password = "{{ .Envs.FRPS_DASHBOARD_PASSWORD }}"
+    enablePrometheus = true
+
+    [[httpPlugins]]
+    name = "broker"
+    addr = "http://broker:8080"
+    path = "/plugin/{{ .Envs.PLUGIN_SECRET }}"
+    ops = ["Login", "NewProxy", "CloseProxy"]

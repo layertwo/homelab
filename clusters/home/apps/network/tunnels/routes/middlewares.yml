@@ -1,4 +1,18 @@
 ---
+# Never let a visitor supply identity for the login gate or the tunneled app.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-strip-identity
+  namespace: tunnels
+spec:
+  headers:
+    customRequestHeaders:
+      X-Tunnels-Sub: ""
+      X-Tunnels-User: ""
+      X-Tunnels-Groups: ""
+      X-Tunnel-User: ""
+---
 # Login gate for every site: Pocket ID via the traefik-oidc-auth plugin.
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
@@ -25,9 +39,8 @@ spec:
         AssertClaims:
           - Name: groups
             AnyOf: ["tunnels-viewers", "tunnels-creators"]
-      # Phase 0 only: identity for the creator's app. Phase 1 strips these before the request
-      # reaches the app. The groups claim lists every Pocket ID group the visitor has, so it is not
-      # forwarded; the empty array removes the header, which also stops a client from setting it.
+      # Identity is for the broker's authorization decision, not the creator's app.
+      # Phase 1 is owner-only and does not need the visitor's groups downstream.
       Headers:
         - Name: X-Tunnels-Sub
           Value: "{{ .claims.sub }}"
@@ -35,6 +48,34 @@ spec:
           Value: "{{ .claims.preferred_username }}"
         - Name: X-Tunnels-Groups
           Values: "[]"
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-authz
+  namespace: tunnels
+spec:
+  forwardAuth:
+    address: http://broker:8080/authz
+    trustForwardHeader: false
+    # Existing copies are removed before Traefik applies the broker's response.
+    # The broker returns only X-Tunnel-User; internal identity is not forwarded.
+    authResponseHeaders:
+      - X-Tunnels-Sub
+      - X-Tunnels-User
+      - X-Tunnel-User
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-strip-internal
+  namespace: tunnels
+spec:
+  headers:
+    customRequestHeaders:
+      X-Tunnels-Sub: ""
+      X-Tunnels-User: ""
+      X-Tunnels-Groups: ""
 ---
 apiVersion: traefik.io/v1alpha1
 kind: Middleware

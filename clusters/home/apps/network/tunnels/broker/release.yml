@@ -2,7 +2,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: frps
+  name: broker
   namespace: tunnels
 spec:
   interval: 5m
@@ -32,7 +32,6 @@ spec:
         runAsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
-
     controllers:
       main:
         type: deployment
@@ -40,32 +39,44 @@ spec:
         annotations:
           reloader.stakater.com/auto: "true"
         containers:
-          frps:
+          broker:
             image:
-              repository: ghcr.io/layertwo/tunnels-frps
-              tag: v0.1.0@sha256:1cd411e9941d4e73ceb888cdb7061489d544867d53350069625546cf4c1d8992
-            args: ["-c", "/etc/frp/frps.toml"]
+              repository: ghcr.io/layertwo/tunnels-broker
+              tag: v0.1.0@sha256:061d4ec49bfaf0bc5700231d9de026d75b1d5f17c767e7aa35d8bdc26da507d7
             env:
-              FRPS_DASHBOARD_PASSWORD:
+              SERVICE_HOST: tunnels.layertwo.dev
+              SITES_DOMAIN: w.tunnels.layertwo.dev
+              ISSUER: https://idp.layertwo.dev
+              API_RESOURCE: https://tunnels.layertwo.dev
+              CREATORS_GROUP: tunnels-creators
+              CLI_CLIENT_ID: dbf1099c-ebad-4c97-b1da-137372140feb
+              MIN_CLI_VERSION: "0.1.0"
+              DATABASE_URL:
                 secretKeyRef:
+                  name: cnpg-tunnels-app
+                  key: uri
+              FRPS_DASHBOARD_URL: http://frps:7500
+              FRPS_DASHBOARD_USER: broker
+              MAX_TUNNELS_PER_USER: "5"
+              DEFAULT_BANDWIDTH_LIMIT: 10MB
+              LISTEN_ADDR: ":8080"
+              LOG_LEVEL: info
+            envFrom:
+              - secretRef:
                   name: secrets-tunnels-broker
-                  key: FRPS_DASHBOARD_PASSWORD
-              PLUGIN_SECRET:
-                secretKeyRef:
-                  name: secrets-tunnels-broker
-                  key: PLUGIN_SECRET
             probes:
               liveness: &probe
                 enabled: true
                 custom: true
                 spec:
-                  tcpSocket:
-                    port: 7000
+                  httpGet:
+                    path: /healthz
+                    port: 8080
               readiness: *probe
             resources:
               requests:
                 cpu: 20m
-                memory: 32Mi
+                memory: 64Mi
               limits:
                 memory: 256Mi
             securityContext:
@@ -73,28 +84,14 @@ spec:
               readOnlyRootFilesystem: true
               capabilities:
                 drop: ["ALL"]
-
     service:
       main:
         controller: main
         ports:
-          control:
-            port: 7000
-            protocol: TCP
-          vhost:
+          http:
             port: 8080
             protocol: HTTP
-          dashboard:
-            port: 7500
-            protocol: HTTP
-
     persistence:
-      config:
-        type: configMap
-        name: frps-config
-        globalMounts:
-          - path: /etc/frp
-            readOnly: true
       tmp:
         type: emptyDir
         globalMounts:

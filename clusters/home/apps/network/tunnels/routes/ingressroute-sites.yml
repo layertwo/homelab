@@ -19,7 +19,10 @@ spec:
   - match: HostRegexp(`^[a-z0-9-]+\.w\.tunnels\.layertwo\.dev$`)
     kind: Rule
     middlewares:
+    - name: tunnels-strip-identity
     - name: tunnels-oidc
+    - name: tunnels-authz
+    - name: tunnels-strip-internal
     - name: tunnels-ratelimit
     - name: tunnels-inflight
     services:
