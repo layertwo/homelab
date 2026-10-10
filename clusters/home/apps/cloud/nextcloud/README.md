@@ -43,9 +43,8 @@ https://cloud.layertwo.dev/apps/user_oidc/code
 sops --encrypt --in-place clusters/home/apps/cloud/nextcloud/{app,valkey}/secrets-*.sops.yml
 ```
 
-**4. Games directory.** Create `/mnt/storage0/media/games` on TrueNAS. The hook exposes
-`movies`, `tv` and `games` over NFS as External Storage and skips `games` until the
-directory exists.
+**4. Games directory.** Create `/mnt/storage0/media/games` on TrueNAS and make it writable
+(see the External storage section below); it backs the `Games` mount.
 
 ## Layout
 
@@ -58,21 +57,20 @@ valkey/    Valkey (official chart, standalone)
 ## External storage (media sharing)
 
 The TrueNAS media export `/mnt/storage0/media` is mounted into the pod
-(`nextcloud.extraVolumes`/`extraVolumeMounts` at `/media`) and surfaced as three system-wide
-**External Storage** mounts — `Movies`, `TV`, `Games` — so the library can be link-shared
-and game ISOs uploaded without copying anything into Garage.
+(`nextcloud.extraVolumes`/`extraVolumeMounts` at `/media`). Three **External Storage** mounts —
+`/movies`, `/tv`, `/games`, Local backend with `datadir` under `/media` — expose it so the
+library can be link-shared and game ISOs uploaded without copying anything into Garage.
 
-- **The mount is read-write.** Nextcloud can upload, rename, move and delete. Movies and TV
-  are the same tree Sonarr/Radarr/Jellyfin mount directly, so a write there *will* desync
-  those libraries — treat those two folders as read-only by convention.
-- The mounts are registered from the `before-starting` hook with
-  `occ files_external:create <name> local null::null -c datadir=...`, guarded by a
-  `files_external:list` check so re-runs are free. Note Nextcloud's JSON escapes `/` as
-  `\/`, which is why the guard greps the literal `\/`.
+- **Created by hand** in Settings → Administration → External storage. They are *not* in Git:
+  the config lives in Nextcloud's database, so a rebuilt instance will not have them.
+- **The mount is read-write, but writes still need folder permissions.** TrueNAS exports
+  with root_squash and the web process is uid 33, so a folder is only writable if it is
+  world-writable or owned by 33. `tv` and `downloads` already were `0777`; `games` needed
+  `chmod 777`. Movies and TV are the same tree Sonarr/Radarr/Jellyfin mount directly, so a
+  write there *will* desync those libraries — treat those two folders as read-only by
+  convention.
 - No TrueNAS change is needed to *mount* it: every node IP is already in the export's host
   ACL (see [storage.md](../../../../docs/storage.md)).
-- Reads and writes happen as uid 33 (`www-data`). An empty browse or a `Permission denied`
-  on upload means ownership on the NAS is wrong (`ls -ln` the folder; `chown 33:33` it).
 
 ## Design notes worth not re-litigating
 
