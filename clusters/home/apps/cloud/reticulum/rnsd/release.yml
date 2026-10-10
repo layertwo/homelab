@@ -96,7 +96,8 @@ spec:
           external-dns.alpha.kubernetes.io/hostname: "rns.layertwo.dev"
           # Cloudflare's proxy only carries HTTP; this is raw TCP.
           external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
-          # all: UniFi serves the LAN IP, Cloudflare serves a CNAME to proxy-external.
+          # all: both external-dns instances pick it up - UniFi serves the LAN name and
+          # Cloudflare serves the public A record to the assigned LoadBalancer IP.
           layertwo.dev/publish: "all"
         ports:
           rns:
