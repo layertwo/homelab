@@ -87,10 +87,21 @@ spec:
       driver:
         image:
           registry: ghcr.io/democratic-csi/democratic-csi
-          tag: next
+          # Pin OFF the moving `next` tag. As of 2026-10 `next` is the WebSocket
+          # rewrite that refuses TrueNAS <26 ("driver is only available with
+          # TrueNAS version >=26"), so on TrueNAS 25.10 no new NFS volume can be
+          # provisioned. v1.9.5 is the stable HTTP-API driver that supports 25.10.
+          tag: v1.9.5
         enabled: true
         logLevel: debug
       csiProxy:
         image:
           registry: ghcr.io/democratic-csi/csi-grpc-proxy
           tag: v0.5.6
+    node:
+      driver:
+        image:
+          registry: ghcr.io/democratic-csi/democratic-csi
+          # Same pin as controller.driver.image (the chart default here is `latest`,
+          # also a moving tag).
+          tag: v1.9.5
