@@ -96,18 +96,17 @@ check. Database failure makes authorization return 503 and prevents new creator 
 
 ### Validate before merging
 
-With `kubectl`, Helm and PyYAML available:
+Build the Kubernetes manifests and check whitespace:
 
 ```sh
-helm repo add bjw-s https://bjw-s-labs.github.io/helm-charts
-helm repo update bjw-s
-python3 scripts/check-tunnels.py
+kubectl kustomize clusters/home/apps/network/tunnels > /dev/null
+git diff --check
 ```
 
-The check renders app-template 5.2.1 and verifies service/shared-Secret environment wiring, the
-TOML template and both auth scopes using dummy credentials, workload hardening,
-NetworkPolicy allow/deny cases, private endpoint exclusion, and the site authorization chain.
-Review the draft PR's `flux-diff` output as well. Rendering does not prove cluster reconciliation.
+Review the draft PR's `flux-diff` output for rendered service/shared-Secret environment wiring,
+workload hardening, NetworkPolicies, explicit public endpoints, and the site authorization chain.
+The native frps v0.71.0 environment templates were verified locally with dummy credentials.
+Rendering does not prove cluster reconciliation.
 
 ### Acceptance after deployment
 
