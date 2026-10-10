@@ -2,7 +2,7 @@
 
 Nextcloud 34 (`nextcloud/helm` chart 9.3.0), exposed at `cloud.layertwo.dev` on the **external** Traefik.
 
-- **Files** live in Garage (`s3.layertwo.dev`, bucket `nextcloud`) as S3 *primary* storage — not on a PVC.
+- **Files** live in Garage (`garage-truenas.garage.svc.cluster.local:30188`, bucket `nextcloud`) as S3 *primary* storage — not on a PVC.
 - **Identity** is Pocket ID via the `user_oidc` app, so logins still create real Nextcloud users. The local
   admin account is the break-glass path.
 - **State** is CNPG `cnpg-nextcloud` (2 instances) + a standalone Valkey (cache + file locking).
@@ -113,6 +113,13 @@ forward-only — `rollback` would loop forever on a failed upgrade.
 - **Metrics.** `metrics.enabled: true` + `serviceMonitor.enabled: true`; needs a token created in Nextcloud first.
 - **Group provisioning / end-session logout.** Add `--group-provisioning=1 --mapping-groups=groups` and
   `--endsessionendpointuri` to the hook if Pocket ID ever emits groups.
+- **Egress restriction.** The hook sets `allow_local_remote_servers=true` because `idp.layertwo.dev`
+  resolves to the private Traefik/MetalLB IP, which Nextcloud's HTTP client blocks by default. That
+  necessarily lets Nextcloud's server-side HTTP client reach private addresses. A scoped egress
+  `NetworkPolicy` is the usual mitigation, but this cluster runs the default K3S flannel CNI with no
+  policy engine, so NetworkPolicies are not enforced here — adding one would be inert. Revisit if a
+  policy-enforcing CNI is adopted.
+- **CNPG backups.** `cnpg-nextcloud` has no `spec.backup`; see "The gap to close first" below.
 
 ## The gap to close first
 
