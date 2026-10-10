@@ -56,7 +56,8 @@ metadata:
   namespace: tunnels
 spec:
   forwardAuth:
-    address: http://broker:8080/authz
+    # Fully qualified: Traefik runs in traefik-system, where a bare "broker" does not resolve.
+    address: http://broker.tunnels.svc.cluster.local:8080/authz
     trustForwardHeader: false
     # Existing copies are removed before Traefik applies the broker's response.
     # The broker returns only X-Tunnel-User; internal identity is not forwarded.
