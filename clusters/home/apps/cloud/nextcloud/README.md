@@ -57,22 +57,22 @@ valkey/    Valkey (official chart, standalone)
 
 ## External storage (media sharing)
 
-The TrueNAS media export `/mnt/storage0/media` is mounted **read-only** into the pod
+The TrueNAS media export `/mnt/storage0/media` is mounted into the pod
 (`nextcloud.extraVolumes`/`extraVolumeMounts` at `/media`) and surfaced as three system-wide
 **External Storage** mounts — `Movies`, `TV`, `Games` — so the library can be link-shared
-without copying it into Garage.
+and game ISOs uploaded without copying anything into Garage.
 
-- **Read-only is the whole point.** The mount is `readOnly: true`, so Nextcloud cannot
-  rename/move/delete and cannot desync the Sonarr/Radarr/Jellyfin libraries that mount the
-  same export directly.
+- **The mount is read-write.** Nextcloud can upload, rename, move and delete. Movies and TV
+  are the same tree Sonarr/Radarr/Jellyfin mount directly, so a write there *will* desync
+  those libraries — treat those two folders as read-only by convention.
 - The mounts are registered from the `before-starting` hook with
   `occ files_external:create <name> local null::null -c datadir=...`, guarded by a
   `files_external:list` check so re-runs are free. Note Nextcloud's JSON escapes `/` as
   `\/`, which is why the guard greps the literal `\/`.
 - No TrueNAS change is needed to *mount* it: every node IP is already in the export's host
   ACL (see [storage.md](../../../../docs/storage.md)).
-- Files must be readable by uid 33 (`www-data`). If a browse comes up empty, check
-  permissions on the NAS (`ls -ln` on a movie) before suspecting the mount.
+- Reads and writes happen as uid 33 (`www-data`). An empty browse or a `Permission denied`
+  on upload means ownership on the NAS is wrong (`ls -ln` the folder; `chown 33:33` it).
 
 ## Design notes worth not re-litigating
 

@@ -68,19 +68,17 @@ spec:
               name: secrets-nextcloud-oidc
               key: client-secret
 
-      # TrueNAS media tree, read-only: Nextcloud shares these files by link and
-      # never writes, so it cannot desync Sonarr/Radarr/Jellyfin, which mount the
-      # same export directly. Surfaced as External Storage from the hook below.
+      # TrueNAS media tree, read-write so Nextcloud can also upload (game ISOs).
+      # Movies/TV are the same tree Sonarr/Radarr/Jellyfin mount directly, so
+      # writes there desync those libraries. Surfaced as External Storage below.
       extraVolumes:
         - name: truenas-media
           nfs:
             server: sunbeam.layertwo.lan
             path: /mnt/storage0/media
-            readOnly: true
       extraVolumeMounts:
         - name: truenas-media
           mountPath: /media
-          readOnly: true
 
       objectStore:
         s3:
@@ -121,8 +119,8 @@ spec:
           occ config:system:set allow_local_remote_servers --value=true --type=boolean \
             || echo "[oidc] ERROR: could not allow local remote servers - OIDC login may fail"
 
-          # External storage: surface the TrueNAS media tree (read-only NFS mount
-          # at /media) so its files can be link-shared. Guarded so re-runs are free;
+          # External storage: surface the TrueNAS media tree (NFS mount at /media)
+          # so its files can be link-shared or uploaded. Guarded so re-runs are free;
           # Nextcloud escapes "/" in its JSON output, hence the literal \/.
           mount_if_missing() { # <name> <datadir>
             occ files_external:list --output=json 2>/dev/null \
