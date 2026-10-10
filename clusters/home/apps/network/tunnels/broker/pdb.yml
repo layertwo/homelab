@@ -1,0 +1,13 @@
+---
+# The broker is stateless and now on the liveness path (frps calls it on every heartbeat), so a
+# rolling update must never take all replicas down at once.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: broker
+  namespace: tunnels
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: broker
