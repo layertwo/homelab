@@ -94,20 +94,6 @@ spec:
               send-on-resolved: true
               description: "kirocrew is down"
 
-        - name: open-webui
-          group: ai
-          url: https://pythia.layertwo.dev
-          interval: 1m
-          conditions:
-            - "[STATUS] == 200"
-          alerts:
-            - type: pushover
-              enabled: true
-              failure-threshold: 3
-              success-threshold: 2
-              send-on-resolved: true
-              description: "pythia is down"
-
         - name: send
           group: external
           url: https://send.layertwo.dev

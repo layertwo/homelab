@@ -15,7 +15,7 @@ The homelab includes:
 - TAK server (CloudTAK)
 - Git hosting & CI/CD (Forgejo)
 - Password management (Vaultwarden)
-- AI chat & agents (OpenWebUI, Hermes)
+- AI chat & agents (Ollama, KiroCrew)
 - Authentication/SSO (Pocket ID)
 - Monitoring (Gatus)
 
@@ -124,8 +124,8 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 - **Send**: Self-hosted file/secret sharing (Firefox Send fork)
 - **Garage**: S3-compatible object storage, hosted as a TrueNAS app (the in-cluster directory only holds the IngressRoute/cert/Service pointer)
 - **Website**: Static site serving layertwo.dev
-- **OpenWebUI**: Web UI for interacting with LLMs
-- **Hermes**: AI agent gateway
+- **Ollama**: Local LLM model server, GPU-accelerated on the RTX 2080
+- **KiroCrew**: Web UI for running opencode agents
 
 ### TAK Server
 
