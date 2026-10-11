@@ -14,7 +14,7 @@ Self-hosted infrastructure for:
 
 - **Media**: Sonarr, Radarr, Bazarr, Prowlarr, qBittorrent (behind Gluetun), Jellyfin (GPU), Recyclarr
 - **Photos**: Immich
-- **Files**: Send (Firefox Send fork) and Nextcloud
+- **Files**: Nextcloud
 - **Object storage**: Garage S3 (hosted as a TrueNAS app)
 - **AI**: Ollama (local LLMs, GPU-accelerated on the RTX 2080) and KiroCrew (web UI for opencode agents)
 - **TAK**: CloudTAK
@@ -92,7 +92,6 @@ clusters/home/apps/<namespace>/
 | `cloud/kirocrew/` | KiroCrew web UI for opencode agents (`kiro.layertwo.dev`) |
 | `cloud/nextcloud/` | Nextcloud (+ CloudNative PG Postgres, Valkey); S3 primary storage in Garage |
 | `cloud/ollama/` | Ollama LLM server (GPU via `runtimeClassName: nvidia`); models PVC on `local-path` |
-| `cloud/send/` | Send (Firefox Send fork) + Redis |
 | `cloud/website/` | IngressRoute/redirect for `layertwo.dev`, served from Garage website |
 | `database/` | CloudNative PG, MongoDB, and ScyllaDB operators |
 | `development/forgejo/` | Forgejo (+ Postgres, Valkey, Actions runner with docker-in-docker) |
