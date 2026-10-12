@@ -43,7 +43,7 @@ spec:
           frps:
             image:
               repository: ghcr.io/layertwo/tunnels-frps
-              tag: v0.2.0@sha256:01e2c62d55789883e726359ce7d7b28702969d21d0c5bde9ae769e9ed9454571
+              tag: v0.3.1@sha256:64100891aa9d0f5890f15a07a477cf7563a82ccad677ca9d59e114d93116b19d
             args: ["-c", "/etc/frp/frps.toml"]
             env:
               FRPS_DASHBOARD_PASSWORD:
