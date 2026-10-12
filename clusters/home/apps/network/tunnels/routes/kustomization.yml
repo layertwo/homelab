@@ -7,3 +7,4 @@ resources:
   - middlewares.yml
   - ingressroute-apex.yml
   - ingressroute-sites.yml
+  - ingressroute-ssh.yml
