@@ -11,3 +11,18 @@ spec:
   issuerRef:
     name: letsencrypt-prod-dns
     kind: ClusterIssuer
+---
+# The SSH subtree, one level below tunnels.layertwo.dev like the sites: Cloudflare's free
+# certificate does not cover two levels, so its own wildcard is issued over DNS-01.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: tunnels-ssh
+  namespace: tunnels
+spec:
+  secretName: tunnels-ssh-tls
+  dnsNames:
+    - "*.ssh.tunnels.layertwo.dev"
+  issuerRef:
+    name: letsencrypt-prod-dns
+    kind: ClusterIssuer

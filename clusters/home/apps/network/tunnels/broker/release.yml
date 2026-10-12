@@ -42,10 +42,11 @@ spec:
           broker:
             image:
               repository: ghcr.io/layertwo/tunnels-broker
-              tag: v0.3.1@sha256:fcb1aa763bced76424e69235416e9b47e328ecf1f8cb7c4a9f92dc3156c2e752
+              tag: sha-05d4497@sha256:27b167ae6c258c92e23bb1047367e7be4f2347d4e465a16af2c12183e12084ed
             env:
               SERVICE_HOST: tunnels.layertwo.dev
               SITES_DOMAIN: w.tunnels.layertwo.dev
+              SSH_DOMAIN: ssh.tunnels.layertwo.dev
               ISSUER: https://idp.layertwo.dev
               API_RESOURCE: https://tunnels.layertwo.dev
               CREATORS_GROUP: tunnels-creators

@@ -1,0 +1,33 @@
+---
+# SSH tunnels: the terminal presents a Pocket ID bearer token on the upgrade, so this route
+# runs the authorization check ONLY — the OIDC plugin would answer that client with an HTML
+# login page instead of a decision. DNS-only, because Cloudflare's free certificate does not
+# cover two levels below layertwo.dev (see certificate.yml) and because proxying would
+# terminate the TLS the visitor authenticates against and time out quiet sessions.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tunnels-ssh
+  namespace: tunnels
+  annotations:
+    external-dns.kubernetes.io/hostname: "*.ssh.tunnels.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
+    layertwo.dev/publish: "external"
+    kubernetes.io/ingress.class: external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: HostRegexp(`^[a-z0-9-]+\.ssh\.tunnels\.layertwo\.dev$`)
+    kind: Rule
+    middlewares:
+    - name: tunnels-strip-identity
+    - name: tunnels-authz
+    - name: tunnels-ratelimit
+    - name: tunnels-inflight
+    services:
+    - name: frps
+      port: vhost
+  tls:
+    secretName: tunnels-ssh-tls
