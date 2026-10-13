@@ -4,6 +4,10 @@
 # feature is configured, and it answers 404 until then, so a route for it would do nothing. Add it
 # beside `/api/me` when machines are switched on.
 # The *.layertwo.dev default certificate covers this host, so there is no tls block.
+#
+# DNS-only, like the sites and the ssh host: the other two records already publish the origin
+# address, so proxying this one hides nothing, and it keeps Cloudflare out of the control
+# channel's path — no 100 s idle-WebSocket limit, and one less hop for every agent connection.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -12,6 +16,7 @@ metadata:
   annotations:
     external-dns.kubernetes.io/hostname: "tunnels.layertwo.dev"
     external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    external-dns.kubernetes.io/cloudflare-proxied: "false"
     layertwo.dev/publish: "all"
     kubernetes.io/ingress.class: external
 spec:
