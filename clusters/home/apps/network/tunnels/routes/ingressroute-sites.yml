@@ -1,6 +1,9 @@
 ---
 # Tunneled sites: DNS-only wildcard straight to Traefik (Cloudflare's free
 # certificate does not cover two levels below layertwo.dev), behind the login gate.
+# `external`, not `all`: a wildcard cannot be published to the LAN's DNS provider, so unlike the
+# apex and the ssh host this subtree exists only in Cloudflare, and a client on the network
+# reaches it through the public address.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:

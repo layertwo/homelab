@@ -11,6 +11,11 @@
 # DNS-only, because this host is two levels below layertwo.dev and Cloudflare's free
 # certificate does not cover it (see certificate.yml), and because proxying would terminate
 # the TLS the visitor authenticates against and time out quiet sessions.
+#
+# Published to both providers: `all` gives the internet the Cloudflare record and the LAN a CNAME
+# to the external VIP, so a client on the network does not hairpin through the public address.
+# This host is a plain name, so the internal provider can hold it; the sites wildcard cannot,
+# which is why that subtree stays `external`.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
@@ -20,7 +25,7 @@ metadata:
     external-dns.kubernetes.io/hostname: "ssh.tunnels.layertwo.dev"
     external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
     external-dns.kubernetes.io/cloudflare-proxied: "false"
-    layertwo.dev/publish: "external"
+    layertwo.dev/publish: "all"
     kubernetes.io/ingress.class: external
 spec:
   entryPoints:
