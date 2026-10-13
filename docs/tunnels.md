@@ -108,14 +108,15 @@ page rather than a decision. SSH is owner-only; sharing is not wired for it.
 | State | `cnpg-tunnels`, one PostgreSQL instance; the broker migrates the schema at startup |
 | Internal frps API | Broker alone reaches authenticated dashboard frps:7500; frps reaches the broker plugin |
 
-The wildcard sites DNS is unproxied and uses the existing `tunnels-sites-tls` certificate. The SSH
-host is unproxied too and has its own `tunnels-ssh-tls` certificate — one name, not a wildcard.
-The apex remains Cloudflare-proxied. Public routing excludes `/authz`, `/plugin/`, and the dashboard.
+No tunnel name is proxied by Cloudflare: the apex goes straight to the origin like the sites and the
+SSH host, so every visit arrives on the origin's own TLS. The wildcard sites record uses
+`tunnels-sites-tls` and the SSH host `tunnels-ssh-tls`; the apex is served from the existing
+`*.layertwo.dev` certificate. Public routing excludes `/authz`, `/plugin/`, and the dashboard.
 
-Publication differs by name. The apex and the SSH host are published to both Cloudflare and the
-LAN's DNS, where they point at the external VIP so that a client on the network takes the local
-path; the sites wildcard is Cloudflare-only, because a wildcard cannot be represented in the LAN's
-DNS provider.
+Publication differs by name. The apex and the SSH host are published to both Cloudflare's DNS and
+the LAN's, where they point at the external VIP so that a client on the network takes the local
+path; the sites wildcard is in Cloudflare's DNS only, because a wildcard cannot be represented in
+the LAN's DNS provider.
 
 A tunneled app receives its site `Host`, `X-Forwarded-For`, `X-Forwarded-Proto: https`, and
 `X-Tunnel-User` (the authorized visitor's username). Internal `X-Tunnels-*` headers and the gate's
