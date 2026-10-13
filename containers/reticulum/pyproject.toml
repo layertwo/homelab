@@ -5,7 +5,7 @@ description = "Runtime image for rnsd (Reticulum transport node) and lxmd (LXMF 
 requires-python = ">=3.14"
 dependencies = [
     "rns==1.5.7",
-    "lxmf==1.2.0",
+    "lxmf==1.2.1",
 ]
 
 [tool.uv]
