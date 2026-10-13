@@ -12,8 +12,9 @@ spec:
     name: letsencrypt-prod-dns
     kind: ClusterIssuer
 ---
-# The SSH subtree, one level below tunnels.layertwo.dev like the sites: Cloudflare's free
-# certificate does not cover two levels, so its own wildcard is issued over DNS-01.
+# Every SSH tunnel is published at this one host, so this is a single name rather than the
+# wildcard it replaced. One level below tunnels.layertwo.dev like the sites, and Cloudflare's
+# free certificate covers neither, so it is issued over DNS-01 too.
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -22,7 +23,7 @@ metadata:
 spec:
   secretName: tunnels-ssh-tls
   dnsNames:
-    - "*.ssh.tunnels.layertwo.dev"
+    - ssh.tunnels.layertwo.dev
   issuerRef:
     name: letsencrypt-prod-dns
     kind: ClusterIssuer
