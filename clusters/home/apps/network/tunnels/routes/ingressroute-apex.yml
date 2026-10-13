@@ -1,5 +1,8 @@
 ---
 # Native control goes directly to frps; only the broker's public endpoints are routed.
+# `/api/machines` is deliberately absent: the broker mounts those handlers only when the machines
+# feature is configured, and it answers 404 until then, so a route for it would do nothing. Add it
+# beside `/api/me` when machines are switched on.
 # The *.layertwo.dev default certificate covers this host, so there is no tls block.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -23,7 +26,7 @@ spec:
     services:
     - name: frps
       port: control
-  - match: Host(`tunnels.layertwo.dev`) && (Path(`/api/me`) || Path(`/.well-known/tunnels.json`) || Path(`/healthz`))
+  - match: Host(`tunnels.layertwo.dev`) && (Path(`/api/me`) || Path(`/api/shares`) || Path(`/.well-known/tunnels.json`) || Path(`/healthz`))
     kind: Rule
     middlewares:
     - name: tunnels-ratelimit

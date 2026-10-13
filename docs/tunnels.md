@@ -4,8 +4,9 @@ Self-hosted, ngrok-style HTTP tunnels using the [tunnels CLI and broker](https:/
 and [frp](https://github.com/fatedier/frp). Publish a local web app at
 `https://<handle>[-<name>].w.tunnels.layertwo.dev` and sign in with Pocket ID to open it.
 
-**Phase 1 is owner-only.** Being in `tunnels-viewers` lets you authenticate at the browser gate;
-it does not grant access to another person's tunnel. Sharing is a later phase.
+**Access is owner-only by default.** Being in `tunnels-viewers` lets you authenticate at the browser
+gate; it does not by itself grant access to another person's tunnel. An owner can share a site with
+one visitor or with a group — see [Share a site](#share-a-site).
 
 ## Set up a creator
 
@@ -52,6 +53,23 @@ after a connection drops. It prints a refusal reason if its first login or proxy
 Open the printed URL in your browser and sign in as the same Pocket ID account. Another user
 gets an empty 403, even if they are also a creator. Unknown owners and denied access look the same.
 
+## Share a site
+
+A tunnel is private to its owner. Share it with one Pocket ID user or with a group:
+
+```sh
+tunnel list                            # what you have shared
+tunnel share lucas-blog bob            # let bob reach the tunnel labelled lucas-blog
+tunnel share --for 24h lucas-blog bob  # ... until a moment
+tunnel share --group family lucas-blog # ... or a whole Pocket ID group
+tunnel unshare lucas-blog bob          # stop sharing
+```
+
+A label is `<handle>` or `<handle>-<name>`. A user grant matches the visitor's username, so the
+grantee only has to be able to sign in at the gate. A group grant additionally needs the gate's
+groups to reach the broker, which the deployment design still lists as unverified — prefer a user
+grant until that is tested. Shares are for sites; SSH is owner-only.
+
 ## Publish an SSH service
 
 ```sh
@@ -83,7 +101,7 @@ page rather than a decision. SSH is owner-only; sharing is not wired for it.
 | Piece | Path |
 |---|---|
 | Control | CLI → Cloudflare/external Traefik → frps:7000 at `/~!frp`; native frp over WSS |
-| API/discovery | External Traefik → broker:8080 for `/api/me`, `/.well-known/tunnels.json`, `/healthz` |
+| API/discovery | External Traefik → broker:8080 for `/api/me`, `/api/shares`, `/.well-known/tunnels.json`, `/healthz` |
 | Visitors | External Traefik strips supplied identity → Pocket ID gate → broker `/authz` → strips internal identity → rate/in-flight limits → frps:8080 |
 | SSH visitors | External Traefik on `ssh.tunnels.layertwo.dev` → `forwardAuth` only, no OIDC plugin → broker `/authz` verifies the bearer token and the label in `X-Forwarded-Uri` → per-IP limits → frps:8080, which routes to the agent by frp location |
 | Ownership | Broker verifies creator tokens, resolves Pocket ID userinfo, and binds names to the stored handle |
@@ -170,7 +188,7 @@ out. Visitors removed from gate groups lose access when the gate refreshes/reche
 | Username cannot form a handle | Use 2–20 ASCII letters/digits; reserved handles are refused |
 | Certificate verification fails | Correct hostname, Traefik certificate and trust chain; do not disable verification |
 | Owner receives 403 | Browser and CLI use the same Pocket ID subject; verify gate identity and middleware order |
-| Another creator/viewer receives 403 | Expected: Phase 1 has no sharing |
+| Another creator/viewer receives 403 | Expected unless the owner shared that tunnel; see [Share a site](#share-a-site) |
 | Visitors receive 503 | Broker cannot look up ownership in PostgreSQL |
 | A new tunnel is refused while broker is running | Check database, Pocket ID and private dashboard connectivity |
 | Limit reached after a disconnect | A dropped client can remain counted until frps's 90-second heartbeat timeout |
