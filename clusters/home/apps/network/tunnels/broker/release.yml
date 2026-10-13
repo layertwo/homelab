@@ -42,7 +42,7 @@ spec:
           broker:
             image:
               repository: ghcr.io/layertwo/tunnels-broker
-              tag: sha-05d4497@sha256:4938a93fa4389c485d3c64530796a4a3781c1f948266e5e34ee557f20c6d664f
+              tag: sha-fe611b1@sha256:0af45d0d321d99e00bbbe6c0270699d6143ba61db8d7e43ede8a0db42474cf29
             env:
               SERVICE_HOST: tunnels.layertwo.dev
               SITES_DOMAIN: w.tunnels.layertwo.dev

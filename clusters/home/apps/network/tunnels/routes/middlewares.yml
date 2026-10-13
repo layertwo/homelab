@@ -101,3 +101,26 @@ spec:
     amount: 100
     sourceCriterion:
       requestHost: true
+---
+# The ssh route serves every tunnel from one host, so the host-keyed pair above would be a
+# single bucket for all of them. These are the same limits with no sourceCriterion, which
+# Traefik resolves to the client address: one bucket per visitor rather than one for everyone.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-ratelimit-ssh
+  namespace: tunnels
+spec:
+  rateLimit:
+    average: 50
+    burst: 100
+    period: 1s
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: tunnels-inflight-ssh
+  namespace: tunnels
+spec:
+  inFlightReq:
+    amount: 100

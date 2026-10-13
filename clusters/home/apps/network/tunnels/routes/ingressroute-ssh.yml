@@ -1,16 +1,23 @@
 ---
 # SSH tunnels: the terminal presents a Pocket ID bearer token on the upgrade, so this route
 # runs the authorization check ONLY — the OIDC plugin would answer that client with an HTML
-# login page instead of a decision. DNS-only, because Cloudflare's free certificate does not
-# cover two levels below layertwo.dev (see certificate.yml) and because proxying would
-# terminate the TLS the visitor authenticates against and time out quiet sessions.
+# login page instead of a decision.
+#
+# Every tunnel is published at this one host and named by the first segment of the request
+# path. The broker takes the label from X-Forwarded-Uri, which Traefik sets itself, and
+# authorizes its owner; frps then routes on the frp location the agent registered for that
+# label. The *.ssh wildcard this replaced — and the per-label hosts under it — are gone.
+#
+# DNS-only, because this host is two levels below layertwo.dev and Cloudflare's free
+# certificate does not cover it (see certificate.yml), and because proxying would terminate
+# the TLS the visitor authenticates against and time out quiet sessions.
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: tunnels-ssh
   namespace: tunnels
   annotations:
-    external-dns.kubernetes.io/hostname: "*.ssh.tunnels.layertwo.dev"
+    external-dns.kubernetes.io/hostname: "ssh.tunnels.layertwo.dev"
     external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
     external-dns.kubernetes.io/cloudflare-proxied: "false"
     layertwo.dev/publish: "external"
@@ -19,13 +26,16 @@ spec:
   entryPoints:
     - websecure
   routes:
-  - match: HostRegexp(`^[a-z0-9-]+\.ssh\.tunnels\.layertwo\.dev$`)
+  - match: Host(`ssh.tunnels.layertwo.dev`)
     kind: Rule
     middlewares:
     - name: tunnels-strip-identity
     - name: tunnels-authz
-    - name: tunnels-ratelimit
-    - name: tunnels-inflight
+    # Not tunnels-ratelimit/tunnels-inflight: they key on the request host, and every tunnel
+    # now shares this one host, so they would be a single bucket for the whole subtree. These
+    # fall back to Traefik's default source, the client address.
+    - name: tunnels-ratelimit-ssh
+    - name: tunnels-inflight-ssh
     services:
     - name: frps
       port: vhost

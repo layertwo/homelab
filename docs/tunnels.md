@@ -52,6 +52,32 @@ after a connection drops. It prints a refusal reason if its first login or proxy
 Open the printed URL in your browser and sign in as the same Pocket ID account. Another user
 gets an empty 403, even if they are also a creator. Unknown owners and denied access look the same.
 
+## Publish an SSH service
+
+```sh
+tunnel up 22 --ssh              # publish this machine's sshd, as the tunnel named "default"
+tunnel up 22 --ssh --name box1  # ... and as the tunnel named "box1"
+```
+
+Every SSH tunnel is published at **one** host, `ssh.tunnels.layertwo.dev`, and named by the first
+segment of the request path — no per-tunnel hostname, so the whole feature costs one DNS record and
+one certificate. A terminal names its tunnel in the request, so `~/.ssh/config` needs one block for
+every tunnel you will ever make:
+
+```
+Host *.layertwo.lan
+	ProxyCommand tunnel dial %n
+```
+
+`tunnel ssh-config --alias-domain layertwo.lan` prints exactly that. The alias domain is your own
+convention for naming boxes; the server never learns it, because `dial` sends only the label before
+the first dot. Then `ssh <handle>-box1.layertwo.lan` — or `ssh <handle>.layertwo.lan` for the default
+tunnel — reaches the published service, presenting a Pocket ID bearer token where a browser would
+present a cookie. `--target HOST` publishes an sshd the machine reaches at another bare host.
+
+This route runs `forwardAuth` only: the OIDC plugin would answer a bearer client with an HTML login
+page rather than a decision. SSH is owner-only; sharing is not wired for it.
+
 ## How it works
 
 | Piece | Path |
@@ -59,11 +85,13 @@ gets an empty 403, even if they are also a creator. Unknown owners and denied ac
 | Control | CLI → Cloudflare/external Traefik → frps:7000 at `/~!frp`; native frp over WSS |
 | API/discovery | External Traefik → broker:8080 for `/api/me`, `/.well-known/tunnels.json`, `/healthz` |
 | Visitors | External Traefik strips supplied identity → Pocket ID gate → broker `/authz` → strips internal identity → rate/in-flight limits → frps:8080 |
+| SSH visitors | External Traefik on `ssh.tunnels.layertwo.dev` → `forwardAuth` only, no OIDC plugin → broker `/authz` verifies the bearer token and the label in `X-Forwarded-Uri` → per-IP limits → frps:8080, which routes to the agent by frp location |
 | Ownership | Broker verifies creator tokens, resolves Pocket ID userinfo, and binds names to the stored handle |
 | State | `cnpg-tunnels`, one PostgreSQL instance; the broker migrates the schema at startup |
 | Internal frps API | Broker alone reaches authenticated dashboard frps:7500; frps reaches the broker plugin |
 
-The wildcard sites DNS is unproxied and uses the existing `tunnels-sites-tls` certificate.
+The wildcard sites DNS is unproxied and uses the existing `tunnels-sites-tls` certificate. The SSH
+host is unproxied too and has its own `tunnels-ssh-tls` certificate — one name, not a wildcard.
 The apex remains Cloudflare-proxied. Public routing excludes `/authz`, `/plugin/`, and the dashboard.
 
 A tunneled app receives its site `Host`, `X-Forwarded-For`, `X-Forwarded-Proto: https`, and
@@ -73,8 +101,9 @@ owns `/oidc/callback` and paths starting with `/logout` on each site.
 
 ## Operations
 
-Manifests: `clusters/home/apps/network/tunnels/`. The broker/frps images are the signed `v0.1.0`
-release pinned by digest. They run non-root with read-only filesystems and no Kubernetes API token.
+Manifests: `clusters/home/apps/network/tunnels/`. The broker is a signed `sha-<commit>` image of
+`mainline` and frps the `v0.3.1` image around frp 0.71.0; both are pinned by digest. They run
+non-root with read-only filesystems and no Kubernetes API token.
 NetworkPolicies isolate public ingress, the plugin, dashboard, and database. CNPG instance management
 is permitted from the operator in namespace `default`; database egress is left open for bootstrap
 and Kubernetes API access.
@@ -115,6 +144,12 @@ local HTTP server. Check owner access, cross-user denial, forged identity/forwar
 stolen-name rejection, HTTP/WebSocket traffic and the app's received headers. Confirm dependency
 failure cannot allow access and that private routes remain unavailable publicly.
 
+For SSH, publish a tunnel with `--ssh` at a disposable local sshd and dial it from a terminal using
+the block `tunnel ssh-config` prints. Check that the `*.ssh.tunnels.layertwo.dev` wildcard record is
+gone and that `ssh.tunnels.layertwo.dev` and its certificate resolve; that two tunnels on that one
+host reach their own services; and that a request naming a label the caller does not own is refused.
+The broker authorizes the first segment of `X-Forwarded-Uri`, so the path is the thing to tamper with.
+
 ### Revocation
 
 Creator access tokens last one hour with the current Pocket ID defaults. Removing a creator from
@@ -140,6 +175,7 @@ out. Visitors removed from gate groups lose access when the gate refreshes/reche
 | A new tunnel is refused while broker is running | Check database, Pocket ID and private dashboard connectivity |
 | Limit reached after a disconnect | A dropped client can remain counted until frps's 90-second heartbeat timeout |
 | A script receives 401 instead of a browser redirect | The gate redirects HTML requests; non-browser API access to sites is not implemented |
+| An `ssh` dial receives 401 | The stored access token aged; `tunnel login`, then retry. A label that is unknown or not yours is an empty 403 instead |
 
 See the [deployment plan](plans/2026-10-10-tunnels-phase1-deployment-plan.md) and the
 [current application design](https://github.com/layertwo/tunnels/blob/mainline/docs/design.md).
