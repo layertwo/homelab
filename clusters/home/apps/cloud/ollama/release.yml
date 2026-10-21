@@ -41,7 +41,7 @@ spec:
     # Pinned so renovate can see it; the chart default tracks the chart appVersion.
     image:
       repository: ollama/ollama
-      tag: 0.40.3
+      tag: 0.40.8
 
     extraEnv:
       - name: NVIDIA_VISIBLE_DEVICES
