@@ -32,7 +32,7 @@
     },
     {
       "description": ["Group Traefik updates"],
-      "matchDatasources": ["helm", "git-tags"],
+      "matchDatasources": ["helm", "github-tags", "git-tags"],
       "matchPackagePatterns": ["traefik"],
       "groupName": "traefik",
       "groupSlug": "traefik"
