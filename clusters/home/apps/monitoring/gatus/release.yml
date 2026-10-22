@@ -505,6 +505,20 @@ spec:
               send-on-resolved: true
               description: "nextcloud valkey is down"
 
+        - name: cortex
+          group: apps
+          url: https://cortex.layertwo.dev/v1/health
+          interval: 5m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "cortex is down"
+
       alerting:
         pushover:
           application-token: "${PUSHOVER_TOKEN}"

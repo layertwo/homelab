@@ -96,6 +96,7 @@ clusters/home/apps/<namespace>/
 | `database/` | CloudNative PG, MongoDB, and ScyllaDB operators |
 | `development/forgejo/` | Forgejo (+ Postgres, Valkey, Actions runner with docker-in-docker) |
 | `home/` | Thin passthrough (Service + IngressRoute) to an external Home Assistant host |
+| `cortex/` | Cortex zero-knowledge backup: API + web (app-template), ScyllaDB Alternator `cortex-db`, Garage bucket, Gatus monitor |
 | `immich/` | Immich app (+ CUDA machine-learning), Postgres, Redis, VolSync |
 | `kube-system/` | CoreDNS custom zone, democratic-csi, descheduler, Intel device plugin, kube-vip, node-feature-discovery, reloader, snapshot-controller, TrueNAS iSCSI CSP |
 | `mediabox/` | Sonarr, Radarr, Bazarr, Prowlarr, qBittorrent (Gluetun sidecar), Jellyfin (GPU), FlareSolverr, Recyclarr (+ per-app Postgres) |
