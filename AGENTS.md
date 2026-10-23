@@ -63,12 +63,12 @@ GitOps-managed resources, grouped by namespace under `clusters/home/apps/`.
 
 #### Flux Wiring
 
-- `flux-system/gotk-sync.yaml`: `GitRepository` `flux-system` (branch `mainline`) and `Kustomization` `flux-system` (`path: ./clusters/home`, `prune: true`, SOPS decryption via the `sops-age` secret)
-- `apps/apps.yml`: `Kustomization` `apps` (`path: ./clusters/home/apps`, `prune: true`, SOPS)
+- `flux-system/gotk-sync.yaml`: `GitRepository` `flux-system` (branch `mainline`) and `Kustomization` `flux-system` (`path: ./clusters/home/flux-system`, `prune: true`, SOPS decryption via the `sops-age` secret) — owns only the Flux controllers, CRDs, notifications, and SOPS secrets
+- `apps/apps.yml`: `Kustomization` `apps` (`path: ./clusters/home/apps`, `prune: true`, SOPS) — owns the workloads and the chart sources under `apps/charts/`
 - `network/traefik/traefik-crds.yml`: `Kustomization` `traefik-api-crds` (from the `traefik-crds` GitRepository)
 - `flux-system/kustomization.yaml` also bundles `gotk-components.yaml`, `notifications.yml`, and SOPS secrets
 
-Neither `clusters/home/` nor `clusters/home/apps/` has a `kustomization.yaml`; Flux generates one by scanning each tree, so nested `kustomization.yml` files are optional (some apps rely on auto-detection).
+`clusters/home/flux-system/` has an explicit `kustomization.yaml`. `clusters/home/apps/` does not; Flux generates one by scanning the tree, so nested `kustomization.yml` files are optional (some apps rely on auto-detection).
 
 #### Structure Pattern
 
@@ -106,7 +106,7 @@ clusters/home/apps/<namespace>/
 | `tak/` | CloudTAK (+ PostGIS Postgres) |
 | `volsync/` | VolSync operator + RBAC |
 
-#### Charts (`clusters/home/charts/`)
+#### Charts (`clusters/home/apps/charts/`)
 
 Flux source definitions:
 
