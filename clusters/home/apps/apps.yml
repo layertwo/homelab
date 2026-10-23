@@ -8,6 +8,8 @@ spec:
   interval: 10m
   path: ./clusters/home/apps
   prune: true
+  # Resources are already owned by the flux-system Kustomization; do not delete them when this CR goes away.
+  deletionPolicy: Orphan
   sourceRef:
     kind: GitRepository
     name: flux-system
