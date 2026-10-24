@@ -20,6 +20,12 @@
       "schedule": ["on saturday"]
     },
     {
+      "description": ["Custom schedule for CloudTAK images"],
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^ghcr\\.io\\/dfpc-coe\\//"],
+      "schedule": ["before 4am on the first day of the month"]
+    },
+    {
       "matchDatasources": ["terraform-provider"],
       "registryUrls": ["https://registry.opentofu.org"]
     },
