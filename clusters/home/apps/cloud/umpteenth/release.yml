@@ -1,0 +1,73 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: umpteenth
+  namespace: umpteenth
+spec:
+  interval: 30m
+  timeout: 10m
+  chartRef:
+    kind: OCIRepository
+    name: umpteenth
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    cleanupOnFail: true
+    remediation:
+      strategy: rollback
+      retries: 3
+  values:
+    # Helm generates app.encryption_key into the Secret "umpteenth" (kept on
+    # uninstall). Deleting that Secret orphans every stored provider key and MCP
+    # login, so it belongs in SOPS before this runs jobs you care about.
+    # One replica: a run lives on the replica that executes it, so HA only buys
+    # "schedules keep firing while a node drains". Not worth the moving parts here.
+    replicaCount: 1
+
+    app:
+      url: https://umpteenth.layertwo.dev
+
+    # Blobs live in Postgres, so the bundled database is the only copy of the
+    # learned playbooks, scripts and run artifacts. No R2 backup yet: move to
+    # CNPG + barman when the state is worth keeping (docs/backup-strategy.md).
+    fileStorage:
+      backend: database
+    postgresql:
+      persistence:
+        storageClass: sunbeam-nfs-csi
+        size: 8Gi
+
+    sandbox:
+      namespace: umpteenth-jobs
+      createNamespace: true
+      podSecurityLevel: baseline
+      # k3s pod and Service CIDRs: the egress proxy refuses these even for jobs
+      # that ask for the private network, so a job cannot reach cluster services.
+      clusterRanges:
+        - 10.42.0.0/16
+        - 10.43.0.0/16
+      # "Unrestricted network" bypasses the egress proxy and reaches the LAN,
+      # the MetalLB VIPs and TrueNAS. Jobs opt in per job, not by default.
+      allowUnrestrictedNetwork: false
+      # No registry, so jobs that build their own image from a Dockerfile fail
+      # with "the active sandbox adapter cannot build job images". Deliberate:
+      # rootless BuildKit wants hostUsers=false and unconfined seccomp/AppArmor.
+      buildkit:
+        enabled: false
+
+    # Traefik routes this; the chart's own Ingress stays off.
+    ingress:
+      enabled: false
+    service:
+      type: ClusterIP
+      port: 8080
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 2Gi

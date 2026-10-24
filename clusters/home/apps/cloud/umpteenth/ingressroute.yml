@@ -1,0 +1,21 @@
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: umpteenth
+  namespace: umpteenth
+  annotations:
+    external-dns.kubernetes.io/hostname: "umpteenth.layertwo.dev"
+    external-dns.kubernetes.io/target: "proxy-internal.layertwo.dev"
+    layertwo.dev/publish: "internal"
+    cert-manager.io/cluster-issuer: letsencrypt-prod-dns
+    kubernetes.io/ingress.class: internal
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`umpteenth.layertwo.dev`)
+      kind: Rule
+      services:
+        - name: umpteenth
+          port: 8080
