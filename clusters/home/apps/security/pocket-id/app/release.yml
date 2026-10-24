@@ -39,6 +39,8 @@ spec:
               ANALYTICS_DISABLED: "true"
               ALLOW_USER_SIGNUPS: "withToken"
               TRUST_PROXY: "true"
+              # opencode registers itself as an MCP OAuth client through CIMD
+              CIMD_URL_ALLOWLIST: "https://opencode.ai/oauth/opencode/client.json"
               KEYS_STORAGE: "database"
               DB_PROVIDER: "postgres"
               SMTP_PORT: "465"
