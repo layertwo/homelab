@@ -20,6 +20,9 @@ spec:
       strategy: rollback
       retries: 3
   values:
+    podAnnotations:
+      reloader.stakater.com/auto: "true"
+
     # Helm generates app.encryption_key into the Secret "umpteenth" (kept on
     # uninstall). Deleting that Secret orphans every stored provider key and MCP
     # login, so it belongs in SOPS before this runs jobs you care about.
@@ -64,6 +67,26 @@ spec:
     service:
       type: ClusterIP
       port: 8080
+
+    config:
+      auth:
+        providers:
+          pocket-id:
+            type: oidc
+            name: Pocket ID
+            issuer: https://idp.layertwo.dev
+            admin_groups: [umpteenth-admins]
+    extraEnv:
+      - name: AUTH_PROVIDERS_POCKET_ID_CLIENT_ID
+        valueFrom:
+          secretKeyRef:
+            name: secrets-umpteenth
+            key: oidc-client-id
+      - name: AUTH_PROVIDERS_POCKET_ID_CLIENT_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: secrets-umpteenth
+            key: oidc-client-secret
 
     resources:
       requests:
