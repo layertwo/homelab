@@ -71,6 +71,10 @@ spec:
       port: 8080
 
     config:
+      # Lets opencode sign in through /mcps instead of storing an API token.
+      # Needs the matching Pocket ID API resource and CIMD allowlist entry.
+      mcp:
+        oauth_provider: pocket-id
       auth:
         providers:
           pocket-id:
