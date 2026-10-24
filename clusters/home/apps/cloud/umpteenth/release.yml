@@ -23,15 +23,17 @@ spec:
     podAnnotations:
       reloader.stakater.com/auto: "true"
 
-    # Helm generates app.encryption_key into the Secret "umpteenth" (kept on
-    # uninstall). Deleting that Secret orphans every stored provider key and MCP
-    # login, so it belongs in SOPS before this runs jobs you care about.
+    app:
+      url: https://umpteenth.layertwo.dev
+      # The chart would generate a key into its own Secret, which no backup
+      # covers. This is that same key, moved into SOPS: losing it makes every
+      # stored provider key, MCP login and session unreadable.
+      encryptionKey:
+        existingSecret: secrets-umpteenth-encryption
+
     # One replica: a run lives on the replica that executes it, so HA only buys
     # "schedules keep firing while a node drains". Not worth the moving parts here.
     replicaCount: 1
-
-    app:
-      url: https://umpteenth.layertwo.dev
 
     # Blobs live in Postgres, so the bundled database is the only copy of the
     # learned playbooks, scripts and run artifacts. No R2 backup yet: move to

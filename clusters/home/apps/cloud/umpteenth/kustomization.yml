@@ -4,5 +4,6 @@ kind: Kustomization
 resources:
   - namespace.yml
   - secrets-umpteenth.sops.yml
+  - secrets-umpteenth-encryption.sops.yml
   - release.yml
   - ingressroute.yml
