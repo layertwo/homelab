@@ -1,0 +1,23 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: cnpg-tududi
+  namespace: tududi
+spec:
+  # One instance: the app runs a single replica and nothing here is worth a
+  # switchover. The database holds the resolution history, so add barman here
+  # before the tasks become the record of how things were fixed.
+  instances: 1
+  primaryUpdateStrategy: unsupervised
+  imageName: ghcr.io/cloudnative-pg/postgresql:16.15
+  enableSuperuserAccess: true
+  storage:
+    storageClass: sunbeam-nfs-csi
+    size: 2Gi
+  bootstrap:
+    initdb:
+      # The owner becomes the role and database in the cnpg-tududi-app secret
+      # the Deployment reads its DB_USER and DB_PASSWORD from.
+      database: tududi
+      owner: tududi
