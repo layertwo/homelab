@@ -14,6 +14,8 @@ data:
             172.31.0.18 node-nv1.layertwo.dev
             fallthrough
         }
-        forward . 172.31.0.1
+        forward . 172.31.0.1 1.1.1.1 {
+            policy sequential
+        }
         cache 30
     }
