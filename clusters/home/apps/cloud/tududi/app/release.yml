@@ -54,7 +54,7 @@ spec:
                 valueFrom:
                   secretKeyRef:
                     name: cnpg-tududi-app
-                    key: uri
+                    key: fqdn-uri
               OIDC_ENABLED: "true"
               OIDC_PROVIDER_NAME: Pocket ID
               OIDC_PROVIDER_SLUG: pocketid
