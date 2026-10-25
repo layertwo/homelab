@@ -55,7 +55,6 @@ spec:
               OIDC_PROVIDER_NAME: Pocket ID
               OIDC_PROVIDER_SLUG: pocketid
               OIDC_ISSUER_URL: https://idp.layertwo.dev
-              OIDC_CLIENT_ID: tududi
               OIDC_SCOPE: openid profile email
               OIDC_AUTO_PROVISION: "true"
             envFrom:
