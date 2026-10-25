@@ -27,17 +27,13 @@ spec:
   values:
     defaultPodOptions:
       annotations:
-        # Webhook secrets and the OIDC client secret are read once at start.
         reloader.stakater.com/auto: "true"
       securityContext:
-        # The image drops to uid 1001 after fixing ownership of its volumes.
         fsGroup: 1001
 
     controllers:
       main:
         type: deployment
-        # The reminder, recurring-task and Telegram schedulers run inside the
-        # app process, so two pods would send everything twice.
         replicas: 1
         strategy: Recreate
         containers:
@@ -49,10 +45,7 @@ spec:
             env:
               BASE_URL: https://tasks.layertwo.dev
               TUDUDI_ALLOWED_ORIGINS: https://tasks.layertwo.dev
-              # One proxy hop, Traefik.
               TUDUDI_TRUST_PROXY: "1"
-              # Postgres instead of the bundled SQLite: SQLite on NFS can
-              # corrupt the file. The URI carries the user and password.
               DATABASE_URL:
                 valueFrom:
                   secretKeyRef:
@@ -60,7 +53,6 @@ spec:
                     key: uri
               OIDC_ENABLED: "true"
               OIDC_PROVIDER_NAME: Pocket ID
-              # Slug decides the callback: /api/oidc/callback/pocketid
               OIDC_PROVIDER_SLUG: pocketid
               OIDC_ISSUER_URL: https://idp.layertwo.dev
               OIDC_CLIENT_ID: tududi
@@ -107,11 +99,10 @@ spec:
             protocol: HTTP
 
     persistence:
-      # Attachments, avatars and project images.
       uploads:
         enabled: true
         type: persistentVolumeClaim
-        storageClass: sunbeam-iscsi-csi
+        storageClass: sunbeam-nfs-csi
         accessMode: ReadWriteOnce
         size: 5Gi
         globalMounts:
