@@ -28,6 +28,10 @@ spec:
     defaultPodOptions:
       annotations:
         reloader.stakater.com/auto: "true"
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       securityContext:
         fsGroup: 1001
 
