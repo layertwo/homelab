@@ -44,7 +44,6 @@ spec:
           main:
             image:
               repository: docker.io/chrisvel/tududi
-              # renovate: datasource=docker depName=chrisvel/tududi
               tag: 1.9.7
             env:
               BASE_URL: https://tasks.layertwo.dev
