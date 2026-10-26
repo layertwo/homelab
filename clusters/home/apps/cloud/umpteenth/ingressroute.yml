@@ -6,10 +6,10 @@ metadata:
   namespace: umpteenth
   annotations:
     external-dns.kubernetes.io/hostname: "umpteenth.layertwo.dev"
-    external-dns.kubernetes.io/target: "proxy-internal.layertwo.dev"
-    layertwo.dev/publish: "internal"
+    external-dns.kubernetes.io/target: "proxy-external.layertwo.dev"
+    layertwo.dev/publish: "all"
     cert-manager.io/cluster-issuer: letsencrypt-prod-dns
-    kubernetes.io/ingress.class: internal
+    kubernetes.io/ingress.class: external
 spec:
   entryPoints:
     - websecure
