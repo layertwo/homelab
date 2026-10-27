@@ -44,7 +44,7 @@ spec:
           main:
             image:
               repository: docker.io/chrisvel/tududi
-              tag: 1.9.8
+              tag: 1.10.0
             env:
               BASE_URL: https://tasks.layertwo.dev
               TUDUDI_ALLOWED_ORIGINS: https://tasks.layertwo.dev
