@@ -23,7 +23,7 @@ dev = [
     "pytest-cov==7.1.0",
     "black==26.10.1",
     "isort==9.0.2",
-    "flake8==7.4.1",
+    "flake8==7.5.0",
     "Flake8-pyproject==1.2.4",
     "responses==0.26.3",
 ]
