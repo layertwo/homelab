@@ -43,7 +43,7 @@ spec:
           gateway:
             image:
               repository: ghcr.io/layertwo/kirocrew-opencode
-              tag: latest@sha256:764d894b25997b240c15f3bc177765ff80cd27e24dc4fb1c1feec701689dfd86
+              tag: latest@sha256:cc76960e6887905a7ab680ac13dc48f98855dfc74acf1ba859a0161bc8fac201
             env:
               TZ: Etc/UTC
               HOME: /home/kirocrew
