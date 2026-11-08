@@ -113,14 +113,14 @@ wheels = [
 
 [[package]]
 name = "lxmf"
-version = "1.2.1"
+version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "rns" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/17/c4/9042fcd535e815efc8baebad5fdc3eb2bb308500c781ec828a4e60a532e5/lxmf-1.2.1.tar.gz", hash = "sha256:acb1551066406de97c6aacaa38cf512131b60167db5ab5787a525d1d2586b304", size = 81509, upload-time = "2026-10-13T14:43:12.909Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/e1/63ea52b108e27955511890af09509d492a7c3d5077a2470e24886f28e9a2/lxmf-1.3.0.tar.gz", hash = "sha256:5847534a7e69768425e02ff159096baf385ac99c0919da79e9ed0100e8f46814", size = 85731, upload-time = "2026-11-07T17:09:00.808Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/90/90/89a1ba2135cd9bf9bb98f41ed3b9379b8079a2c2c6473e246029ff1eee58/lxmf-1.2.1-py3-none-any.whl", hash = "sha256:4bd95325b00e5fae81241e28f26a5ed22b38fea941e128d1c63a33c99e931440", size = 70324, upload-time = "2026-10-13T14:43:10.076Z" },
+    { url = "https://files.pythonhosted.org/packages/aa/41/52ccbc84a6bb40c5945030b0b2f5c01b58e99d3da83e9943b003ec75c7cc/lxmf-1.3.0-py3-none-any.whl", hash = "sha256:bd26a8f7218519365b1a1940dd0fd1d3a4785aa4970d2de85807c3f846acd382", size = 74764, upload-time = "2026-11-07T17:08:59.003Z" },
 ]
 
 [[package]]
@@ -152,7 +152,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "lxmf", specifier = "==1.2.1" },
+    { name = "lxmf", specifier = "==1.3.0" },
     { name = "rns", specifier = "==1.6.0" },
 ]
 
