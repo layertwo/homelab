@@ -94,6 +94,20 @@ spec:
               send-on-resolved: true
               description: "kirocrew is down"
 
+        - name: umpteenth
+          group: ai
+          url: https://umpteenth.layertwo.dev
+          interval: 1m
+          conditions:
+            - "[STATUS] == 200"
+          alerts:
+            - type: pushover
+              enabled: true
+              failure-threshold: 3
+              success-threshold: 2
+              send-on-resolved: true
+              description: "umpteenth is down"
+
         - name: layertwo.dev
           group: external
           url: https://www.layertwo.dev
