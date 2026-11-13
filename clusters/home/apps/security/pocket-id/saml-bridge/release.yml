@@ -32,7 +32,7 @@ spec:
           saml-bridge:
             image:
               repository: ghcr.io/layertwo/oidc-saml-bridge
-              tag: latest@sha256:8703c3f4447f3f792d130826c188305dd14a15d8a9ac2974c05495c00160a5d8
+              tag: latest@sha256:70230a885792f4499c873452a809262a92c3838677e198fd7954b895c161acd3
             env:
               CERT_PATH: "/certs/saml.crt"
               KEY_PATH: "/certs/saml.key"
