@@ -43,7 +43,7 @@ spec:
           gateway:
             image: &image
               repository: ghcr.io/layertwo/kirocrew-opencode
-              tag: 0.12.2@sha256:45956d20293336101d9f9d3e0a3292e51b2a54e22b77b88adc8a3c736a1f94e2
+              tag: 0.12.2@sha256:7f3469ceb8fa8efa8f3b5426661f761e765b0bd4f176a6de3258d4ac9b1cca30
             env:
               TZ: Etc/UTC
               HOME: /home/kirocrew
@@ -95,14 +95,20 @@ spec:
                 localhostProfile: profiles/kirocrew-seccomp.json
 
           # Remote Crew: sshd on the pod's loopback, published by the tunnel agent below.
+          # Loops like the tunnel sidecar: a crashing sidecar unreadies the pod and the gateway with it.
           sshd:
             image: *image
             command: ["/bin/sh", "-c"]
             args:
               - |
                 k=/home/kirocrew/.sshd/host_ed25519
-                [ -f "$k" ] || { mkdir -p "${k%/*}" && ssh-keygen -q -t ed25519 -N '' -f "$k"; }
-                exec /usr/sbin/sshd -D -e -f /etc/kirocrew-sshd/sshd_config
+                while :; do
+                  if [ ! -x /usr/sbin/sshd ]; then echo "sshd not in image" >&2
+                  elif [ -f "$k" ] || { mkdir -p "${k%/*}" && ssh-keygen -q -t ed25519 -N '' -f "$k"; }; then
+                    /usr/sbin/sshd -D -e -f /etc/kirocrew-sshd/sshd_config
+                  fi
+                  sleep 30
+                done
             resources:
               requests:
                 cpu: 10m
