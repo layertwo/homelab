@@ -41,7 +41,7 @@ spec:
             fsGroupChangePolicy: OnRootMismatch
         containers:
           gateway:
-            image:
+            image: &image
               repository: ghcr.io/layertwo/kirocrew-opencode
               tag: 0.12.2@sha256:45956d20293336101d9f9d3e0a3292e51b2a54e22b77b88adc8a3c736a1f94e2
             env:
@@ -94,6 +94,46 @@ spec:
                 type: Localhost
                 localhostProfile: profiles/kirocrew-seccomp.json
 
+          # Remote Crew: sshd on the pod's loopback, published by the tunnel agent below.
+          sshd:
+            image: *image
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                k=/home/kirocrew/.sshd/host_ed25519
+                [ -f "$k" ] || { mkdir -p "${k%/*}" && ssh-keygen -q -t ed25519 -N '' -f "$k"; }
+                exec /usr/sbin/sshd -D -e -f /etc/kirocrew-sshd/sshd_config
+            resources:
+              requests:
+                cpu: 10m
+                memory: 16Mi
+              limits:
+                memory: 128Mi
+            securityContext: &sidecarSecurity
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: ["ALL"]
+              seccompProfile:
+                type: RuntimeDefault
+
+          # Loops instead of exiting so a missing machine key or dropped tunnel never unreadies the pod.
+          tunnel:
+            image: *image
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                until [ -f "$TUNNELS_CONFIG_DIR/machine-key.json" ]; do sleep 30; done
+                while :; do tunnel up 2222 --ssh; sleep 10; done
+            env:
+              TUNNELS_CONFIG_DIR: /home/kirocrew/.config/tunnels
+            resources:
+              requests:
+                cpu: 10m
+                memory: 32Mi
+              limits:
+                memory: 128Mi
+            securityContext: *sidecarSecurity
+
     service:
       main:
         enabled: true
@@ -117,3 +157,19 @@ spec:
         name: kirocrew-opencode-config
         globalMounts:
           - path: /config
+      sshd-config:
+        enabled: true
+        type: configMap
+        name: kirocrew-sshd-config
+        advancedMounts:
+          main:
+            sshd:
+              - path: /etc/kirocrew-sshd
+                readOnly: true
+      sshd-run:
+        enabled: true
+        type: emptyDir
+        advancedMounts:
+          main:
+            sshd:
+              - path: /run/sshd

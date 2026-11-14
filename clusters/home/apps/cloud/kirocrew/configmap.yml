@@ -13,3 +13,32 @@ data:
         "@dietrichgebert/ponytail"
       ]
     }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kirocrew-sshd-config
+  namespace: kirocrew
+data:
+  # Remote Crew needs a shell (token mint) and one local forward to the gateway, nothing else.
+  sshd_config: |
+    ListenAddress 127.0.0.1
+    Port 2222
+    HostKey /home/kirocrew/.sshd/host_ed25519
+    AuthorizedKeysFile /etc/kirocrew-sshd/authorized_keys
+    AllowUsers kirocrew
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+    UsePAM no
+    StrictModes no
+    PidFile /run/sshd/sshd.pid
+    AllowTcpForwarding local
+    PermitOpen 127.0.0.1:5476
+    AllowAgentForwarding no
+    X11Forwarding no
+    PermitTunnel no
+  # Public keys from https://github.com/layertwo.keys
+  authorized_keys: |
+    ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINsPU6iH34JhLdDaUY28wP2rNZ6vx1uXXTyi7K8xFXlY
+    ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLRh7UGaSdFHQnEy+9HdbEXeHjEiEhNfhJGl/b9Pu4460TU4vyjrR+a9lPqt/i4e2Wt6oKlXf1iGPtyfNjIw6Lg=
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKR03yFynBNDwV6KhvVpSg2QGzHUsFapjyHM22VxybIVLSiGv9FpQxlWHzbLS3mgDmcq0p9pxuNi9YlsXAHELf4dB2Y1uabTx7TyFxZV0BRvDG3/8nDgyVCm8lfzLnJQZqNeToXSlZynX+wRtr15mZHPwXnkmQNBSKrNdk6Pwj0ZnJ63oa7uIAiNDpTI4hJt9JAerTU0Bt96BQNqKLZ+utdxGdrpIm2oDfV+hPlzb51KRAilRvsGQom6ScKC0mQJ4ExJ1plU4rYPf8ane6lFIYtvysUTrI7i8pQX5nLkigMkli2JTWnFXL1L0aYgCpkWcnJ60KgfNk2QXl3GiVnEU/
