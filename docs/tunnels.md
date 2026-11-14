@@ -96,6 +96,21 @@ present a cookie. `--target HOST` publishes an sshd the machine reaches at anoth
 This route runs `forwardAuth` only: the OIDC plugin would answer a bearer client with an HTML login
 page rather than a decision. SSH is owner-only; sharing is not wired for it.
 
+### KiroCrew Remote Crew
+
+The `kirocrew` pod runs `sshd` on `127.0.0.1:2222` (keys and config in `kirocrew-sshd-config`) and
+a `tunnel` sidecar that publishes it as the machine `kirocrew`. The sidecar waits until the
+machine key exists on the PVC; create it once:
+
+```sh
+kubectl -n kirocrew exec -it deploy/kirocrew -c tunnel -- tunnel login
+kubectl -n kirocrew exec -it deploy/kirocrew -c tunnel -- tunnel machine create kirocrew
+kubectl -n kirocrew exec -it deploy/kirocrew -c tunnel -- tunnel logout
+```
+
+On the KiroCrew hub, add `User kirocrew` and an absolute `tunnel` path to the `*.layertwo.lan`
+block, then register a Remote Crew with host `kirocrew.layertwo.lan` and port `5476`.
+
 ## How it works
 
 | Piece | Path |
