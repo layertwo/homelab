@@ -9,6 +9,27 @@ spec:
   primaryUpdateStrategy: unsupervised
   primaryUpdateMethod: switchover
   imageName: ghcr.io/cloudnative-pg/postgresql:16.15
+  postgresql:
+    parameters:
+      max_slot_wal_keep_size: "512MB"
   storage:
     storageClass: sunbeam-nfs-csi
-    size: 1Gi
+    size: 4Gi
+  backup:
+    retentionPolicy: 30d
+    barmanObjectStore:
+      data:
+        compression: bzip2
+      wal:
+        compression: bzip2
+        maxParallel: 2
+      destinationPath: s3://layertwo-dev-cloudnativepg/
+      endpointURL: https://62eaebf5ed37822b342914fbdc45a08d.r2.cloudflarestorage.com
+      serverName: pocket-id
+      s3Credentials:
+        accessKeyId:
+          name: secrets-cloudnativepg-r2
+          key: ACCESS_KEY_ID
+        secretAccessKey:
+          name: secrets-cloudnativepg-r2
+          key: SECRET_ACCESS_KEY
