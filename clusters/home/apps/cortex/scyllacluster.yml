@@ -1,0 +1,28 @@
+---
+apiVersion: scylla.scylladb.com/v1
+kind: ScyllaCluster
+metadata:
+  name: cortex-db
+spec:
+  version: "2026.2.9"
+  datacenter:
+    name: dc1
+    racks:
+      - name: rack1
+        members: 3
+        storage:
+          capacity: 20Gi
+          storageClassName: local-path
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 4Gi
+  alternator:
+    # HTTP inside the cluster avoids a per-client CA bundle; Alternator still
+    # authenticates with the CQL role's salted_hash. writeIsolation=always is
+    # required because the API uses conditional (read-modify-write) updates.
+    insecureEnableHTTP: true
+    writeIsolation: always

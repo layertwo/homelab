@@ -10,6 +10,7 @@ The homelab includes:
 - Media management (Sonarr, Radarr, Jellyfin, qBittorrent, Bazarr, Prowlarr, Recyclarr)
 - Home automation (Home Assistant — runs on an external host, cluster only provides a thin passthrough)
 - Photo management (Immich)
+- Photo/video backup (Cortex — zero-knowledge, encrypted client-side)
 - Cloud storage (Garage S3, hosted as a TrueNAS app)
 - TAK server (CloudTAK)
 - Git hosting & CI/CD (Forgejo)
@@ -117,6 +118,7 @@ Backups are stored in Cloudflare R2 (S3-compatible storage) with dedicated bucke
 ### Photo Management
 
 - **Immich**: Self-hosted photo and video backup solution
+- **Cortex**: Zero-knowledge encrypted photo/video backup (ScyllaDB Alternator + Garage)
 
 ### Cloud Services
 

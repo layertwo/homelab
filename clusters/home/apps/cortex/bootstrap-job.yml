@@ -1,0 +1,36 @@
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cortex-bootstrap
+spec:
+  backoffLimit: 12
+  activeDeadlineSeconds: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bootstrap
+          image: ghcr.io/layertwo/cortex-api:latest
+          imagePullPolicy: Always
+          command: ["python", "/bootstrap/bootstrap.py"]
+          envFrom:
+            - configMapRef:
+                name: cortex-config
+            - secretRef:
+                name: cortex-secrets
+          volumeMounts:
+            - name: bootstrap
+              mountPath: /bootstrap
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+      volumes:
+        - name: bootstrap
+          configMap:
+            name: cortex-bootstrap

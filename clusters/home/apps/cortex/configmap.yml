@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cortex-config
+data:
+  # Pocket ID is the OIDC provider. Register a public client with
+  # redirect URI https://cortex.layertwo.dev/auth/callback and put its id here.
+  OIDC_ISSUER: https://idp.layertwo.dev
+  OIDC_CLIENT_ID: REPLACE_WITH_POCKET_ID_CLIENT_ID
+
+  # Garage validates the SigV4 region against its s3_region ("garage"); Alternator
+  # takes the region from the signature, so the same value works for both.
+  AWS_REGION: garage
+  # ScyllaDB Alternator (HTTP inside the cluster; authentication still on).
+  AWS_ENDPOINT_URL_DYNAMODB: http://cortex-db-client.cortex.svc:8000
+  AWS_ENDPOINT_URL_S3: https://s3.layertwo.dev
+
+  VAULTS_TABLE_NAME: cortex-data
+  ITEMS_TABLE_NAME: cortex-data
+  COLLECTIONS_TABLE_NAME: cortex-data
+  SHARES_TABLE_NAME: cortex-shares
+  FILES_BUCKET_NAME: cortex-files
+  LOG_LEVEL: INFO
