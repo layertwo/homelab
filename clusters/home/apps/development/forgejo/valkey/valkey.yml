@@ -9,7 +9,7 @@ spec:
   chart:
     spec:
       chart: valkey
-      version: 0.12.1
+      version: 1.0.0
       sourceRef:
         kind: HelmRepository
         name: valkey
@@ -25,7 +25,6 @@ spec:
   values:
     podAnnotations:
       reloader.stakater.com/auto: "true"
-    architecture: standalone
     auth:
       enabled: true
       usersExistingSecret: secrets-forgejo-valkey
@@ -36,13 +35,14 @@ spec:
         replication:
           permissions: "+psync +replconf +ping"
           passwordKey: replication-password
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClass: sunbeam-iscsi-csi
     replica:
       enabled: true
-      replicas: 1
+      replicas: 2
       replicationUser: replication
-      persistence:
-        size: 1Gi
-        storageClass: sunbeam-iscsi-csi
     topologySpreadConstraints:
       - maxSkew: 1
         topologyKey: kubernetes.io/hostname
