@@ -38,7 +38,7 @@ spec:
     persistence:
       enabled: true
       size: 1Gi
-      storageClass: sunbeam-iscsi-csi
+      storageClass: sunbeam-nfs-csi
     replica:
       enabled: true
       replicas: 2
