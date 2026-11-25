@@ -12,6 +12,7 @@ The homelab includes:
 - Photo management (Immich)
 - Cloud storage (Garage S3, hosted as a TrueNAS app)
 - TAK server (CloudTAK)
+- Mesh networking (Reticulum transport node + LXMF propagation node)
 - Git hosting & CI/CD (Forgejo)
 - Password management (Vaultwarden)
 - AI chat & agents (Ollama, KiroCrew)
