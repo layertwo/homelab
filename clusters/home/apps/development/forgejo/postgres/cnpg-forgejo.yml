@@ -10,11 +10,11 @@ spec:
   primaryUpdateMethod: switchover
   imageName: ghcr.io/cloudnative-pg/postgresql:16.15
   storage:
-    storageClass: sunbeam-iscsi-csi
+    storageClass: sunbeam-nfs-csi
     size: 256Gi
   walStorage:
-    storageClass: sunbeam-iscsi-csi
-    size: 10Gi
+    storageClass: sunbeam-nfs-csi
+    size: 20Gi
   affinity:
     enablePodAntiAffinity: true
     podAntiAffinityType: required
