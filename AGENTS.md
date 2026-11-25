@@ -96,7 +96,7 @@ clusters/home/apps/<namespace>/
 | `database/` | CloudNative PG, MongoDB, and ScyllaDB operators |
 | `development/forgejo/` | Forgejo (+ Postgres, Valkey, Actions runner with docker-in-docker) |
 | `home/` | Thin passthrough (Service + IngressRoute) to an external Home Assistant host |
-| `immich/` | Immich app (+ CUDA machine-learning), Postgres, Redis, VolSync |
+| `immich/` | Immich app (+ CUDA machine-learning), Postgres, Valkey, VolSync |
 | `kube-system/` | CoreDNS custom zone, democratic-csi, descheduler, Intel device plugin, kube-vip, node-feature-discovery, reloader, snapshot-controller, TrueNAS iSCSI CSP |
 | `mediabox/` | Sonarr, Radarr, Bazarr, Prowlarr, qBittorrent (Gluetun sidecar), Jellyfin (GPU), FlareSolverr, Recyclarr (+ per-app Postgres) |
 | `monitoring/` | Gatus (+ Postgres) and Goldilocks (VPA recommendations) |
@@ -169,9 +169,9 @@ Apps with multiple components (app + database + cache):
 ├── postgres/
 │   ├── cnpg-<app>.yml
 │   └── kustomization.yml
-└── redis/ (or valkey/)
+└── valkey/
     ├── release.yml
-    └── secrets-redis.sops.yml
+    └── secrets-valkey.sops.yml
 ```
 
 #### Simple Apps
