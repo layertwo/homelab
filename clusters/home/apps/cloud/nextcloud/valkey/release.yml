@@ -21,6 +21,8 @@ spec:
     strategy:
       name: RetryOnFailure
   values:
+    # No PVC: rolling keeps the cache up and avoids the Recreate/rollingUpdate SSA clash.
+    deploymentStrategy: RollingUpdate
     podAnnotations:
       reloader.stakater.com/auto: "true"
     auth:
