@@ -14,7 +14,7 @@ Democratic CSI is used to connect to a TrueNAS server for NFS storage. This prov
 
 #### Configuration
 
-- **TrueNAS Server**: sunbeam.layertwo.lan
+- **TrueNAS Server**: sunbeam.layertwo.dev
 - **Dataset Parent**: storage0/kubernetes/persistent-volume/nfs/volumes
 - **Snapshots Dataset Parent**: storage0/kubernetes/persistent-volume/nfs/snapshots
 - **Storage Class**: sunbeam-nfs-csi

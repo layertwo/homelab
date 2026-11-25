@@ -165,7 +165,7 @@ spec:
                 readOnly: true
       media:
         type: nfs
-        server: sunbeam.layertwo.lan
+        server: sunbeam.layertwo.dev
         path: /mnt/storage0/media
         advancedMounts:
           main:
