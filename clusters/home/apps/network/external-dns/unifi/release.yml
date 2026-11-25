@@ -75,4 +75,3 @@ spec:
       - crd
     domainFilters:
       - layertwo.dev
-      - layertwo.lan

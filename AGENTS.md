@@ -216,7 +216,7 @@ Single-component applications:
 
 - **Traefik**: internal + external ingress (`internal`/`external` IngressClasses)
 - **MetalLB**: IP pools `internal` (172.31.0.20–.29) and `external` (172.31.0.30–.39)
-- **ExternalDNS**: `external-dns-cloudflare` (public) and `external-dns-unifi` (internal `layertwo.dev` / `layertwo.lan`)
+- **ExternalDNS**: `external-dns-cloudflare` (public) and `external-dns-unifi` (internal `layertwo.dev`)
 - **Cloudflare**: DNS, R2 storage, and DDNS
 - **CoreDNS**: custom `layertwo.dev` zone (static node hosts + forward to 172.31.0.1)
 

@@ -89,7 +89,9 @@ Host *.layertwo.lan
 
 `tunnel ssh-config --alias-domain layertwo.lan` prints exactly that. The alias domain is your own
 convention for naming boxes; the server never learns it, because `dial` sends only the label before
-the first dot. Then `ssh <handle>-box1.layertwo.lan` — or `ssh <handle>.layertwo.lan` for the default
+the first dot. Nothing resolves it — `dial` parses the label and connects the tunnel — so
+`layertwo.lan` needs no DNS zone, and using it keeps the `*.layertwo.dev` names that do resolve out
+of this block. Then `ssh <handle>-box1.layertwo.lan` — or `ssh <handle>.layertwo.lan` for the default
 tunnel — reaches the published service, presenting a Pocket ID bearer token where a browser would
 present a cookie. `--target HOST` publishes an sshd the machine reaches at another bare host.
 

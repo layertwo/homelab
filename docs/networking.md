@@ -47,7 +47,7 @@ Traefik serves as the ingress controller with two separate instances:
 External DNS runs as two separate instances that manage DNS records based on Kubernetes services and ingresses:
 
 - **external-dns-cloudflare**: uses the `cloudflare` provider to write records in Cloudflare for the `layertwo.dev` domain
-- **external-dns-unifi**: uses a webhook provider to write records directly to the UniFi gateway for the `layertwo.dev` and `layertwo.lan` domains
+- **external-dns-unifi**: uses a webhook provider to write records directly to the UniFi gateway for the `layertwo.dev` domain
 
 Both instances watch for the `external-dns.alpha.kubernetes.io/hostname` annotation to determine the record name, but which instance actually creates the record is controlled by the `layertwo.dev/publish` annotation:
 

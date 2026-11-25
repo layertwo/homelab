@@ -44,14 +44,14 @@ The network is managed by:
   - Internal Traefik (172.31.0.20): For internal services
   - External Traefik (172.31.0.30): For external access with TLS configuration
 
-- **External DNS**: Two instances manage DNS automatically — `external-dns-cloudflare` publishes external-class records to Cloudflare, and `external-dns-unifi` publishes internal-class records (`layertwo.dev`, `layertwo.lan`) to the UniFi gateway
+- **External DNS**: Two instances manage DNS automatically — `external-dns-cloudflare` publishes external-class records to Cloudflare, and `external-dns-unifi` publishes internal-class records (`layertwo.dev`) to the UniFi gateway
 
 - **Cloudflare DDNS**: Custom container that updates Cloudflare DNS records with the current external IP
 
 ### Storage Architecture
 
 Storage is provided by:
-- **Democratic CSI**: Connects to a TrueNAS server (sunbeam.layertwo.lan) for NFS storage (`sunbeam-nfs-csi`, RWX capable)
+- **Democratic CSI**: Connects to a TrueNAS server (sunbeam.layertwo.dev) for NFS storage (`sunbeam-nfs-csi`, RWX capable)
 - **HPE CSI**: Connects to the same TrueNAS server over iSCSI for block storage (`sunbeam-iscsi-csi`, RWO)
 
 ### Backup Strategy
