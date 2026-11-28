@@ -11,7 +11,6 @@ data:
         api_key: !env_var SONARR_API_KEY
 
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         quality_definition:
           type: series
@@ -106,7 +105,6 @@ data:
               - 5d2317d99af813b6529c7ebf01c83533 # VDL
               - 77a7b25585c18af08f60b1547bb9b4fb # CC
               - 43b3cf48cb385cd3eac608ee6bca7f09 # UHD Streaming Boost
-              - d2d299244a92b8a52d4921ce3897a256 # UHD Streaming Cut
               # Allowed Scene groups and tiered P2P groups
               - d0c516558625b04b363fa6c5c2c7cfd4 # WEB Scene (allowed Scene groups)
               - e6258996055b9fbab7e9cb2f75819294 # WEB Tier 01
@@ -117,20 +115,8 @@ data:
               - eb3d5cc0a2be0db205fb823640db6a3c # Repack v2
               - 44e7c4de10ae50265753082e5dc76047 # Repack v3
               # HDR Metadata
-              - 2b239ed870daba8126a53bd5dc8dc1c8 # DV HDR10+
-              - 7878c33f1963fefb3d6c8657d46c2f0a # DV HDR10
-              - 6d0d8de7b57e35518ac0308b0ddf404e # DV
-              - 1f733af03141f068a540eec352589a89 # DV HLG
-              - 27954b0a80aab882522a88a4d9eae1cd # DV SDR
-              - a3d82cbef5039f8d295478d28a887159 # HDR10+
-              - 3497799d29a085e2ac2df9d468413c94 # HDR10
-              - 3e2c4e748b64a1a1118e0ea3f4cf6875 # HDR
-              - bb019e1cd00f304f80971c965de064dc # HDR (undefined)
-              - 2a7e3be05d3861d6df7171ec74cad727 # PQ
               - 17e889ce13117940092308f48b48b45b # HLG
               - 9b27ab6498ec0f31a3353992e19434ca # DV (WEBDL)
-              - 0dad0a507451acddd754fe6dc3a7f5e7 # HDR10+Boost
-              - 385e9e8581d33133c3961bdcdeffb7b4 # DV HDR10+Boost
               # Unwanted
               - 85c61753df5da1fb2aab6f2a47426b09 # BR-DISK
               - 9c11cd3f07101cdba90a2d81cf0e56b4 # LQ
@@ -143,7 +129,7 @@ data:
               - 06d66ab109d4d2eddb2794d21526d140 # Retags
               - 9c14d194486c4014d422adc64092d794 # Dubs Only
 
-            quality_profiles:
+            assign_scores_to:
               - name: WEB 1080p
               - name: Ultra-HD
               - name: Web 720p
@@ -154,7 +140,6 @@ data:
         api_key: !env_var RADARR_API_KEY
 
         delete_old_custom_formats: true
-        replace_existing_custom_formats: true
 
         quality_definition:
           type: movie
@@ -230,20 +215,8 @@ data:
               - 240770601cc226190c367ef59aba7463 # AAC
               - c2998bd0d90ed5621d8df281e839436e # DD
               # HDR Metadata
-              - c53085ddbd027d9624b320627748612f # DV HDR10+
-              - e23edd2482476e595fb990b12e7c609c # DV HDR10
-              - 58d6a88f13e2db7f5059c41047876f00 # DV
-              - 55d53828b9d81cbe20b02efd00aa0efd # DV HLG
-              - a3e19f8f627608af0211acd02bf89735 # DV SDR
-              - b974a6cd08c1066250f1f177d7aa1225 # HDR10+
-              - dfb86d5941bc9075d6af23b09c2aeecd # HDR10
-              - e61e28db95d22bedcadf030b8f156d96 # HDR
-              - 2a4d9069cc1fe3242ff9bdaebed239bb # HDR (undefined)
-              - 08d6d8834ad9ec87b1dc7ec8148e7a1f # PQ
               - 9364dd386c9b4a1100dde8264690add7 # HLG
               - 923b6abef9b17f937fab56cfcf89e1f1 # DV (WEBDL)
-              - b17886cb4158d9fea189859409975758 # HDR10+Boost
-              - 55a5b50cb416dea5a50c4955896217ab # DV HDR10+Boost
               # Streaming Services
               - b3b3a6ac74ecbd56bcdbefa4799fb9df # AMZN
               - 40e9380490e748672c2522eaaeb692f7 # ATVP
@@ -275,6 +248,6 @@ data:
               - 0a3f082873eb454bde444150b70253cc # Extras
               - 7357cf5161efbf8c4d5d0c30b4815ee2 # Obfuscated
 
-            quality_profiles:
+            assign_scores_to:
               - name: HD-1080p
               - name: Ultra-HD
