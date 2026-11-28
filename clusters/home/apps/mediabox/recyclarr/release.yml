@@ -18,30 +18,60 @@ spec:
   values:
     controllers:
       recyclarr:
-        type: cronjob
+        type: deployment
+        strategy: Recreate
         annotations:
           reloader.stakater.com/auto: "true"
-        cronjob:
-          schedule: "@daily"
         containers:
           app:
             image:
               repository: ghcr.io/recyclarr/recyclarr
-              tag: 8.8.1
-            args:
-              - sync
+              tag: 9.0.0
             env:
               TZ: Etc/UTC
               COMPlus_EnableDiagnostics: 0
+              RECYCLARR_STATE_DIR: /state
+              RECYCLARR_DATA_DIR: /data
             envFrom:
               - secretRef:
                   name: recyclarr-secret
+            probes:
+              startup:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /livez
+                    port: &mgmtPort 7983
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 36
+              liveness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /livez
+                    port: *mgmtPort
+                  periodSeconds: 30
+                  timeoutSeconds: 1
+                  failureThreshold: 3
+              readiness:
+                enabled: true
+                custom: true
+                spec:
+                  httpGet:
+                    path: /readyz
+                    port: *mgmtPort
+                  periodSeconds: 10
+                  timeoutSeconds: 1
+                  failureThreshold: 3
             resources:
               requests:
-                cpu: 5m
-                memory: 36M
+                cpu: 50m
+                memory: 256Mi
               limits:
-                memory: 128M
+                memory: 512Mi
             securityContext:
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
@@ -67,14 +97,14 @@ spec:
         globalMounts:
           - path: /tmp
       state:
-        type: emptyDir
+        enabled: true
+        storageClass: sunbeam-nfs-csi
+        accessMode: ReadWriteOnce
+        size: 1Gi
         globalMounts:
-          - path: /config/state
-      resources:
+          - path: /state
+      data:
         type: emptyDir
+        sizeLimit: 1Gi
         globalMounts:
-          - path: /config/resources
-      repos:
-        type: emptyDir
-        globalMounts:
-          - path: /config/repositories
+          - path: /data
